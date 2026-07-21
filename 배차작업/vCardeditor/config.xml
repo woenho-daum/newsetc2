@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Config>
+  <FormState>
+    <Columns />
+    <X>1334</X>
+    <Y>285</Y>
+    <Height>1154</Height>
+    <Width>1069</Width>
+    <splitterPosition>438</splitterPosition>
+  </FormState>
+  <Overwrite>false</Overwrite>
+  <Maximum>5</Maximum>
+  <VersionUrl>https://raw.githubusercontent.com/abdelkader/vCardEditor/master/vCardEditor/Releases.txt</VersionUrl>
+  <Paths>
+    <_innerList>
+      <string>C:\Users\user\newsetc2\배차작업\vCardeditor\연락처_2026-06-28.vcf</string>
+    </_innerList>
+    <Size>5</Size>
+  </Paths>
+</Config>

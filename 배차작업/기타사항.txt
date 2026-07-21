@@ -1,0 +1,323 @@
+연락처
+=======================
+본사: 02-803-0119 (민원처리 박성우 주임), / 02-803-0111 (조윤숙)
+광명: 02-2060-2079 (노선: 505/5633/6637/5627), 광명배차실: 010-2930-2079
+법원: 02-803-9287
+독산: 02-805-0176 (마을버스: 01/02)
+주차: 김용해(010-9896-6268), 양하국(010-8572-3777)
+배차: 차현철(010-9141-2699), 한원석(010-3915-4954), 진영만(010-7794-5141), 배차실(010-6806-1648)
+총무: 강정화(010-3721-3512), 오승환(010-7116-7735)
+노무: 윤진구(010-3701-6641)
+사고: 신우교(010-5359-3604), 사고관련 문의/접수 02-802-5122
+정비실: 010-3466-0117
+자재실: 02-803-0112
+회계팀전화번호: 02-803-0050 (버스비 계좌 알려달라면 평일에 이리 전화하라고하면 됨)
+단말기 고장: 080-208-2992 : 티머니 장애접수센타
+ (V2X 상황실 : 강서센터 010-5283-2634 : 조작기 내 신호등 표시관련은 V2X 상황실(통화가능시간 평일 09시~18시)로 문의하시면 됩니다.)
+백산지구대: 02-805-0112
+
+단말기 메시지
+========================
+⛔️배차정시성⛔️ 앞뒷차 간격준수 부탁드립니다.
+⛔️전체공지⛔️ 금일 07:00부터 세차합니다.
+⛔️전체공지⛔️ 금일 09:00부터 검차합니다.
+⛔️배차정시성⛔️ 뒷차(1563) 매우 뒤처졌습니다.
+서행 운전 부탁합니다.
+⛔️전체공지⛔️ 5617,5525노선
+ 출차시에 주차장입구 보행자 주의바랍니다.
+
+주소: 서울특별시 금천구 금하로 738 (시흥동)
+--------
+배차폰{
+	구글계정: ibeom169@gmail.com / bumil0724*
+	카톡암호: bumil0724*
+	삼성계정: 1648bumil#  *** 보안: 좋아하는 책: 범일, 삼성계정: 전화번호 로그인
+}
+
+차량운행대수 
+==================================== ----- 방학 ---------------
+5413: 26대	/ 토(22)		/ 일(18)		| 25	/ 토(22)		/ 일(17)
+5620: 20대	/ 토(17)		/ 일(15/16)	| 19	/ 토(17)		/ 일(15)
+5619: 12대	/ 토(9/10)	/ 일(8/9)	| 11	/ 토(9/10)	/ 일(8/9)
+5617:  8대	/ 토(7)		/ 일(7)		| 7		/ 토(7)		/ 일(7)
+5525:  6대	/ 토(5)		/ 일(4)		| 6		/ 토(5)		/ 일(4)
+5537: 5/6	/ 토(4/5)	/일(4/5)		| 5/6	/ 토(4/5)	/ 일(4/5)
+=================================================================
+예비차: 5413(1459),5620(1464),5619(1559),(1458)예비(1458은 노선 정해지지 않음)
+
+근무일지 인원수
+==============
+5413 26 / 27	( 52)( 44)( 36)
+5620 20 / 21	( 92)( 78)( 67)
+5619 12 / 13	(116)( 97)( 84)
+5617  8 /  8	(132)(111)( 98)
+5525  6 /  6	(144)(121)(106)
+5537  5 /  6	(155)(130)(115)
+N51   4 		(159)(134)(119)
+8551  2 		(161)
+총원: XXX: 전체근무자수(노선버스+심야+다람쥐)
+현재: YYY: 당일근무자수(노선버스+다람쥐+심야)
+사고: ZZ = {XXX-YYY}: 총원에서 현재를 뺀수 
+평(212/51/161)방학(216/63/153)
+토(212/78/134)방학(216//)
+일(212/93/119)방학(216//)
+필요한 기사수 계산 (연차 사용 없을 때 212명 필요함)
+{
+	평일: 161 X 5일 = 805, 토요일: 134, 일요일: 119 => 일주일 총 필요 근무수: 805 + 134 + 119 = 1058
+	필요 인원: 1058 / 5일 = 211.6명
+	기사 1명은 주 2회 휴무를 갖고 주 5일 근무하므로 총 필요 근무수를 5로 나눕니다.
+	-육아기,연차사용을 염두하면 더 많은 인원 필요함
+}
+
+음주측정 인원수(결원이 발생하는 이유로 상시변동)
+==============
+평(86/82){노선(77)+심야(4)+8551(2)+독산(3)}/{노선(78)+5621(1)+독산(3)} : 위탁 7
+토(71/70){노선(64)+심야(4)+독산(3)}/{노선(66)+5621(1)+독산(3)} : 위탁 7
+일(63/63){노선(56)+심야(4)+독산(3)}/{노선(59)+5621(1)+독산(3)} : 위탁 7
+평방학(82/78){노선(73)+심야(4)+8551(2)+독산(3)}/{노선(74)+5621(1)+독산(3)} : 위탁 7
+토방학()
+일방학()
+
+근무 시간
+==============
+새벽: 03:40~11:10 / 03:40~14:40 (새벽연장)
+주간: 10:30~18:00
+야간: 17:30~25:00 / 14:00~25:00 (야간연장)
+
+식사 시간
+===============
+05:00~08:30, 10:00~13:30, 15:00~19:30
+
+N51 시간표
+========================================
+ 순번	|	종점 출발	|  하계동 출발	|	종점 도착
+========================================
+  1	|	23:40	|	02:15	|	04:25
+  2	|	00:16	|	02:45	|	04:50
+  3	|	00:53	|	03:15	|	05:20
+  4	|	01:30	|	03:50	|	05:55
+========================================
+
+노선 단축
+==================
+5619 평일 오전{ 앞6대는 5탕, [뒤6대는 4탕]}, 토요일 오전{앞5대 5탕, [뒤4대 4탕]}
+5620 [오전 3탕], 오후 4탕
+5525 평일+토요일{[오전 5탕], 오후 6탕}, 일요일 오후{앞2대 6탕, [뒤2대 5탕]}
+5537 [오전 7탕], 오후 8탕
+
+
+서울 버스 종류별 요금 
+==========================
+(기본요금 기준)버스 종류	일반(성인)		청소년 (만13~18세)	어린이 (만6~12세)
+간선/지선버스(파랑·초록)	1,500원		900원			550원
+마을버스				1,200원		600원			400원
+심야버스(올빼미)			2,500원		1,600원			1,400원
+광역버스(빨강)			3,000원		1,700원			1,500원
+순환/차등버스 (노랑)		1,400원		800원			500원
+-----------------
+조조할인 (20% 할인): 새벽 오전 6시 30분 이전에 교통카드로 첫 승차를 하면 기본요금의 20%를 깎아줍니다.
+(일반 시내버스 기준 1,500원 ➔ 1,200원)
+
+
+ddns
+-----------------
+buemilap1.iptime.org / newsetc2@gmail.com
+admin/admin
+192.168.0.1  (공인IP:61.82.168.195)
+배차PC:{
+	물리적 주소 . . . . . . . . : 7C-57-58-41-57-D1
+	링크-로컬 IPv6 주소 . . . . : fe80::fa1:f7e:91bc:75aa%21(기본 설정) 
+	IPv4 주소 . . . . . . . . . : 192.168.0.102(기본 설정) 
+	------
+	Write-Host "외부 IP:" (Invoke-RestMethod "https://api.ipify.org"); $ip = Get-NetIPConfiguration | Where-Object {$_.IPv4Address -ne $null}
+	Write-Host "내부 IP:" $ip.IPv4Address.IPAddress
+	Write-Host "기본 게이트웨이:" $ip.IPv4DefaultGateway.NextHop
+	------
+	외부:121.140.85.187 , 내부:92.168.0.102, 20.20.3.11, 169.254.202.168, 169.254.186.119, GW:192.168.0.1
+}
+
+서울특별시버스운송사업조합:
+https://sbus.esafetykorea.or.kr/
+
+adb copy
+==================
+# 1. 안드로이드 내부에서 리스트를 파일로 저장
+.\adb.exe shell "rm -f /sdcard/list.log"
+.\adb.exe shell "ls -latr /sdcard/Recordings/Call > /sdcard/list.log"
+.\adb.exe pull /sdcard/list.log list.log
+
+.\adb.exe pull "/sdcard/Recordings/Call/통화 녹음 01056933120_260615_084126.m4a" "./01056933120_260615_084126.m4a"
+.\adb.exe pull "/sdcard/Recordings/Call/통화 녹음 01089222168_260504_083257.m4a" "./01089222168_260504_083257.m4a"
+
+mkdir ".\Call"; .\adb.exe pull "/sdcard/Recordings/Call" ".\Call"
+
+
+--download--
+.\adb.exe shell ls -latr /sdcard/Download
+.\adb.exe pull /sdcard/Download/연락처_004.vcf 연락처_004.vcf
+
+--- Camera 폴더의 사진 일괄 백업 ---
+{
+	find /sdcard/DCIM/Camera \
+	-type f \
+	! -newermt "2026-06-01" \
+	-exec mv {} /sdcard/DCIM/Camera_backup/ \;
+}
+--- Call 폴더의 음성 일괄 백업 ---
+{
+	find /sdcard/Recordings/Call \
+	-type f \
+	! -newermt "2026-06-01" \
+	-exec mv {} /sdcard/Recordings/Call_backup/ \;
+}
+
+
+notepad pluslus config
+========================
+Notepad++에서 스타일 설정(예: 테마, 사용자 정의 색상, 폰트 등)을 다른 컴퓨터로 옮기려면 설정 파일을 복사해야 합니다. 방법은 다음과 같습니다:
+### 📂 복사해야 할 주요 파일
+- **`stylers.xml`** : 사용자 정의 스타일(언어별 색상, 폰트 등)이 저장된 파일
+- **`config.xml`** : Notepad++의 일반 환경 설정
+- **`themes` 폴더** : 설치된 테마 파일들이 들어 있음
+### 📍 파일 위치
+기본적으로 Notepad++ 설정 파일은 다음 경로에 있습니다:
+- **Windows 10/11**:  
+	`C:\Users\<사용자이름>\AppData\Roaming\Notepad++\`
+여기서 `AppData` 폴더는 숨겨져 있으니, 탐색기에서 숨김 파일 표시를 켜야 보입니다.
+
+👉 만약 **포터블 버전** Notepad++을 사용한다면, 설정 파일은 프로그램 폴더 안에 저장되므로 해당 폴더 전체를 복사하면 됩니다.
+
+git,윈도우즈 자격증명(cridential manager)에 등록되어 있음
+-----------
+woenho@daum / sm**am**
+git clone --depth 1 https://github.com/woenho-daum/buemil.git
+
+vscode config
+========================
+C:\Users\user\AppData\Roaming\Code\User
+C:\Users\user\AppData\Roaming\Code\User\settings.json
+
+윈도우즈 계정암호없이 설정 바꾸기
+---------------
+1. Windows 키 + R → secpol.msc 입력 후 Enter (로컬 보안 정책 열기)
+2. 왼쪽에서 보안 설정 → 로컬 정책 → 보안 옵션 펼치기
+3. 오른쪽에서 아래 항목을 찾아 더블클릭:Accounts: Limit local account use of blank passwords to console logon only
+4. 설정을 사용 안 함 (Disabled)으로 바꾸고 확인 클릭
+
+scrcpy.exe 자동기동
+----------------------------
+1단계: 스마트폰 연결 이벤트 로그 확인하기 (최초 1회)
+	윈도우가 스마트폰 연결을 인식할 때 발생하는 고유한 ID를 찾아야 합니다.
+	스마트폰을 USB로 PC에 연결합니다.
+	윈도우 시작 버튼을 누르고 이벤트 뷰어(Event Viewer)를 검색해 실행합니다.
+	왼쪽 메뉴에서 응용 프로그램 및 서비스 로그 ➔ Microsoft ➔ Windows ➔ WPD-MTPClassDriver/Operational 순서로 이동합니다.
+	가운데 목록에서 스마트폰을 꽂은 시간대에 발생한 이벤트 ID {1000}을 찾습니다.
+	해당 이벤트를 마우스 우클릭한 뒤, '이 이벤트에 작업 연결...(Attach Task To This Event...)'을 클릭합니다.
+2단계: 자동 실행 작업 만들기
+	'이 이벤트에 작업 연결' 창이 뜨면 마법사 단계에 따라 설정을 진행합니다.
+	이름 지정: scrcpy 자동 실행 입력 후 [다음]
+	이벤트 로그 설정: 이미 채워져 있으므로 그대로 [다음]
+	동작(Action): '프로그램 시작(Start a program)' 선택 후 [다음]
+	프로그램/스크립트: 찾아보기 버튼을 눌러 PC에 있는 scrcpy.exe 파일을 선택합니다. option --keyboard=uhid
+	팁: scrcpy가 있는 폴더 경로에 공백이 있다면 전체 경로를 큰따옴표("")로 감싸주는 것이 좋습니다.
+	마치기: 설정이 완료되었습니다.
+	wscript.exe  "{$PATH}\scrcpy-noconsole.vbs"
+	scrcpy-noconsole.vbs에  -K --window-width=432 옵션 추가
+	{ 
+		프로그램/스크립트: wscript.exe 인수로 scrcpy-noconsole.vbs 시작패스는 "" 없이
+			프로그램/스크립트(P): wscript.exe
+			인수 추가(옵션)(A): "C:\scrcpy-win64-v3.3.4\scrcpy-noconsole.vbs"
+			시작 위치(옵션)(T): C:\scrcpy-win64-v3.3.4
+		[트리거] 탭: 등록된 이벤트를 선택하고 아래 [편집] 클릭 -> 고급 설정 항목에서 '작업 지연 시간' 체크 후 칸에 직접 1초
+		[설정] 탭: 맨 아래 '작업이 이미 실행 중인 경우 다음 규칙 적용'을 "기존 인스턴스 중지"로 변경
+	}
+
+시작앱에서 사용안함으로 설정한 목록 일괄 삭제
+----------------------------------
+0. powershell -Command "$paths = @('HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run', 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run'); foreach ($p in $paths) { if (Test-Path $p) { Get-ItemProperty -Path $p | Get-Member -MemberType NoteProperty | ForEach-Object { $name = $_.Name; $bytes = (Get-ItemProperty -Path $p).$name; if ($bytes -and $bytes[0] -ne 2) { Remove-ItemProperty -Path $p -Name $name -ErrorAction SilentlyContinue; $runPath = $p -replace 'Explorer\\StartupApproved\\', ''; Remove-ItemProperty -Path $runPath -Name $name -ErrorAction SilentlyContinue; Write-Host '[삭제 완료] ' $name -ForegroundColor Red } } } }"
+1. powershell 창의 스크립트
+	{
+		# 1. 관리자 권한 체크
+		if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+			Write-Warning "반드시 PowerShell을 '관리자 권한으로 실행'해야 합니다!"
+			Exit
+		}
+
+		# 2. 작업 관리자 시작 앱 수정 기준 경로 (사용자 및 시스템 전체)
+		$Paths = @(
+			"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+			"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",
+			"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
+			"HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+			"HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",
+			"HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
+		)
+
+		# 전통적인 Run 레지스트리 경로 매칭용
+		$ActualRunPaths = @{
+			"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run";
+			"HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run";
+			"HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32" = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run";
+			"HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32" = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
+		}
+
+		Write-Host "--- '사용 안 함' 상태의 시작 앱을 탐색 및 삭제합니다 ---" -ForegroundColor Cyan
+
+		foreach ($Path in $Paths) {
+			if (Test-Path $Path) {
+				$SubKeys = Get-ItemProperty -Path $Path
+				foreach ($Key in $SubKeys.psobject.Properties) {
+					# 기본 속성 제외
+					if ($Key.Name -in @("PSPath", "PSParentPath", "PSChildName", "PSDrive", "PSProvider")) { continue }
+					
+					$Value = $Key.Value
+					# 윈도우에서 '사용 안 함'으로 설정된 항목은 바이너리 데이터의 첫 번째 바이트가 02가 아닌 값(보통 03, 01 등)으로 시작합니다.
+					if ($Value -and $Value[0] -ne 2) {
+						Write-Host "따옴표 탐지: [$($Key.Name)] 항목이 '사용 안 함' 상태입니다. 삭제를 진행합니다." -ForegroundColor Yellow
+						
+						# 1. StartupApproved 제어 플래그 삭제
+						Remove-ItemProperty -Path $Path -Name $Key.Name -ErrorAction SilentlyContinue
+						
+						# 2. 실제 Run 레지스트리에 있는 원본 키도 삭제
+						if ($ActualRunPaths.ContainsKey($Path)) {
+							$ActualTarget = $ActualRunPaths[$Path]
+							if (Test-Path $ActualTarget) {
+								Remove-ItemProperty -Path $ActualTarget -Name $Key.Name -ErrorAction SilentlyContinue
+							}
+						}
+						
+						# 3. 만약 시작프로그램 폴더(StartupFolder) 항목이라면?
+						if ($Path -like "*StartupFolder*") {
+							# 공용 폴더 및 사용자 폴더에서 해당 바로가기(.lnk) 파일 삭제
+							$LnkPaths = @(
+								"$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\$($Key.Name)",
+								"$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\$($Key.Name)"
+							)
+							foreach ($Lnk in $LnkPaths) {
+								if (Test-Path $Lnk) { Remove-Item -Path $Lnk -Force }
+							}
+						}
+					}
+				}
+			}
+		}
+
+		# 3. UWP 앱(스토어 앱) 중 '사용 안 함' 된 항목 정리
+		$UwpPath = "HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemSettings\StateRepository\Families"
+		if (Test-Path $UwpPath) {
+			# UWP 앱의 경우 세부 구조가 복잡하여 사용자 설정 초기화 방식으로 유도하거나, 
+			# 위 스크립트 실행 후 컴퓨터를 재부팅하면 대부분의 목록이 갱신되어 사라집니다.
+		}
+
+		Write-Host "`n작업이 완료되었습니다. 변경 사항을 반영하려면 '작업 관리자'를 껐다 켜거나 컴퓨터를 재부팅하세요!" -ForegroundColor Green
+
+	}
+	
+2. 시작 폴더(Startup Folder) 내 바로가기 파일인 경우
+	앱이 레지스트리가 아닌 시작 프로그램 폴더에 들어있는 바로가기(.lnk) 파일 형태라면
+	아래 명령어로 해당 폴더들을 열어 비활성화된 앱의 바로가기 파일만 직접 삭제해주시면 됩니다.
+	{
+		Win + R 키를 눌러 실행 창을 엽니다.
+		shell:startup 입력 후 엔터 ➔ 사용되지 않는 파일 삭제
+		shell:common startup 입력 후 엔터 ➔ 사용되지 않는 파일 삭제 
+	}
