@@ -136,6 +136,44 @@ admin/admin
 	외부:121.140.85.187 , 내부:92.168.0.102, 20.20.3.11, 169.254.202.168, 169.254.186.119, GW:192.168.0.1
 }
 
+scrcpy 연결 배차폰 
+{
+ wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 3000
+    link/ether fe:cc:61:be:a7:e6 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.137.115/24 brd 192.168.137.255 scope global dynamic wlan0
+       valid_lft 604283sec preferred_lft 604283sec
+    inet6 fe80::fccc:61ff:febe:a7e6/64 scope link
+       valid_lft forever preferred_lft forever
+
+
+ .\adb.exe tcp 5555
+ .\adb.exe connect 192.168.137.115:5555
+ .\scrcpy.exe --tcp=192.168.137.115
+}
+scrcpy-tcp.vbs
+{
+	Dim WshShell, strCommand, targetIP, targetPort
+	Set WshShell = CreateObject("Wscript.Shell")
+
+	' 사용할 안드로이드 기기의 고정 IP와 ADB 포트
+	targetIP = "192.168.137.115"
+	targetPort = "5555"
+
+	' 1. adb connect 명령을 먼저 실행 (연결이 완료될 때까지 대기: true)
+	WshShell.Run "cmd /c adb connect " & targetIP & ":" & targetPort, 0, true
+
+	' 2. 기존 scrcpy 실행 명령어 조합
+	strCommand = "cmd /c scrcpy.exe -K --window-width=432"
+
+	For Each Arg In WScript.Arguments
+		strCommand = strCommand & " """ & replace(Arg, """", """""""""") & """"
+	Next
+
+	' 3. scrcpy 실행 (비동기 실행: false)
+	WshShell.Run strCommand, 0, false
+}
+
+
 서울특별시버스운송사업조합:
 https://sbus.esafetykorea.or.kr/
 
@@ -203,6 +241,8 @@ C:\Users\user\AppData\Roaming\Code\User\settings.json
 2. 왼쪽에서 보안 설정 → 로컬 정책 → 보안 옵션 펼치기
 3. 오른쪽에서 아래 항목을 찾아 더블클릭:Accounts: Limit local account use of blank passwords to console logon only
 4. 설정을 사용 안 함 (Disabled)으로 바꾸고 확인 클릭
+
+vba 보호암호: 1q**@W**
 
 scrcpy.exe 자동기동
 ----------------------------
