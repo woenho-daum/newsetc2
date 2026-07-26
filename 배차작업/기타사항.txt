@@ -146,9 +146,14 @@ scrcpy 연결 배차폰
        valid_lft forever preferred_lft forever
 
 
- .\adb.exe tcp 5555
- .\adb.exe connect 192.168.137.115:5555
- .\scrcpy.exe --tcp=192.168.137.115
+	.\adb.exe tcp 5555
+	.\adb.exe connect 192.168.137.115:5555
+	.\scrcpy.exe --tcp=192.168.137.115
+ 
+	.\adb.exe pair 192.168.137.115:<pairring port>
+	.\adb.exe connect 192.168.137.115:<debugging port>
+	.\adb.exe devices
+	.\scrcpy.exe -K --window-width=432
 }
 scrcpy-tcp.vbs
 {
