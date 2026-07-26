@@ -30,3 +30,39 @@ End Sub
 ' RGB(0, 255, 255)
 ' RGB(194, 194, 194)
 
+Sub ReplaceSpecificText1()
+
+    Dim cell As Range
+
+    For Each cell In ActiveSheet.UsedRange
+        If VarType(cell.Value) = vbString Then
+            cell.Value = Replace(cell.Value, "새벽" & vbLf & "주간", "새벽연장")
+        End If
+    Next cell
+
+End Sub
+
+Sub ReplaceSpecificText2()
+
+    Dim cell As Range
+
+    For Each cell In ActiveSheet.UsedRange
+        If VarType(cell.Value) = vbString Then
+            cell.Value = Replace(cell.Value, "주간" & vbLf & "야간", "야간연장")
+        End If
+    Next cell
+
+End Sub
+
+Sub 줄바꿈셀만변경()
+
+    Dim c As Range
+
+    For Each c In ActiveSheet.UsedRange
+        If InStr(c.Value, Chr(10)) > 0 Then
+            c.Value = Replace(c.Value, Chr(10), " ")
+        End If
+    Next c
+
+End Sub
+
