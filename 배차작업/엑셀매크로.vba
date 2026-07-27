@@ -60,7 +60,7 @@ Sub 줄바꿈셀만변경()
 
     For Each c In ActiveSheet.UsedRange
         If InStr(c.Value, Chr(10)) > 0 Then
-            c.Value = Replace(c.Value, Chr(10), " ")
+            c.Value = Replace(c.Value, Chr(10), "")
         End If
     Next c
 

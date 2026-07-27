@@ -152,6 +152,8 @@ scrcpy 연결 배차폰
  
 	.\adb.exe pair 192.168.137.115:<pairring port>
 	.\adb.exe connect 192.168.137.115:<debugging port>
+	.\adb.exe pair 192.168.137.115:33925
+	.\adb.exe connect 192.168.137.115:45461
 	.\adb.exe devices
 	.\scrcpy.exe -K --window-width=432
 }
