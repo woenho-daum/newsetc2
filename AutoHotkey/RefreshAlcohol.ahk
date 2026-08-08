@@ -1,6 +1,6 @@
 ﻿#Requires AutoHotkey v2.0
 
-^+NumpadEnter::
+^!NumpadEnter::
 {
     ; 현재 창(엑셀) 저장
     ExcelWin := WinExist("A")
