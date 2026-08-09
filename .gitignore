@@ -4,6 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 ~$*.*
+*.log
+WiresharkPortable64_4.6.7.paf.exe
+astx_setup.exe
 
 # User-specific files
 *.rsuser
