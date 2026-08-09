@@ -1,6 +1,16 @@
 ﻿#Requires AutoHotkey v2.0
-
 #SingleInstance Force
+
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+#Include %A_ScriptDir%\ahk2_lib-master\JSON.ahk
+#Include %A_ScriptDir%\ahk2_lib-master\Chrome.ahk
+
+^!F12::
+{
+    KeyHistory
+}
 
 ^!NumpadEnter::
 {
@@ -23,8 +33,6 @@
         WinActivate("ahk_id " ExcelWin)
     }
 }
-
-#Requires AutoHotkey v2.0
 
 ^!+NumpadEnter::
 {
@@ -70,6 +78,79 @@
     WinActivate("ahk_id " ExcelWin)
 }
 
+; Ctrl + Alt + Shift + F1
+; 모든 Chrome 종료
+^!+F2::
+{
+    ;ProcessClose("chrome.exe")
+    MsgBox Type(Chrome)
+}
+
+
+; Ctrl + Alt + Shift + F2
+; 크롬디버그포트 실행
+^!+F1::
+{
+    ; 혹시 남아있는 Chrome 종료
+    ProcessClose("chrome.exe")
+
+    ; 종료될 때까지 잠시 대기
+    Sleep 1000
+
+    Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir=C:\ChromeDebug'
+}
+
+RefreshBusRoute(RouteTitle)
+{
+    try
+    {
+        chrome := Chrome()
+
+        ; 제목에 RouteTitle이 포함된 탭 찾기
+        page := chrome.GetPageByTitle(RouteTitle, "contains")
+MsgBox "1"
+        if !page
+            throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
+
+        ; 탭 활성화(선택사항)
+        page.Activate()
+MsgBox "2"
+        ; 로딩 완료 대기
+        page.WaitForLoad()
+
+        ; 새로고침 버튼 클릭
+        page.Evaluate("
+        (
+            document.getElementById('busRouteRefresh').click();
+        )")
+MsgBox "3"
+        return true
+    }
+    catch Error as e
+    {
+        MsgBox
+        (
+            "Message : " e.Message
+            . "`n`nWhat : " e.What
+            . "`n`nLine : " e.Line
+            . "`n`nFile : " e.File
+            . "`n`nExtra : " e.Extra
+        )
+        return false
+    }
+}
+
+^!+F12::
+{
+
+    ExcelWin := WinExist("A")
+
+    RefreshBusRoute("5620")
+
+    if ExcelWin
+        WinActivate("ahk_id " ExcelWin)
+}
+
 ; 부팅(또는 스크립트 실행) 후 5초 뒤 핫스팟 ON
 SetTimer AutoHotspot, -5000
 
@@ -82,3 +163,4 @@ AutoHotspot()
     Run 'powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"',, "Hide"
 	;Run 'powershell.exe -WindowStyle Normal -NoExit -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"'
 }
+
