@@ -1,11 +1,10 @@
 ﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
 
-#Requires AutoHotkey v2.0
-#SingleInstance Force
-
-#Include %A_ScriptDir%\ahk2_lib-master\JSON.ahk
-#Include %A_ScriptDir%\ahk2_lib-master\Chrome.ahk
+;#Include %A_ScriptDir%\ahk2_lib-master\JSON.ahk
+;#Include %A_ScriptDir%\ahk2_lib-master\Chrome.ahk
+#Include .\ahk2_lib-master\JSON.ahk
+#Include .\ahk2_lib-master\Chrome.ahk
 
 ^!F12::
 {
@@ -78,16 +77,16 @@
     WinActivate("ahk_id " ExcelWin)
 }
 
-; Ctrl + Alt + Shift + F1
+; Ctrl + Alt + Shift + F2
 ; 모든 Chrome 종료
 ^!+F2::
 {
-    ;ProcessClose("chrome.exe")
-    MsgBox Type(Chrome)
+    ProcessClose("chrome.exe")
+    
 }
 
 
-; Ctrl + Alt + Shift + F2
+; Ctrl + Alt + Shift + F1
 ; 크롬디버그포트 실행
 ^!+F1::
 {
@@ -97,7 +96,7 @@
     ; 종료될 때까지 잠시 대기
     Sleep 1000
 
-    Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir=C:\ChromeDebug'
+    Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeDebug'
 }
 
 RefreshBusRoute(RouteTitle)
@@ -108,13 +107,11 @@ RefreshBusRoute(RouteTitle)
 
         ; 제목에 RouteTitle이 포함된 탭 찾기
         page := chrome.GetPageByTitle(RouteTitle, "contains")
-MsgBox "1"
         if !page
             throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
 
         ; 탭 활성화(선택사항)
         page.Activate()
-MsgBox "2"
         ; 로딩 완료 대기
         page.WaitForLoad()
 
@@ -123,7 +120,6 @@ MsgBox "2"
         (
             document.getElementById('busRouteRefresh').click();
         )")
-MsgBox "3"
         return true
     }
     catch Error as e
@@ -152,15 +148,15 @@ MsgBox "3"
 }
 
 ; 부팅(또는 스크립트 실행) 후 5초 뒤 핫스팟 ON
-SetTimer AutoHotspot, -5000
+;SetTimer AutoHotspot, -5000
 
 ; Ctrl + Alt + NumPad+ 로도 실행 가능
-^!NumpadAdd::AutoHotspot()
+;^!NumpadAdd::AutoHotspot()
 
-AutoHotspot()
-{
-	;MsgBox "단축키가 눌렸습니다."
-    Run 'powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"',, "Hide"
-	;Run 'powershell.exe -WindowStyle Normal -NoExit -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"'
-}
+;AutoHotspot()
+;{
+;	;MsgBox "단축키가 눌렸습니다."
+;    Run 'powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"',, "Hide"
+;	;Run 'powershell.exe -WindowStyle Normal -NoExit -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"'
+;}
 
