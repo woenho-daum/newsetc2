@@ -103,10 +103,10 @@ RefreshBusRoute(RouteTitle)
 {
     try
     {
-        chrome := Chrome()
+        objChrome := Chrome()
 
         ; 제목에 RouteTitle이 포함된 탭 찾기
-        page := chrome.GetPageByTitle(RouteTitle, "contains")
+        page := objChrome.GetPageByTitle(RouteTitle, "contains")
         if !page
             throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
 
@@ -142,6 +142,17 @@ RefreshBusRoute(RouteTitle)
     ExcelWin := WinExist("A")
 
     RefreshBusRoute("5620")
+
+    if ExcelWin
+        WinActivate("ahk_id " ExcelWin)
+}
+
+^!+F11::
+{
+
+    ExcelWin := WinExist("A")
+
+    RefreshBusRoute("5413")
 
     if ExcelWin
         WinActivate("ahk_id " ExcelWin)
