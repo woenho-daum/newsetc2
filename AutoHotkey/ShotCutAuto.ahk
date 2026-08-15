@@ -53,7 +53,7 @@ global DebugMsg := false
     }
 }
 
-^NumpadEnter::
+^!+NumpadEnter::
 {
     ; 현재 창(엑셀) 저장
     ExcelWin := WinExist("A")
@@ -100,6 +100,72 @@ global DebugMsg := false
 
     ; 엑셀 복귀
     WinActivate("ahk_id " ExcelWin)
+}
+
+CallJsFunction(page,funcName) {
+    js :=
+    (
+        Format("
+        (
+            function(){{
+                if (typeof {1} !== 'function')
+                    return '{1}:function-not-found';
+
+                {1}();
+                return '{1}:called';
+            }})();
+        ", funcName)
+    )
+
+    result := page.Evaluate(js)
+    return result
+}
+
+^NumpadEnter::
+{
+    ; 현재 창(엑셀) 저장
+    ExcelWin := WinExist("A")
+
+     try
+    {
+        objChrome := Chrome()
+
+        ; 제목에 RouteTitle이 포함된 탭 찾기
+        page := objChrome.GetPageByTitle("음주측정 데이터 관리 시스템", "contains")
+        if !page
+            throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
+
+        ; 탭 활성화(선택사항)
+        page.Activate()
+        ; 로딩 완료 대기
+        page.WaitForLoad()
+
+        ;---button 목록
+        ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
+
+        result := CallJsFunction(page, "goresult")
+
+        Log( "=== 음주측정갱신 ===`n" result["value"] )
+
+        return true
+    }
+    catch Error as e
+    {
+        Log(
+            "Message : " e.Message
+            . "`nWhat : " e.What
+            . "`nLine : " e.Line
+            . "`nFile : " e.File
+            . "`nExtra : " e.Extra
+            . "`n"
+        )
+
+        return false
+    }
+
+    ; 엑셀 복귀
+    if ExcelWin
+        WinActivate("ahk_id " ExcelWin)
 }
 
 ; Ctrl + Alt + Shift + F2
