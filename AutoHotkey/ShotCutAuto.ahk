@@ -6,6 +6,20 @@
 #Include .\ahk2_lib-master\JSON.ahk
 #Include .\ahk2_lib-master\Chrome.ahk
 
+global DebugMsg := false
+
+^!m::  ; Ctrl + Alt + M
+{
+    global DebugMsg
+
+    DebugMsg := !DebugMsg   ; true <-> false 전환
+
+    if DebugMsg
+        Log "디버그 모드 ON"
+    else
+        Log "디버그 모드 OFF"
+}
+
 ^!F12::
 {
     KeyHistory
@@ -122,10 +136,15 @@ IsDebugging() {
 }
 
 Log(msg) {
-    if IsDebugging()
-        OutputDebug(msg "`n")
-    else
-        MsgBox(msg)
+    
+    global DebugMsg
+
+    if DebugMsg{
+        if IsDebugging()
+            OutputDebug(msg "`n")
+        else
+            MsgBox(msg)
+    }
 }
 
 ; ---- 페이지(및 iframe)에 있는 버튼류 요소 id/value 나열 ----
