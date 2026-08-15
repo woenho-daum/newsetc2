@@ -8,7 +8,7 @@
 
 global DebugMsg := false
 
-^!m::  ; Ctrl + Alt + M
+^+m::  ; Ctrl + Alt + M
 {
     global DebugMsg
 
@@ -20,7 +20,7 @@ global DebugMsg := false
         Log "디버그 모드 OFF"
 }
 
-^!H::
+^+H::
 {
     KeyHistory
 }
