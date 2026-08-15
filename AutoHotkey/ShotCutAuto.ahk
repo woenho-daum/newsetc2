@@ -123,11 +123,11 @@ CallJsFunction(page,funcName) {
 
 ^NumpadEnter::
 {
-    ; 현재 창(엑셀) 저장
-    ExcelWin := WinExist("A")
-
      try
     {
+        ; 현재 창(엑셀) 저장
+        ;ExcelWin := WinExist("A")
+
         objChrome := Chrome()
 
         ; 제목에 RouteTitle이 포함된 탭 찾기
@@ -147,6 +147,15 @@ CallJsFunction(page,funcName) {
 
         Log( "=== 음주측정갱신 ===`n" result["value"] )
 
+        ; 엑셀 복귀
+        
+        SetTitleMatchMode "RegEx"
+
+        ExcelWin := WinExist(".*-[0123][0-9]음주\.xlsx?.*")
+
+        if ExcelWin
+            WinActivate("ahk_id " ExcelWin)
+
         return true
     }
     catch Error as e
@@ -163,9 +172,6 @@ CallJsFunction(page,funcName) {
         return false
     }
 
-    ; 엑셀 복귀
-    if ExcelWin
-        WinActivate("ahk_id " ExcelWin)
 }
 
 ; Ctrl + Alt + Shift + F2
