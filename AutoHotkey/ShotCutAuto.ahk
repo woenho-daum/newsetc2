@@ -292,7 +292,7 @@ ClickElementWhenReady(page, elementId, maxWaitMs := 8000, intervalMs := 200)
     }
 }
 
-RefreshBusRoute(RouteTitle)
+RefreshBusRoute(RouteTitle, bGridView:=false)
 {
     try
     {
@@ -325,21 +325,30 @@ RefreshBusRoute(RouteTitle)
         Log("busRouteRefresh 최종결과: " result "`n")
 
         ;openBusChartGrid - 표로보기
-        result := ClickElementWhenReady(page, "openBusChartGrid")
-        Log("openBusChartGrid 최종결과: " result "`n")
+        if bGridView {
+            result := ClickElementWhenReady(page, "openBusChartGrid")
+            Log("openBusChartGrid 최종결과: " result "`n")
 
-        ;clickResult := page.Evaluate("
-        ;(
-        ;    (function(){
-        ;        var el = document.getElementById('openBusChartGrid');
-        ;        if (!el) return 'no-element';
-        ;        ['mousedown','mouseup','click'].forEach(function(type){
-        ;            el.dispatchEvent(new MouseEvent(type, {bubbles:true, cancelable:true, view:window}));
-        ;        });
-        ;        return 'dispatched';
-        ;    })();
-        ;)")
-        ;Log("openBusChartGrid 최종결과: " clickResult["value"] "`n")
+            ;clickResult := page.Evaluate("
+            ;(
+            ;    (function(){
+            ;        var el = document.getElementById('openBusChartGrid');
+            ;        if (!el) return 'no-element';
+            ;        ['mousedown','mouseup','click'].forEach(function(type){
+            ;            el.dispatchEvent(new MouseEvent(type, {bubbles:true, cancelable:true, view:window}));
+            ;        });
+            ;        return 'dispatched';
+            ;    })();
+            ;)")
+            ;Log("openBusChartGrid 최종결과: " clickResult["value"] "`n")
+        }
+
+        SetTitleMatchMode "RegEx"
+
+        ExcelWin := WinExist(".*-[0123][0-9]_배차시간표\.xlsx?.*")
+
+        if ExcelWin
+            WinActivate("ahk_id " ExcelWin)
 
         return true
     }
@@ -360,26 +369,23 @@ RefreshBusRoute(RouteTitle)
 
 ^F12::
 {
-
-    ExcelWin := WinExist("A")
-
     RefreshBusRoute("5620")
-
-    if ExcelWin
-        WinActivate("ahk_id " ExcelWin)
 }
 
 ^F11::
 {
-
-    ExcelWin := WinExist("A")
-
     RefreshBusRoute("5413")
-
-    if ExcelWin
-        WinActivate("ahk_id " ExcelWin)
 }
 
+^!F12::
+{
+    RefreshBusRoute("5620",true)
+}
+
+^!F11::
+{
+    RefreshBusRoute("5413",true)
+}
 ; 부팅(또는 스크립트 실행) 후 5초 뒤 핫스팟 ON
 ;SetTimer AutoHotspot, -5000
 
