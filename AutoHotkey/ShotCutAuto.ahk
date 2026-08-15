@@ -20,7 +20,7 @@ global DebugMsg := false
         Log "디버그 모드 OFF"
 }
 
-^!F12::
+^!H::
 {
     KeyHistory
 }
@@ -53,7 +53,7 @@ global DebugMsg := false
     }
 }
 
-^!+NumpadEnter::
+^NumpadEnter::
 {
     ; 현재 창(엑셀) 저장
     ExcelWin := WinExist("A")
@@ -286,7 +286,7 @@ RefreshBusRoute(RouteTitle)
     }
 }
 
-^!+F12::
+^F12::
 {
 
     ExcelWin := WinExist("A")
@@ -297,7 +297,7 @@ RefreshBusRoute(RouteTitle)
         WinActivate("ahk_id " ExcelWin)
 }
 
-^!+F11::
+^F11::
 {
 
     ExcelWin := WinExist("A")
