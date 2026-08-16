@@ -102,6 +102,51 @@ global DebugMsg := false
     WinActivate("ahk_id " ExcelWin)
 }
 
+
+GetAlcoholTableCell(page, row, col) {
+    js := Format("
+    (
+        (function() {{
+            var table = document.getElementById('memberList');
+
+            if (!table)
+                return 'TABLE_NOT_FOUND';
+
+            var rows = table.querySelectorAll('tbody tr');
+
+            if (row < 1 || row > rows.length)
+                return 'ROW_OUT_OF_RANGE';
+
+            var cells = rows[row - 1].querySelectorAll('td');
+
+            if (col < 1 || col > cells.length)
+                return 'COL_OUT_OF_RANGE';
+
+            return cells[col - 1].innerText.trim();
+        }})()
+    )", row, col)
+
+    return page.Evaluate(js)
+}
+
+GetAlcoholTableRowCount(page) {
+    js := "document.querySelectorAll('#memberList tbody tr').length"
+    return page.Evaluate(js)["value"]
+}
+
+
+GetAlcoholTableColumnCount(page) {
+    js := "
+    (
+        (() => {
+            const row = document.querySelector('#memberList tbody tr');
+            return row ? row.cells.length : 0;
+        })();
+    )"
+
+    return page.Evaluate(js)["value"]
+}
+
 CallJsFunction(page,funcName) {
     js :=
     (
@@ -153,8 +198,24 @@ CallJsFunction(page,funcName) {
 
         ExcelWin := WinExist(".*-[0123][0-9]음주\.xlsx?.*")
 
-        if ExcelWin
+        if ExcelWin{
             WinActivate("ahk_id " ExcelWin)
+
+            page.WaitForLoad()
+            
+            Sleep 300
+
+            rowCount := GetAlcoholTableRowCount(page)
+            colCount := GetAlcoholTableColumnCount(page)
+
+            Log("Row = " rowCount)
+            Log("Column = " colCount)
+
+            ; Excel의 Cells(1, 7)과 비슷한 개념
+            driver := GetAlcoholTableCell(page, 1, 7)
+            Log("운전자 = " driver)
+
+        }
 
         return true
     }
@@ -211,12 +272,13 @@ Log(msg) {
     
     global DebugMsg
 
-    if DebugMsg{
-        if IsDebugging()
+    
+        if IsDebugging(){
             OutputDebug(msg "`n")
-        else
-            MsgBox(msg)
-    }
+        }else{
+            if DebugMsg
+                MsgBox(msg)
+        }
 }
 
 ; ---- 페이지(및 iframe)에 있는 버튼류 요소 id/value 나열 ----
