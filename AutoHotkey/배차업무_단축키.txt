@@ -1,0 +1,101 @@
+1. AHK 단축키
+    Ctrl+Shift+M :: 메시지 디버그 모드 On/Off
+    Ctrl+Shift+H :: 키보드 히트 히스토리
+    Ctrl+Alt+NumpadEnter :: 크롬 리프레쉬(순수 윈도우 이벤트)
+    Ctrl+Alt+Shift+NumpadEnter :: 음주측정 찾아서 리프레쉬(순수 윈도우 이벤트)
+    Ctrl+NumpadEnter :: 음주측정 리프레쉬 후에 엑셀(음주측정대장) 팝업 (CDP활용)
+    Ctrl+F12 :: 5620  리프레쉬 후 엑셀(배차시간표) 팝업 (CDP활용)
+    Ctrl+F11 :: 5413  리프레쉬 후 엑셀(배차시간표) 팝업 (CDP활용)
+    Ctrl+Shift+F12 :: 1.5620 리프레쉬 2.표로보기 토글 3.엑셀(배차시간표) 팝업 (CDP활용)
+    Ctrl+Shift+F11 :: 1.5413 리프레쉬 2.표로보기 토글 3.엑셀(배차시간표) 팝업 (CDP활용)
+    Ctrl+Alt+Shift+F2 :: 기동된 크롬 종료
+    Ctrl+Alt+Shift+F1 :: CDP활성화 한 크롬 시작
+    
+2. 배차엑셀 단축키
+    Ctrl+Alt+S :: 5분 단위로 자동저장
+    Ctrl+Alt+K :: 등록된 단축키 목록 보기 (배차시간표와 음주는 등록된 단축키가 다르다)
+    Ctrl+Alt+B :: 음주측정대장 초기화작업
+    Ctrl+Alt+E :: 배차시간표 초기화 작업
+    Ctrl+Alt+D :: scrcpy 도스창 호출
+    Ctrl+Alt+P :: 폰 무선연결 선택 작업
+    Ctrl+Alt+H :: 가로/세로 하이라이트 처리 호출 (사용주의 요함)
+    📌 배차시간표단축키
+    Ctrl+Alt + ↑ :: 1분 올림
+    Ctrl+Alt + ↓ :: 1분 내림   
+    Ctrl+Alt + → :: 셀 속성을 도착시각 처리 셀로 변환
+    Ctrl+Alt + ← :: 셀 속성을 도착시각 완료 셀로 변환   
+    Ctrl+Alt+Shift + ↑ :: 10분 올림
+    Ctrl+Alt+Shift + ↓ :: 10분 내림   
+    Ctrl+Alt+Shift + → :: 위 셀의 시간복사
+    Ctrl+Alt+Shift + ← :: 왼쪽 셀의 시간 +2시간으로 복사
+    Ctrl+Alt + PgDn :: 셀 속성을 출발시각 변경 셀로 변환   
+    Ctrl+Alt + PgUp :: 셀 속성을 출발시각 완료 셀로 변환   
+    Ctrl+Alt + Home :: 셀 속성에서 배경색을 초기화한다
+    Ctrl+Alt + R :: 배차시간표를 RDB화하고 기본오류검증 및 첫차/막차정보 수집
+    
+3. 기타: 엑셀에서 자주 쓰는 기본 단축키를 정리하면 다음과 같습니다.
+
+📌 기본 조작
+    단축키	    기능
+    Ctrl + N	새 통합 문서
+    Ctrl + O	파일 열기
+    Ctrl + S	저장
+    Ctrl + P	인쇄
+    Ctrl + W	통합 문서 닫기
+    Ctrl + Z	실행 취소
+    Ctrl + Y	다시 실행
+    Ctrl + C	복사
+    Ctrl + X	잘라내기
+    Ctrl + V	붙여넣기
+📌 셀 선택 / 이동
+    단축키	    기능
+    Ctrl + A	현재 데이터 영역 선택 / 전체 선택
+    Ctrl + 방향키	데이터 영역의 끝으로 이동
+    Shift + 방향키	셀 범위 선택
+    Ctrl + Shift + 방향키	데이터 영역 끝까지 선택
+    Home	행의 처음으로 이동
+    Ctrl + Home	A1로 이동
+    Ctrl + End	사용 영역의 마지막 셀로 이동
+    Page Up / Down	한 화면 위/아래 이동
+📌 셀 입력 / 편집
+    단축키	    기능
+    F2	셀 내용 편집
+    Enter	입력 후 아래 셀로 이동
+    Shift + Enter	입력 후 위 셀로 이동
+    Tab	입력 후 오른쪽 셀로 이동
+    Shift + Tab	입력 후 왼쪽 셀로 이동
+    Esc	입력 취소
+    Delete	셀 내용 삭제
+    Alt + Enter	셀 안에서 줄 바꿈
+📌 행 / 열
+    단축키	    기능
+    Ctrl + +	행/열/셀 삽입
+    Ctrl + -	행/열/셀 삭제
+    Ctrl + Space	열 전체 선택
+    Shift + Space	행 전체 선택
+    Ctrl + 9	행 숨기기
+    Ctrl + 0	열 숨기기
+📌 서식
+    단축키	    기능
+    Ctrl + 1	셀 서식 창
+    Ctrl + B	굵게
+    Ctrl + I	기울임
+    Ctrl + U	밑줄
+    Ctrl + 5	취소선
+    Ctrl + Shift + $	통화 형식
+    Ctrl + Shift + %	백분율
+    Ctrl + Shift + #	날짜 형식
+    Ctrl + Shift + @	시간 형식
+📌 엑셀에서 특히 유용한 것
+    단축키	    기능
+    Ctrl + F	찾기
+    Ctrl + H	찾아 바꾸기
+    Ctrl + ;	오늘 날짜 입력
+    Ctrl + Shift + ;	현재 시간 입력
+    Alt + =	자동 합계 SUM
+    Ctrl + D	위 셀의 내용을 아래로 채우기
+    Ctrl + R	왼쪽 셀의 내용을 오른쪽으로 채우기
+    Ctrl + E	빠른 채우기(Flash Fill)
+    Ctrl + T	표 만들기
+    F4	이전 작업 반복 / 수식에서 $ 참조 전환
+

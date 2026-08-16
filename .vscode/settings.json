@@ -8,6 +8,7 @@
         "listup",
         "mousedown",
         "mouseup",
-        "Numpad"
+        "Numpad",
+        "scrcpy"
     ]
 }
