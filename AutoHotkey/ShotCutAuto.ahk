@@ -348,7 +348,16 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         ExcelWin := WinExist(".*-[0123][0-9]_배차시간표\.xlsx?.*")
 
         if ExcelWin
+        {
             WinActivate("ahk_id " ExcelWin)
+            WinWaitActive("ahk_id " ExcelWin)
+
+            ; 실행 중인 Excel에 연결
+            xl := ComObjActive("Excel.Application")
+
+            ; 활성 통합문서의 첫 번째 시트 선택
+            xl.ActiveWorkbook.Worksheets(1).Activate()
+        }
 
         return true
     }
