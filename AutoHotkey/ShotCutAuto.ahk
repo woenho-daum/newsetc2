@@ -356,7 +356,9 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
             xl := ComObjActive("Excel.Application")
 
             ; 활성 통합문서의 첫 번째 시트 선택
-            xl.ActiveWorkbook.Worksheets(1).Activate()
+            ;xl.ActiveWorkbook.Worksheets(1).Activate()
+            xl.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
+            
         }
 
         return true
