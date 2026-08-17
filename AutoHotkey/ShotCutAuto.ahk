@@ -114,20 +114,23 @@ GetAlcoholTableCell(page, row, col) {
 
             var rows = table.querySelectorAll('tbody tr');
 
-            if (row < 1 || row > rows.length)
+            if ({1} < 1 || {1} > rows.length)
                 return 'ROW_OUT_OF_RANGE';
 
-            var cells = rows[row - 1].querySelectorAll('td');
+            var cells = rows[{1} - 1].querySelectorAll('td');
 
-            if (col < 1 || col > cells.length)
+            if ({2} < 1 || {2} > cells.length)
                 return 'COL_OUT_OF_RANGE';
 
-            return cells[col - 1].innerText.trim();
+            return cells[{2} - 1].innerText.trim();
         }})()
     )", row, col)
 
-    return page.Evaluate(js)
+    result := page.Evaluate(js)
+
+    return result["value"]
 }
+
 
 GetAlcoholTableRowCount(page) {
     js := "document.querySelectorAll('#memberList tbody tr').length"
@@ -214,6 +217,19 @@ CallJsFunction(page,funcName) {
             ; Excel의 Cells(1, 7)과 비슷한 개념
             driver := GetAlcoholTableCell(page, 1, 7)
             Log("운전자 = " driver)
+
+            xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+            xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
+
+            ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
+            foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+
+            if IsObject(foundCell) {
+                foundCell.Select()      ; 셀 선택
+                foundCell.Activate()    ; 액티브 셀로 지정 (커서 이동)
+            } else {
+                Log( "운전자 '" driver "'를 찾을 수 없습니다.")
+            }
 
         }
 
@@ -306,6 +322,40 @@ ListButtons(page)
         })();
     )")
     Log("=== 버튼 목록 ===`n" result["value"])
+}
+
+; ==========================
+; 여기, 완전히 바깥(전역 레벨)에 위치해야 함
+; ==========================
+GetExcelFromHwnd(hwnd)
+{
+    static OBJID_NATIVEOM := 0xFFFFFFF0
+    static IID_IDispatch  := "{00020400-0000-0000-C000-000000000046}"
+
+    childHwnd := 0
+    try childHwnd := ControlGetHwnd("EXCEL71", "ahk_id " hwnd)
+    if !childHwnd {
+        try childHwnd := ControlGetHwnd("EXCEL7", "ahk_id " hwnd)
+    }
+    if !childHwnd
+        return ""
+
+    CLSID := Buffer(16)
+    if DllCall("ole32\CLSIDFromString", "WStr", IID_IDispatch, "Ptr", CLSID) < 0
+        return ""
+
+    pDisp := 0
+    hr := DllCall("oleacc\AccessibleObjectFromWindow"
+        , "Ptr", childHwnd
+        , "UInt", OBJID_NATIVEOM
+        , "Ptr", CLSID
+        , "Ptr*", &pDisp)
+
+    if (hr != 0) || !pDisp
+        return ""
+
+    window := ComValue(9, pDisp)
+    return window.Application
 }
 
 ; ---- 요소가 활성화될 때까지 기다렸다가 클릭하는 공통 함수 ----
@@ -415,11 +465,18 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
             WinWaitActive("ahk_id " ExcelWin)
 
             ; 실행 중인 Excel에 연결
-            xl := ComObjActive("Excel.Application")
+            ;xl := ComObjActive("Excel.Application")
 
-            ; 활성 통합문서의 첫 번째 시트 선택
-            ;xl.ActiveWorkbook.Worksheets(1).Activate()
-            xl.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
+            xl := GetExcelFromHwnd(ExcelWin)
+
+            if IsObject(xl) {
+                xl.ActiveWorkbook.Windows(1).Activate()
+                ;xl.ActiveWorkbook.Worksheets(1).Activate()
+                xl.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
+            } else {
+                Log("해당 창의 Excel 객체를 가져오지 못했습니다.")
+            }
+            
             
         }
 
@@ -439,6 +496,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         return false
     }
 }
+
 
 ^F12::
 {
