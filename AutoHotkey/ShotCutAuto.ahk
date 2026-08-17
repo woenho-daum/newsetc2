@@ -8,6 +8,8 @@
 
 global DebugMsg := false
 
+^r::Reload
+
 ^+m::  ; Ctrl + Shift + M
 {
     global DebugMsg
@@ -228,9 +230,108 @@ CallJsFunction(page,funcName) {
                 foundCell.Select()      ; 셀 선택
                 foundCell.Activate()    ; 액티브 셀로 지정 (커서 이동)
             } else {
-                Log( "운전자 '" driver "'를 찾을 수 없습니다.")
+                MsgBox( "운전자 '" driver "'를 찾을 수 없습니다.")
             }
 
+        }
+
+        return true
+    }
+    catch Error as e
+    {
+        Log(
+            "Message : " e.Message
+            . "`nWhat : " e.What
+            . "`nLine : " e.Line
+            . "`nFile : " e.File
+            . "`nExtra : " e.Extra
+            . "`n"
+        )
+
+        return false
+    }
+
+}
+
+^+NumpadEnter::
+{
+     try
+    {
+        ; 현재 창(엑셀) 저장
+        ;ExcelWin := WinExist("A")
+
+        objChrome := Chrome()
+
+        ; 제목에 RouteTitle이 포함된 탭 찾기
+        page := objChrome.GetPageByTitle("음주측정 데이터 관리 시스템", "contains")
+        if !page
+            throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
+
+        ; 탭 활성화(선택사항)
+        page.Activate()
+        ; 로딩 완료 대기
+        page.WaitForLoad()
+
+        ;---button 목록
+        ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
+
+        ;result := CallJsFunction(page, "goresult")
+        ;Log( "=== 음주측정갱신 ===`n" result["value"] )
+
+        ; 엑셀 복귀
+        
+        SetTitleMatchMode "RegEx"
+
+        ExcelWin := WinExist(".*-[0123][0-9]음주\.xlsx?.*")
+
+        if ExcelWin{
+            WinActivate("ahk_id " ExcelWin)
+
+            page.WaitForLoad()
+            
+            Sleep 300
+
+            rowCount := GetAlcoholTableRowCount(page)
+            colCount := GetAlcoholTableColumnCount(page)
+
+            Log("Row = " rowCount ", rowCount 타입 = " Type(rowCount))
+            Log("Column = " colCount)
+
+            xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+            xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
+
+            Loop rowCount
+            {
+                row := A_Index
+                driver := GetAlcoholTableCell(page, row, 7)
+                
+                ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
+                foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+                if IsObject(foundCell) {
+                    ; G열인지 확인
+                    if foundCell.Column = 7
+                    {
+                        ; G열에서 왼쪽으로 3칸 → D열
+                        value := foundCell.Offset(0, -3).Value
+
+                        Log("운전자 = " driver ", 찾은 셀 = " foundCell.Address ", 왼쪽 3번째 값 = " value)
+
+                        if value = "본사"
+                        {
+                            foundCell.Interior.Color := 0xFFFFCC
+                            foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
+                            foundCell.Offset(0, 1).Interior.Color := 0xFFFFCC
+                        }
+                    }
+                    else
+                    {
+                        Log("운전자 '" driver "'는 G열이 아닙니다.")
+                        Log("찾은 셀 = " foundCell.Address)
+                    }
+                } else {
+                    Log( "운전자 '" driver "'를 찾을 수 없습니다.")
+                }
+            }
         }
 
         return true
