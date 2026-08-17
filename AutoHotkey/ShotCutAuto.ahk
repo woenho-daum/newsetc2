@@ -185,6 +185,9 @@ CallJsFunction(page,funcName) {
         if !page
             throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
 
+        ; 현재 활성화된 Chrome 창의 HWND
+        page.Call("Page.bringToFront")
+        WinActivate "ahk_exe chrome.exe"
         ; 탭 활성화(선택사항)
         page.Activate()
         ; 로딩 완료 대기
@@ -267,6 +270,9 @@ CallJsFunction(page,funcName) {
         if !page
             throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
 
+        ; 현재 활성화된 Chrome 창의 HWND
+        page.Call("Page.bringToFront")
+        WinActivate "ahk_exe chrome.exe"
         ; 탭 활성화(선택사항)
         page.Activate()
         ; 로딩 완료 대기
@@ -320,7 +326,7 @@ CallJsFunction(page,funcName) {
                         {
                             foundCell.Interior.Color := 0xFFFFCC
                             foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
-                            foundCell.Offset(0, 1).Interior.Color := 0xFFFFCC
+                            foundCell.Offset(0, 1).Interior.Color := 0XFFCC99 ;0xFFFFCC 
                         }
                     }
                     else
@@ -516,6 +522,9 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         if !page
             throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
 
+        ; 현재 활성화된 Chrome 창의 HWND
+        page.Call("Page.bringToFront")
+        WinActivate "ahk_exe chrome.exe"
         ; 탭 활성화(선택사항)
         page.Activate()
         ; 로딩 완료 대기
