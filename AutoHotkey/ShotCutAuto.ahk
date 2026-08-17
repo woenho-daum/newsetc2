@@ -8,7 +8,7 @@
 
 global DebugMsg := false
 
-^+m::  ; Ctrl + Alt + M
+^+m::  ; Ctrl + Shift + M
 {
     global DebugMsg
 
@@ -20,12 +20,12 @@ global DebugMsg := false
         Log "디버그 모드 OFF"
 }
 
-^+H::
+^+H::  ; Ctrl + Shift + H
 {
     KeyHistory
 }
 
-^!NumpadEnter::
+^!NumpadEnter::  ; Ctrl + Alt + NumpadEnter
 {
     ; 현재 창(엑셀) 저장
     ExcelWin := WinExist("A")
@@ -53,7 +53,7 @@ global DebugMsg := false
     }
 }
 
-^!+NumpadEnter::
+^!+NumpadEnter::  ; Ctrl + Alt + Shift + NumpadEnter
 {
     ; 현재 창(엑셀) 저장
     ExcelWin := WinExist("A")
@@ -361,7 +361,7 @@ GetExcelFromHwnd(hwnd)
 ; ---- 요소가 활성화될 때까지 기다렸다가 클릭하는 공통 함수 ----
 ; page      : Chrome.ahk의 page 객체
 ; elementId : 클릭할 요소의 id
-; timeoutLoop : 최대 대기 반복 횟수 (기본 20회, 300ms 간격 = 최대 6초)
+; timeoutLoop : 최대 대기 반복 횟수 (기본 20회, 200ms 간격 = 최대 4초)
 ; ---- 요소가 존재할 때까지 기다리는 함수 (존재 여부만 체크) ----
 ; ---- 존재확인 + 클릭을 "한 번의 Evaluate 호출"로 처리 (핵심) ----
 CheckAndClickElement(page, elementId)
@@ -385,7 +385,7 @@ CheckAndClickElement(page, elementId)
 }
 
 ; ---- 재시도까지 포함한 최종 함수 ----
-ClickElementWhenReady(page, elementId, maxWaitMs := 8000, intervalMs := 200)
+ClickElementWhenReady(page, elementId, maxWaitMs := 4000, intervalMs := 200)
 {
     elapsed := 0
     Loop {
