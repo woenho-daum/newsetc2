@@ -270,6 +270,25 @@ CenterMsgBox() {
     }
 }
 
+ShowCenteredMsg(targetWin, text, title := "알림") {
+    WinGetPos(&tx, &ty, &tw, &th, "ahk_id " targetWin)
+
+    myGui := Gui("+AlwaysOnTop", title)
+    myGui.SetFont("s10")
+    myGui.Add("Text", "w250", text)
+    myGui.Add("Button", "w80 Default", "확인").OnEvent("Click", (*) => myGui.Destroy())
+
+    ; 일단 화면 밖(임시위치)에 표시해서 실제 크기를 얻어냄
+    myGui.Show("Hide")
+    myGui.GetPos(, , &gw, &gh)
+
+    ; 대상 창(엑셀) 중앙 좌표 계산
+    newX := tx + (tw - gw) / 2
+    newY := ty + (th - gh) / 2
+
+    myGui.Show("x" newX " y" newY)
+}
+
 ^+NumpadEnter::
 {
      try
@@ -359,12 +378,12 @@ CenterMsgBox() {
                 WinActivate("ahk_id " ExcelWin)
                 WinWaitActive("ahk_id " ExcelWin)
 
+                global ex, ey, ew, eh, msgTitle
+                ; 엑셀 창의 위치/크기 가져오기
+                WinGetPos(&ex, &ey, &ew, &eh, "ahk_id " ExcelWin)
+
                 if(1)
                 {
-                    global ex, ey, ew, eh, msgTitle
-                    ; 엑셀 창의 위치/크기 가져오기
-                    WinGetPos(&ex, &ey, &ew, &eh, "ahk_id " ExcelWin)
-
                     msgTitle := "알림"  ; MsgBox 제목 (구분용)
 
                     ; MsgBox가 뜨는 걸 감지해서 중앙으로 이동시키는 타이머 시작
@@ -372,6 +391,8 @@ CenterMsgBox() {
 
                     MsgBox("음주측정 미확인자 " nAlcoholCnt "명", msgTitle)
 
+                }else if(1){
+                    ShowCenteredMsg(ExcelWin, "음주측정 미확인자 " nAlcoholCnt "명")
                 }else if(0){
                     text := "음주측정 미확인자 " nAlcoholCnt "명"
         
