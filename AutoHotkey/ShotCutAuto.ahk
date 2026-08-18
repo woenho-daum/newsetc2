@@ -336,43 +336,61 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
             Log("Row = " rowCount ", rowCount 타입 = " Type(rowCount))
             Log("Column = " colCount)
 
-            xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
-            xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
+            try{
+                xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+                xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
 
-            nAlcoholCnt := 0
-            Loop rowCount
-            {
-                row := A_Index
-                driver := GetAlcoholTableCell(page, row, 7)
-                
-                ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
-                foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
-                if IsObject(foundCell) {
-                    ; G열인지 확인
-                    if foundCell.Column = 7
-                    {
-                        ; G열에서 왼쪽으로 3칸 → D열
-                        value := foundCell.Offset(0, -3).Value
+                ; 만약 AHK가 마우스/키보드로 직접 엑셀 창을 조작(클릭, 타이핑 등)하는 방식이라면 이 방법은 소용없다.. ㅠㅠ
+                xlApp.Interactive := false      ; 사용자 입력(마우스/키보드) 비활성화
+                xlApp.ScreenUpdating := false   ; 화면 업데이트 끄기
+                xlApp.EnableEvents := false     ; (선택) 매크로/이벤트 발생 억제
+                xlApp.Calculation := -4135      ; (선택) xlCalculationManual, 수식 자동계산도 끄기
 
-                        Log("운전자 = " driver ", 찾은 셀 = " foundCell.Address ", 왼쪽 3번째 값 = " value)
-
-                        if value = "본사"
+                nAlcoholCnt := 0
+                Loop rowCount
+                {
+                    row := A_Index
+                    driver := GetAlcoholTableCell(page, row, 7)
+                    
+                    ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
+                    ; LookIn=xlValues, LookAt=xlWhole, SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
+                    foundCell := xlSheet.Cells.Find(driver, , -4163, 1, 1, 1, false)
+                    if IsObject(foundCell) {
+                        ; G열인지 확인
+                        if foundCell.Column = 7
                         {
-                            nAlcoholCnt++
-                            foundCell.Interior.Color := 0xFFFFCC
-                            foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
-                            foundCell.Offset(0, 1).Interior.Color := 0XFFCC99 ;0xFFFFCC 
+                            ; G열에서 왼쪽으로 3칸 → D열
+                            value := foundCell.Offset(0, -3).Value
+
+                            Log("운전자 = " driver ", 찾은 셀 = " foundCell.Address ", 왼쪽 3번째 값 = " value)
+
+                            if value = "본사"
+                            {
+                                nAlcoholCnt++
+                                foundCell.Interior.Color := 0xFFFFCC
+                                foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
+                                foundCell.Offset(0, 1).Interior.Color := 0XFFCC99 ;0xFFFFCC 
+                            }
                         }
+                        else
+                        {
+                            Log("운전자 '" driver "'는 G열이 아닙니다.")
+                            Log("찾은 셀 = " foundCell.Address)
+                        }
+                    } else {
+                        Log( "운전자 '" driver "'를 찾을 수 없습니다.")
                     }
-                    else
-                    {
-                        Log("운전자 '" driver "'는 G열이 아닙니다.")
-                        Log("찾은 셀 = " foundCell.Address)
-                    }
-                } else {
-                    Log( "운전자 '" driver "'를 찾을 수 없습니다.")
                 }
+
+            } catch as e {
+                Log("에러 발생: " e.Message)
+            } finally {
+                xlApp.Calculation := -4105      ; (껐다면)xlCalculationAutomatic
+                xlApp.EnableEvents := true      ; (껐다면)매크로/이벤트 발생 활성화
+                xlApp.ScreenUpdating := true    ; 화면 업데이트 켜기
+                xlApp.Interactive := true       ; 사용자 입력(마우스/키보드) 다시 활성화
             }
+
             ;if(nAlcoholCnt)
             {
                 WinActivate("ahk_id " ExcelWin)
@@ -384,7 +402,7 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
 
                 if(1)
                 {
-                    msgTitle := "알림"  ; MsgBox 제목 (구분용)
+                    msgTitle := "음주측정 확인"  ; MsgBox 제목 (구분용)
 
                     ; MsgBox가 뜨는 걸 감지해서 중앙으로 이동시키는 타이머 시작
                     SetTimer(CenterMsgBox, 20)
@@ -468,12 +486,12 @@ Log(msg) {
     global DebugMsg
 
     
-        if IsDebugging(){
-            OutputDebug(msg "`n")
-        }else{
-            if DebugMsg
-                MsgBox(msg)
-        }
+    if IsDebugging(){
+        OutputDebug(msg "`n")
+    }else{
+        if DebugMsg
+            MsgBox(msg)
+    }
 }
 
 ; ---- 페이지(및 iframe)에 있는 버튼류 요소 id/value 나열 ----
