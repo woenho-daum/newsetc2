@@ -643,11 +643,24 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 
 ^Numpad1::
 {
-	windows := ""
-	for window in ComObject("Shell.Application").Windows
-	{
-		windows .= window.LocationName " :: " window.LocationURL "`n"
-		Log( window.LocationName " :: " window.LocationURL)
+	if 1 {
+		data := []
+		for window in ComObject("Shell.Application").Windows
+		{
+			data.Push( [window.LocationName, window.LocationURL])
+		}
+		for row in data
+		{
+			Log( "Name: " row[1] ", URL: " row[2])
+		}
 	}
-	;Log windows
+	else{
+		windows := ""
+		for window in ComObject("Shell.Application").Windows
+		{
+			windows .= window.LocationName " :: " window.LocationURL "`n"
+		}
+		Log windows
+	}
+	
 }
