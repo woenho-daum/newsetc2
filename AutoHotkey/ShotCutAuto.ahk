@@ -640,3 +640,14 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 ;	;Run 'powershell.exe -WindowStyle Normal -NoExit -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"'
 ;}
 
+
+^Numpad1::
+{
+	windows := ""
+	for window in ComObject("Shell.Application").Windows
+	{
+		windows .= window.LocationName " :: " window.LocationURL "`n"
+		Log( window.LocationName " :: " window.LocationURL)
+	}
+	;Log windows
+}
