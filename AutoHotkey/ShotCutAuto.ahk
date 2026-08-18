@@ -306,6 +306,7 @@ CallJsFunction(page,funcName) {
             xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
             xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
 
+            nAlcoholCnt := 0
             Loop rowCount
             {
                 row := A_Index
@@ -324,6 +325,7 @@ CallJsFunction(page,funcName) {
 
                         if value = "본사"
                         {
+                            nAlcoholCnt++
                             foundCell.Interior.Color := 0xFFFFCC
                             foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
                             foundCell.Offset(0, 1).Interior.Color := 0XFFCC99 ;0xFFFFCC 
@@ -337,6 +339,10 @@ CallJsFunction(page,funcName) {
                 } else {
                     Log( "운전자 '" driver "'를 찾을 수 없습니다.")
                 }
+            }
+            ;if(nAlcoholCnt)
+            {
+                MsgBox ("음주측정 미확인자 " nAlcoholCnt "명")
             }
         }
 
@@ -683,3 +689,4 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 	}
 	
 }
+
