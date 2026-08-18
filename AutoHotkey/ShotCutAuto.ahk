@@ -653,7 +653,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 		{
 			Log( "1, Name: " row[1] ", URL: " row[2])
 		}
-	} else if 1 {
+	} else if 0 {
 		data := Map()
 		for window in ComObject("Shell.Application").Windows
 		{
@@ -662,6 +662,16 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 		for name, url in data
 		{
 			Log( "2, Name: " name ", URL: " url)
+		}
+	} else if 1 {
+		data := Map()
+		for window in ComObject("Shell.Application").Windows
+		{
+			data[window.LocationName] := [window.LocationURL, FileGetSize(window.FullName)]
+		}
+		for name, info in data
+		{
+			Log( "3, Name: " name ", URL: " info[1] ", Size: " info[2])
 		}
 	} else{
 		windows := ""
