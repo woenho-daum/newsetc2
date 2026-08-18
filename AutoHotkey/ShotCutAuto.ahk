@@ -256,6 +256,20 @@ CallJsFunction(page,funcName) {
 
 }
 
+global ex:=0, ey:=0, ew:=0, eh:=0, msgTitle:="알림"
+
+CenterMsgBox() {
+    global ex, ey, ew, eh, msgTitle
+    msgId := WinExist(msgTitle)
+    if msgId {
+        WinGetPos(&mx, &my, &mw, &mh, "ahk_id " msgId)
+        newX := ex + (ew - mw) / 2
+        newY := ey + (eh - mh) / 2
+        WinMove(newX, newY, , , "ahk_id " msgId)
+        SetTimer(, 0)  ; 이동 완료 후 타이머 종료
+    }
+}
+
 ^+NumpadEnter::
 {
      try
@@ -342,7 +356,38 @@ CallJsFunction(page,funcName) {
             }
             ;if(nAlcoholCnt)
             {
-                MsgBox ("음주측정 미확인자 " nAlcoholCnt "명")
+                WinActivate("ahk_id " ExcelWin)
+                WinWaitActive("ahk_id " ExcelWin)
+
+                if(1)
+                {
+                    global ex, ey, ew, eh, msgTitle
+                    ; 엑셀 창의 위치/크기 가져오기
+                    WinGetPos(&ex, &ey, &ew, &eh, "ahk_id " ExcelWin)
+
+                    msgTitle := "알림"  ; MsgBox 제목 (구분용)
+
+                    ; MsgBox가 뜨는 걸 감지해서 중앙으로 이동시키는 타이머 시작
+                    SetTimer(CenterMsgBox, 20)
+
+                    MsgBox("음주측정 미확인자 " nAlcoholCnt "명", msgTitle)
+
+                }else if(0){
+                    text := "음주측정 미확인자 " nAlcoholCnt "명"
+        
+                    DllCall("MessageBox",
+                        "Ptr", ExcelWin,
+                        "Str", text,
+                        "Str", "알림",
+                        "UInt", 0x40)   ; MB_ICONINFORMATION
+                }else if(0){
+                    MsgBox ("음주측정 미확인자 " nAlcoholCnt "명")
+                }else{
+                    myGui := Gui("+Owner" ExcelWin, "알림")
+                    myGui.AddText(, "음주측정 미확인자 " nAlcoholCnt "명")
+                    myGui.AddButton("Default", "확인").OnEvent("Click", (*) => myGui.Destroy())
+                    myGui.Show()
+                }
             }
         }
 
