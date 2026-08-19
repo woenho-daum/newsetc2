@@ -167,7 +167,7 @@
 		if !xlApp
     		throw Error("'음주측정대장' 엑셀창에서 엑셀핸들을 찾을 수 없습니다.")
 
-		if (IsDebugging()){
+		if (DebugMsg && IsDebugging()){
 			try xlApp2 := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
 			hwnd1 := xlApp ? xlApp.Hwnd : "없음"
 			hwnd2 := xlApp2 ? xlApp2.Hwnd : "없음"
