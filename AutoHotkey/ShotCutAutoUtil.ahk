@@ -7,6 +7,29 @@
 #Include .\ahk2_lib-master\Chrome.ahk
 
 global DebugMsg := false
+global ex:=0, ey:=0, ew:=0, eh:=0, msgTitle:="알림"
+
+;----- 시작하면 디버그코드인지 확인하자---
+DllCall("GetCommandLine", "str")
+
+IsDebugging() {
+    static result := ""
+    if (result = "")
+        result := InStr(DllCall("GetCommandLine", "str"), "/Debug=") ? true : false
+    return result
+}
+
+Log(msg) {
+    
+    global DebugMsg
+
+    if IsDebugging(){
+        OutputDebug(msg "`n")
+    }else{
+        if DebugMsg
+            MsgBox(msg)
+    }
+}
 
 GetAlcoholTableCell(page, row, col) {
     js := Format("
@@ -114,8 +137,6 @@ FindChromeWindowByTitle(searchText) {
     return 0
 }
 
-global ex:=0, ey:=0, ew:=0, eh:=0, msgTitle:="알림"
-
 CenterMsgBox() {
     global ex, ey, ew, eh, msgTitle
     msgId := WinExist(msgTitle)
@@ -147,29 +168,6 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
     myGui.Show("x" newX " y" newY)
 }
 
-;----- 시작하면 디버그코드인지 확인하자---
-DllCall("GetCommandLine", "str")
-
-IsDebugging() {
-    static result := ""
-    if (result = "")
-        result := InStr(DllCall("GetCommandLine", "str"), "/Debug=") ? true : false
-    return result
-}
-
-Log(msg) {
-    
-    global DebugMsg
-
-    
-    if IsDebugging(){
-        OutputDebug(msg "`n")
-    }else{
-        if DebugMsg
-            MsgBox(msg)
-    }
-}
-
 ; ---- 페이지(및 iframe)에 있는 버튼류 요소 id/value 나열 ----
 ListButtons(page)
 {
@@ -195,40 +193,6 @@ ListButtons(page)
         })();
     )")
     Log("=== 버튼 목록 ===`n" result["value"])
-}
-
-; ==========================
-; 여기, 완전히 바깥(전역 레벨)에 위치해야 함
-; ==========================
-GetExcelFromHwnd(hwnd)
-{
-    static OBJID_NATIVEOM := 0xFFFFFFF0
-    static IID_IDispatch  := "{00020400-0000-0000-C000-000000000046}"
-
-    childHwnd := 0
-    try childHwnd := ControlGetHwnd("EXCEL71", "ahk_id " hwnd)
-    if !childHwnd {
-        try childHwnd := ControlGetHwnd("EXCEL7", "ahk_id " hwnd)
-    }
-    if !childHwnd
-        return ""
-
-    CLSID := Buffer(16)
-    if DllCall("ole32\CLSIDFromString", "WStr", IID_IDispatch, "Ptr", CLSID) < 0
-        return ""
-
-    pDisp := 0
-    hr := DllCall("oleacc\AccessibleObjectFromWindow"
-        , "Ptr", childHwnd
-        , "UInt", OBJID_NATIVEOM
-        , "Ptr", CLSID
-        , "Ptr*", &pDisp)
-
-    if (hr != 0) || !pDisp
-        return ""
-
-    window := ComValue(9, pDisp)
-    return window.Application
 }
 
 ; ---- 요소가 활성화될 때까지 기다렸다가 클릭하는 공통 함수 ----
@@ -299,7 +263,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         ; listup button
         ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
 
-        ; 새로고침 버튼 클릭
+        ; 새로고침 버튼 클릭을 직접해보기
         ;result := page.Evaluate("
         ;(
         ;    (function(){
@@ -309,6 +273,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         ;)")
         ;Log("직접확인: " result["value"])
 
+		; 새로고침 버튼 클릭을 공통함수 사용하기
         result := ClickElementWhenReady(page, "busRouteRefresh")
         Log("busRouteRefresh 최종결과: " result "`n")
 
@@ -317,6 +282,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
             result := ClickElementWhenReady(page, "openBusChartGrid")
             Log("openBusChartGrid 최종결과: " result "`n")
 
+			; 표보기 버튼 클릭을 직접해보기
             ;clickResult := page.Evaluate("
             ;(
             ;    (function(){
@@ -342,18 +308,15 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 
             ; 실행 중인 Excel에 연결
             ;xl := ComObjActive("Excel.Application")
+			xlApp := GetXlAppFromHwnd(ExcelWin)
 
-            xl := GetExcelFromHwnd(ExcelWin)
-
-            if IsObject(xl) {
-                xl.ActiveWorkbook.Windows(1).Activate()
+            if IsObject(xlApp) {
+                xlApp.ActiveWorkbook.Windows(1).Activate()
                 ;xl.ActiveWorkbook.Worksheets(1).Activate()
-                xl.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
+                xlApp.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
             } else {
-                Log("해당 창의 Excel 객체를 가져오지 못했습니다.")
+				throw Error("해당 창의 Excel 객체를 가져오지 못했습니다.")
             }
-            
-            
         }
 
         return true

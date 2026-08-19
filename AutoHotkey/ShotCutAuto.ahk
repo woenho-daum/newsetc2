@@ -7,8 +7,6 @@
 ;#Include .\ahk2_lib-master\Chrome.ahk
 #Include .\ShotCutAutoUtil.ahk
 
-global DebugMsg := false
-
 ^r::Reload
 
 ^+m::  ; Ctrl + Shift + M
