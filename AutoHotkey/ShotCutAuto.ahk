@@ -3,8 +3,9 @@
 
 ;#Include %A_ScriptDir%\ahk2_lib-master\JSON.ahk
 ;#Include %A_ScriptDir%\ahk2_lib-master\Chrome.ahk
-#Include .\ahk2_lib-master\JSON.ahk
-#Include .\ahk2_lib-master\Chrome.ahk
+;#Include .\ahk2_lib-master\JSON.ahk
+;#Include .\ahk2_lib-master\Chrome.ahk
+#Include .\ShotCutAutoUtil.ahk
 
 global DebugMsg := false
 
@@ -104,73 +105,6 @@ global DebugMsg := false
     WinActivate("ahk_id " ExcelWin)
 }
 
-
-GetAlcoholTableCell(page, row, col) {
-    js := Format("
-    (
-        (function() {{
-            var table = document.getElementById('memberList');
-
-            if (!table)
-                return 'TABLE_NOT_FOUND';
-
-            var rows = table.querySelectorAll('tbody tr');
-
-            if ({1} < 1 || {1} > rows.length)
-                return 'ROW_OUT_OF_RANGE';
-
-            var cells = rows[{1} - 1].querySelectorAll('td');
-
-            if ({2} < 1 || {2} > cells.length)
-                return 'COL_OUT_OF_RANGE';
-
-            return cells[{2} - 1].innerText.trim();
-        }})()
-    )", row, col)
-
-    result := page.Evaluate(js)
-
-    return result["value"]
-}
-
-
-GetAlcoholTableRowCount(page) {
-    js := "document.querySelectorAll('#memberList tbody tr').length"
-    return page.Evaluate(js)["value"]
-}
-
-
-GetAlcoholTableColumnCount(page) {
-    js := "
-    (
-        (() => {
-            const row = document.querySelector('#memberList tbody tr');
-            return row ? row.cells.length : 0;
-        })();
-    )"
-
-    return page.Evaluate(js)["value"]
-}
-
-CallJsFunction(page,funcName) {
-    js :=
-    (
-        Format("
-        (
-            function(){{
-                if (typeof {1} !== 'function')
-                    return '{1}:function-not-found';
-
-                {1}();
-                return '{1}:called';
-            }})();
-        ", funcName)
-    )
-
-    result := page.Evaluate(js)
-    return result
-}
-
 ^NumpadEnter::
 {
      try
@@ -185,13 +119,20 @@ CallJsFunction(page,funcName) {
         if !page
             throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
 
-        ; 현재 활성화된 Chrome 창의 HWND
-        page.Call("Page.bringToFront")
-        WinActivate "ahk_exe chrome.exe"
-        ; 탭 활성화(선택사항)
-        page.Activate()
-        ; 로딩 완료 대기
-        page.WaitForLoad()
+		; 1. CDP 레벨에서 탭을 해당 창의 최상단으로 (창 내부 탭 전환)
+		page.Call("Page.bringToFront")
+		page.Activate()
+		page.WaitForLoad()
+
+		; 2. 실제 OS 창을 찾아서 최상위로 올리기
+		targetHwnd := FindChromeWindowByTitle("음주측정 데이터 관리 시스템")
+		if targetHwnd {
+			WinActivate("ahk_id " targetHwnd)
+			WinWaitActive("ahk_id " targetHwnd,, 2)
+		} else {
+			; 폴백: 그냥 아무 chrome 창이라도 활성화
+			WinActivate("ahk_exe chrome.exe")
+		}
 
         ;---button 목록
         ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
@@ -204,7 +145,7 @@ CallJsFunction(page,funcName) {
         
         SetTitleMatchMode "RegEx"
 
-        ExcelWin := WinExist(".*-[0123][0-9]음주\.xlsx?.*")
+        ExcelWin := WinExist(".*-[0123][0-9]음주.*\.xlsx?.*")
 
         if ExcelWin{
             WinActivate("ahk_id " ExcelWin)
@@ -223,11 +164,27 @@ CallJsFunction(page,funcName) {
             driver := GetAlcoholTableCell(page, 1, 7)
             Log("운전자 = " driver)
 
-            xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+			xlApp := GetXlAppFromHwnd(ExcelWin)
+			if (IsDebugging()){
+	            try xlApp2 := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+				hwnd1 := xlApp ? xlApp.Hwnd : "없음"
+				hwnd2 := xlApp2 ? xlApp2.Hwnd : "없음"
+
+				name1 := xlApp ? xlApp.ActiveWorkbook.Name : "없음"
+				name2 := xlApp2 ? xlApp2.ActiveWorkbook.Name : "없음"
+
+				sameInstance := (xlApp && xlApp2 && hwnd1 = hwnd2) ? "동일" : "다름"
+
+				Log("excel instance 비교, "
+					. "xlApp(Hwnd=" hwnd1 ", Name=" name1 ") / "
+					. "xlApp2(Hwnd=" hwnd2 ", Name=" name2 ") -> " sameInstance)
+			}
             xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
 
             ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
-            foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+            ;foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+            ; LookIn=xlValues, LookAt=xlWhole, SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
+            foundCell := xlSheet.Cells.Find(driver, , -4163, 1, 1, 1, false)
 
             if IsObject(foundCell) {
                 foundCell.Select()      ; 셀 선택
@@ -256,39 +213,6 @@ CallJsFunction(page,funcName) {
 
 }
 
-global ex:=0, ey:=0, ew:=0, eh:=0, msgTitle:="알림"
-
-CenterMsgBox() {
-    global ex, ey, ew, eh, msgTitle
-    msgId := WinExist(msgTitle)
-    if msgId {
-        WinGetPos(&mx, &my, &mw, &mh, "ahk_id " msgId)
-        newX := ex + (ew - mw) / 2
-        newY := ey + (eh - mh) / 2
-        WinMove(newX, newY, , , "ahk_id " msgId)
-        SetTimer(, 0)  ; 이동 완료 후 타이머 종료
-    }
-}
-
-ShowCenteredMsg(targetWin, text, title := "알림") {
-    WinGetPos(&tx, &ty, &tw, &th, "ahk_id " targetWin)
-
-    myGui := Gui("+AlwaysOnTop", title)
-    myGui.SetFont("s10")
-    myGui.Add("Text", "w250", text)
-    myGui.Add("Button", "w80 Default", "확인").OnEvent("Click", (*) => myGui.Destroy())
-
-    ; 일단 화면 밖(임시위치)에 표시해서 실제 크기를 얻어냄
-    myGui.Show("Hide")
-    myGui.GetPos(, , &gw, &gh)
-
-    ; 대상 창(엑셀) 중앙 좌표 계산
-    newX := tx + (tw - gw) / 2
-    newY := ty + (th - gh) / 2
-
-    myGui.Show("x" newX " y" newY)
-}
-
 ^+NumpadEnter::
 {
      try
@@ -303,14 +227,20 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
         if !page
             throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
 
-        ; 현재 활성화된 Chrome 창의 HWND
-        page.Call("Page.bringToFront")
-        WinActivate "ahk_exe chrome.exe"
-        ; 탭 활성화(선택사항)
-        page.Activate()
-        ; 로딩 완료 대기
-        page.WaitForLoad()
+		; 1. CDP 레벨에서 탭을 해당 창의 최상단으로 (창 내부 탭 전환)
+		page.Call("Page.bringToFront")
+		page.Activate()
+		page.WaitForLoad()
 
+		; 2. 실제 OS 창을 찾아서 최상위로 올리기
+		targetHwnd := FindChromeWindowByTitle("음주측정 데이터 관리 시스템")
+		if targetHwnd {
+			WinActivate("ahk_id " targetHwnd)
+			WinWaitActive("ahk_id " targetHwnd,, 2)
+		} else {
+			; 폴백: 그냥 아무 chrome 창이라도 활성화
+			WinActivate("ahk_exe chrome.exe")
+		}
         ;---button 목록
         ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
 
@@ -321,7 +251,7 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
         
         SetTitleMatchMode "RegEx"
 
-        ExcelWin := WinExist(".*-[0123][0-9]음주\.xlsx?.*")
+        ExcelWin := WinExist(".*-[0123][0-9]음주.*\.xlsx?.*")
 
         if ExcelWin{
             WinActivate("ahk_id " ExcelWin)
@@ -337,7 +267,8 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
             Log("Column = " colCount)
 
             try{
-                xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+                ;xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
+				xlApp := GetXlAppFromHwnd(ExcelWin)
                 xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
 
                 ; 만약 AHK가 마우스/키보드로 직접 엑셀 창을 조작(클릭, 타이핑 등)하는 방식이라면 이 방법은 소용없다.. ㅠㅠ
@@ -352,9 +283,11 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
                     row := A_Index
                     driver := GetAlcoholTableCell(page, row, 7)
                     
-                    ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
-                    ; LookIn=xlValues, LookAt=xlWhole, SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
-                    foundCell := xlSheet.Cells.Find(driver, , -4163, 1, 1, 1, false)
+					; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
+					;foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+					; LookIn=xlValues, LookAt=xlWhole, SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
+					foundCell := xlSheet.Cells.Find(driver, , -4163, 1, 1, 1, false)
+				
                     if IsObject(foundCell) {
                         ; G열인지 확인
                         if foundCell.Column = 7
@@ -375,7 +308,7 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
                         else
                         {
                             Log("운전자 '" driver "'는 G열이 아닙니다.")
-                            Log("찾은 셀 = " foundCell.Address)
+                            Log("찾은 셀 = " foundCell.Address ",column = " foundCell.column)
                         }
                     } else {
                         Log( "운전자 '" driver "'를 찾을 수 없습니다.")
@@ -470,234 +403,6 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
     Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeDebug'
 }
 
-
-;----- 시작하면 디버그코드인지 확인하자---
-DllCall("GetCommandLine", "str")
-
-IsDebugging() {
-    static result := ""
-    if (result = "")
-        result := InStr(DllCall("GetCommandLine", "str"), "/Debug=") ? true : false
-    return result
-}
-
-Log(msg) {
-    
-    global DebugMsg
-
-    
-    if IsDebugging(){
-        OutputDebug(msg "`n")
-    }else{
-        if DebugMsg
-            MsgBox(msg)
-    }
-}
-
-; ---- 페이지(및 iframe)에 있는 버튼류 요소 id/value 나열 ----
-ListButtons(page)
-{
-    result := page.Evaluate("
-    (
-        (function(){
-            function collect(doc, label){
-                var out = [];
-                var nodes = doc.querySelectorAll('input[type=button], button, [id]');
-                nodes.forEach(function(el){
-                    if (el.id) out.push(label + ' id=' + el.id + ' value=' + (el.value || el.textContent || '').substring(0,20));
-                });
-                return out;
-            }
-            var lines = collect(document, 'top');
-            var frames = document.querySelectorAll('iframe');
-            frames.forEach(function(f, i){
-                try {
-                    lines = lines.concat(collect(f.contentDocument, 'iframe' + i));
-                } catch(e) { lines.push('iframe' + i + ' 접근불가: ' + e.message); }
-            });
-            return lines.join('\n');
-        })();
-    )")
-    Log("=== 버튼 목록 ===`n" result["value"])
-}
-
-; ==========================
-; 여기, 완전히 바깥(전역 레벨)에 위치해야 함
-; ==========================
-GetExcelFromHwnd(hwnd)
-{
-    static OBJID_NATIVEOM := 0xFFFFFFF0
-    static IID_IDispatch  := "{00020400-0000-0000-C000-000000000046}"
-
-    childHwnd := 0
-    try childHwnd := ControlGetHwnd("EXCEL71", "ahk_id " hwnd)
-    if !childHwnd {
-        try childHwnd := ControlGetHwnd("EXCEL7", "ahk_id " hwnd)
-    }
-    if !childHwnd
-        return ""
-
-    CLSID := Buffer(16)
-    if DllCall("ole32\CLSIDFromString", "WStr", IID_IDispatch, "Ptr", CLSID) < 0
-        return ""
-
-    pDisp := 0
-    hr := DllCall("oleacc\AccessibleObjectFromWindow"
-        , "Ptr", childHwnd
-        , "UInt", OBJID_NATIVEOM
-        , "Ptr", CLSID
-        , "Ptr*", &pDisp)
-
-    if (hr != 0) || !pDisp
-        return ""
-
-    window := ComValue(9, pDisp)
-    return window.Application
-}
-
-; ---- 요소가 활성화될 때까지 기다렸다가 클릭하는 공통 함수 ----
-; page      : Chrome.ahk의 page 객체
-; elementId : 클릭할 요소의 id
-; timeoutLoop : 최대 대기 반복 횟수 (기본 20회, 200ms 간격 = 최대 4초)
-; ---- 요소가 존재할 때까지 기다리는 함수 (존재 여부만 체크) ----
-; ---- 존재확인 + 클릭을 "한 번의 Evaluate 호출"로 처리 (핵심) ----
-CheckAndClickElement(page, elementId)
-{
-    jsTemplate := "
-    (
-        (function(){
-            var el = document.getElementById('__ELEMENT_ID__');
-            if (!el) return 'not-exist';
-            if (el.classList.contains('jqx-fill-state-disabled')) return 'disabled';
-            ['mousedown','mouseup','click'].forEach(function(type){
-                el.dispatchEvent(new MouseEvent(type, {bubbles:true, cancelable:true, view:window}));
-            });
-            return 'dispatched';
-        })();
-    )"
-
-    js := StrReplace(jsTemplate, "__ELEMENT_ID__", elementId)
-    result := page.Evaluate(js)
-    return result["value"]
-}
-
-; ---- 재시도까지 포함한 최종 함수 ----
-ClickElementWhenReady(page, elementId, maxWaitMs := 4000, intervalMs := 200)
-{
-    elapsed := 0
-    Loop {
-        status := CheckAndClickElement(page, elementId)
-        if IsDebugging()
-            Log("[" elementId "] elapsed=" elapsed " : " status)
-
-        if (status = "dispatched")
-            return "dispatched"
-
-        elapsed += intervalMs
-        if (elapsed >= maxWaitMs)
-            return "failed"
-
-        Sleep intervalMs
-    }
-}
-
-RefreshBusRoute(RouteTitle, bGridView:=false)
-{
-    try
-    {
-        objChrome := Chrome()
-
-        ; 제목에 RouteTitle이 포함된 탭 찾기
-        page := objChrome.GetPageByTitle(RouteTitle, "contains")
-        if !page
-            throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
-
-        ; 현재 활성화된 Chrome 창의 HWND
-        page.Call("Page.bringToFront")
-        WinActivate "ahk_exe chrome.exe"
-        ; 탭 활성화(선택사항)
-        page.Activate()
-        ; 로딩 완료 대기
-        page.WaitForLoad()
-
-        ; listup button
-        ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
-
-        ; 새로고침 버튼 클릭
-        ;result := page.Evaluate("
-        ;(
-        ;    (function(){
-        ;        var el = document.getElementById('busRouteRefresh');
-        ;        return 'el=' + (el ? 'FOUND' : 'NULL') + ', bodyHTML길이=' + document.body.innerHTML.length;
-        ;    })();
-        ;)")
-        ;Log("직접확인: " result["value"])
-
-        result := ClickElementWhenReady(page, "busRouteRefresh")
-        Log("busRouteRefresh 최종결과: " result "`n")
-
-        ;openBusChartGrid - 표로보기
-        if bGridView {
-            result := ClickElementWhenReady(page, "openBusChartGrid")
-            Log("openBusChartGrid 최종결과: " result "`n")
-
-            ;clickResult := page.Evaluate("
-            ;(
-            ;    (function(){
-            ;        var el = document.getElementById('openBusChartGrid');
-            ;        if (!el) return 'no-element';
-            ;        ['mousedown','mouseup','click'].forEach(function(type){
-            ;            el.dispatchEvent(new MouseEvent(type, {bubbles:true, cancelable:true, view:window}));
-            ;        });
-            ;        return 'dispatched';
-            ;    })();
-            ;)")
-            ;Log("openBusChartGrid 최종결과: " clickResult["value"] "`n")
-        }
-
-        SetTitleMatchMode "RegEx"
-
-        ExcelWin := WinExist(".*-[0123][0-9]_배차시간표\.xlsx?.*")
-
-        if ExcelWin
-        {
-            WinActivate("ahk_id " ExcelWin)
-            WinWaitActive("ahk_id " ExcelWin)
-
-            ; 실행 중인 Excel에 연결
-            ;xl := ComObjActive("Excel.Application")
-
-            xl := GetExcelFromHwnd(ExcelWin)
-
-            if IsObject(xl) {
-                xl.ActiveWorkbook.Windows(1).Activate()
-                ;xl.ActiveWorkbook.Worksheets(1).Activate()
-                xl.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
-            } else {
-                Log("해당 창의 Excel 객체를 가져오지 못했습니다.")
-            }
-            
-            
-        }
-
-        return true
-    }
-    catch Error as e
-    {
-        Log(
-            "Message : " e.Message
-            . "`nWhat : " e.What
-            . "`nLine : " e.Line
-            . "`nFile : " e.File
-            . "`nExtra : " e.Extra
-            . "`n"
-        )
-
-        return false
-    }
-}
-
-
 ^F12::
 {
     RefreshBusRoute("5620")
@@ -717,19 +422,6 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 {
     RefreshBusRoute("5413",true)
 }
-; 부팅(또는 스크립트 실행) 후 5초 뒤 핫스팟 ON
-;SetTimer AutoHotspot, -5000
-
-; Ctrl + Alt + NumPad+ 로도 실행 가능
-;^!NumpadAdd::AutoHotspot()
-
-;AutoHotspot()
-;{
-;	;MsgBox "단축키가 눌렸습니다."
-;    Run 'powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"',, "Hide"
-;	;Run 'powershell.exe -WindowStyle Normal -NoExit -ExecutionPolicy Bypass -File "' A_ScriptDir '\HotspotOn.ps1"'
-;}
-
 
 ^Numpad1::
 {
@@ -773,4 +465,3 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 	}
 	
 }
-
