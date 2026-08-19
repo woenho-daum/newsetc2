@@ -16,9 +16,9 @@
     DebugMsg := !DebugMsg   ; true <-> false 전환
 
     if DebugMsg
-        Log "디버그 모드 ON"
+        MsgBox "디버그 모드 ON"
     else
-        Log "디버그 모드 OFF"
+        MsgBox "디버그 모드 OFF"
 }
 
 ^+H::  ; Ctrl + Shift + H
@@ -329,42 +329,39 @@
 			xlApp.Interactive := true       ; 사용자 입력(마우스/키보드) 다시 활성화
 		}
 
-		;if(nAlcoholCnt)
+		WinActivate("ahk_id " ExcelWin)
+		WinWaitActive("ahk_id " ExcelWin)
+
+		global ex, ey, ew, eh, msgTitle
+		; 엑셀 창의 위치/크기 가져오기
+		WinGetPos(&ex, &ey, &ew, &eh, "ahk_id " ExcelWin)
+
+		if(1)
 		{
-			WinActivate("ahk_id " ExcelWin)
-			WinWaitActive("ahk_id " ExcelWin)
+			msgTitle := "음주측정 확인"  ; MsgBox 제목 (구분용)
 
-			global ex, ey, ew, eh, msgTitle
-			; 엑셀 창의 위치/크기 가져오기
-			WinGetPos(&ex, &ey, &ew, &eh, "ahk_id " ExcelWin)
+			; MsgBox가 뜨는 걸 감지해서 중앙으로 이동시키는 타이머 시작
+			SetTimer(CenterMsgBox, 20)
 
-			if(1)
-			{
-				msgTitle := "음주측정 확인"  ; MsgBox 제목 (구분용)
+			MsgBox("음주측정 미확인자 " nAlcoholCnt "명", msgTitle)
 
-				; MsgBox가 뜨는 걸 감지해서 중앙으로 이동시키는 타이머 시작
-				SetTimer(CenterMsgBox, 20)
+		}else if(1){
+			ShowCenteredMsg(ExcelWin, "음주측정 미확인자 " nAlcoholCnt "명")
+		}else if(0){
+			text := "음주측정 미확인자 " nAlcoholCnt "명"
 
-				MsgBox("음주측정 미확인자 " nAlcoholCnt "명", msgTitle)
-
-			}else if(1){
-				ShowCenteredMsg(ExcelWin, "음주측정 미확인자 " nAlcoholCnt "명")
-			}else if(0){
-				text := "음주측정 미확인자 " nAlcoholCnt "명"
-	
-				DllCall("MessageBox",
-					"Ptr", ExcelWin,
-					"Str", text,
-					"Str", "알림",
-					"UInt", 0x40)   ; MB_ICONINFORMATION
-			}else if(0){
-				MsgBox ("음주측정 미확인자 " nAlcoholCnt "명")
-			}else{
-				myGui := Gui("+Owner" ExcelWin, "알림")
-				myGui.AddText(, "음주측정 미확인자 " nAlcoholCnt "명")
-				myGui.AddButton("Default", "확인").OnEvent("Click", (*) => myGui.Destroy())
-				myGui.Show()
-			}
+			DllCall("MessageBox",
+				"Ptr", ExcelWin,
+				"Str", text,
+				"Str", "알림",
+				"UInt", 0x40)   ; MB_ICONINFORMATION
+		}else if(0){
+			MsgBox ("음주측정 미확인자 " nAlcoholCnt "명")
+		}else{
+			myGui := Gui("+Owner" ExcelWin, "알림")
+			myGui.AddText(, "음주측정 미확인자 " nAlcoholCnt "명")
+			myGui.AddButton("Default", "확인").OnEvent("Click", (*) => myGui.Destroy())
+			myGui.Show()
 		}
         
         return true
@@ -399,7 +396,7 @@
 ^!+F1::
 {
     ; 혹시 남아있는 Chrome 종료
-    ProcessClose("chrome.exe")
+    ;ProcessClose("chrome.exe")
 
     ; 종료될 때까지 잠시 대기
     Sleep 1000

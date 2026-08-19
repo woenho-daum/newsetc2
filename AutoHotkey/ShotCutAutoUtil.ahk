@@ -23,11 +23,11 @@ Log(msg) {
     
     global DebugMsg
 
-    if IsDebugging(){
-        OutputDebug(msg "`n")
-    }else{
-        if DebugMsg
-            MsgBox(msg)
+	if DebugMsg
+	{
+		MsgBox(msg)
+    } else {
+	    OutputDebug(msg "`n")
     }
 }
 
