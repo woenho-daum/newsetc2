@@ -4,6 +4,7 @@
     Ctrl+Alt+NumpadEnter :: 크롬 리프레쉬(순수 윈도우 이벤트-특징:느림)
     Ctrl+Alt+Shift+NumpadEnter :: 음주측정 찾아서 리프레쉬(순수 윈도우 이벤트-특징:느림)
     Ctrl+NumpadEnter :: 음주측정 리프레쉬 후에 엑셀(음주측정대장) 팝업 (CDP활용)
+    Ctrl+Shift+NumpadEnter :: 음주측정 자료와 엑셀(음주측정대장) 확인자료를 비교하여 미확인자는 배경색 하늘색표시 (CDP활용)
     Ctrl+F12 :: 5620  리프레쉬 후 엑셀(배차시간표) 팝업 (CDP활용)
     Ctrl+F11 :: 5413  리프레쉬 후 엑셀(배차시간표) 팝업 (CDP활용)
     Ctrl+Shift+F12 :: 5620 리프레쉬 -> 표로보기 토글 -> 엑셀(배차시간표) 팝업 (CDP활용)
