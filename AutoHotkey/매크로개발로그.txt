@@ -1,0 +1,9 @@
+winget upgrade
+winget install python
+
+pip install google-auth google-auth-oauthlib google-api-python-client
+python -m pip --version
+pip --version
+py -0p
+$env:Path -split ';'
+where.exe git
