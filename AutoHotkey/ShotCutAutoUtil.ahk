@@ -6,8 +6,9 @@
 #Include .\ahk2_lib-master\JSON.ahk
 #Include .\ahk2_lib-master\Chrome.ahk
 
-global DebugMsg := false
-global ex:=0, ey:=0, ew:=0, eh:=0, msgTitle:="알림"
+global g_DebugMsg := false
+global g_ex:=0, g_ey:=0, g_ew:=0, g_eh:=0, g_msgTitle:="알림"
+global g_ih := ""
 
 ;----- 시작하면 디버그코드인지 확인하자---
 DllCall("GetCommandLine", "str")
@@ -21,9 +22,9 @@ IsDebugging() {
 
 Log(msg) {
     
-    global DebugMsg
+    global g_DebugMsg
 
-	if DebugMsg
+	if g_DebugMsg
 	{
 		MsgBox(msg)
     } else {
@@ -138,7 +139,7 @@ FindChromeWindowByTitle(searchText) {
 }
 
 CenterMsgBox() {
-    global ex, ey, ew, eh, msgTitle
+    global g_ex, g_ey, g_ew, g_eh, g_msgTitle
     msgId := WinExist(msgTitle)
     if msgId {
         WinGetPos(&mx, &my, &mw, &mh, "ahk_id " msgId)
@@ -240,100 +241,4 @@ ClickElementWhenReady(page, elementId, maxWaitMs := 4000, intervalMs := 200)
         Sleep intervalMs
     }
 }
-
-RefreshBusRoute(RouteTitle, bGridView:=false)
-{
-    try
-    {
-        objChrome := Chrome()
-
-        ; 제목에 RouteTitle이 포함된 탭 찾기
-        page := objChrome.GetPageByTitle(RouteTitle, "contains")
-        if !page
-            throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
-
-        ; 현재 활성화된 Chrome 창의 HWND
-        page.Call("Page.bringToFront")
-        WinActivate "ahk_exe chrome.exe"
-        ; 탭 활성화(선택사항)
-        page.Activate()
-        ; 로딩 완료 대기
-        page.WaitForLoad()
-
-        ; listup button
-        ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
-
-        ; 새로고침 버튼 클릭을 직접해보기
-        ;result := page.Evaluate("
-        ;(
-        ;    (function(){
-        ;        var el = document.getElementById('busRouteRefresh');
-        ;        return 'el=' + (el ? 'FOUND' : 'NULL') + ', bodyHTML길이=' + document.body.innerHTML.length;
-        ;    })();
-        ;)")
-        ;Log("직접확인: " result["value"])
-
-		; 새로고침 버튼 클릭을 공통함수 사용하기
-        result := ClickElementWhenReady(page, "busRouteRefresh")
-        Log("busRouteRefresh 최종결과: " result "`n")
-
-        ;openBusChartGrid - 표로보기
-        if bGridView {
-            result := ClickElementWhenReady(page, "openBusChartGrid")
-            Log("openBusChartGrid 최종결과: " result "`n")
-
-			; 표보기 버튼 클릭을 직접해보기
-            ;clickResult := page.Evaluate("
-            ;(
-            ;    (function(){
-            ;        var el = document.getElementById('openBusChartGrid');
-            ;        if (!el) return 'no-element';
-            ;        ['mousedown','mouseup','click'].forEach(function(type){
-            ;            el.dispatchEvent(new MouseEvent(type, {bubbles:true, cancelable:true, view:window}));
-            ;        });
-            ;        return 'dispatched';
-            ;    })();
-            ;)")
-            ;Log("openBusChartGrid 최종결과: " clickResult["value"] "`n")
-        }
-
-        SetTitleMatchMode "RegEx"
-
-        ExcelWin := WinExist(".*-[0123][0-9]_배차시간표\.xlsx?.*")
-
-        if ExcelWin
-        {
-            WinActivate("ahk_id " ExcelWin)
-            WinWaitActive("ahk_id " ExcelWin)
-
-            ; 실행 중인 Excel에 연결
-            ;xl := ComObjActive("Excel.Application")
-			xlApp := GetXlAppFromHwnd(ExcelWin)
-
-            if IsObject(xlApp) {
-                xlApp.ActiveWorkbook.Windows(1).Activate()
-                ;xl.ActiveWorkbook.Worksheets(1).Activate()
-                xlApp.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
-            } else {
-				throw Error("해당 창의 Excel 객체를 가져오지 못했습니다.")
-            }
-        }
-
-        return true
-    }
-    catch Error as e
-    {
-        Log(
-            "Message : " e.Message
-            . "`nWhat : " e.What
-            . "`nLine : " e.Line
-            . "`nFile : " e.File
-            . "`nExtra : " e.Extra
-            . "`n"
-        )
-
-        return false
-    }
-}
-
 
