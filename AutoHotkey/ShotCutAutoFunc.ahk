@@ -491,6 +491,7 @@ OnKeyPressedNumpad0(ih, VK, SC) {
     
     switch StrLower(key) {
         case "q":
+			MsgBox("StartKeyHookNumpad0() 를 종료합니다.")
             ih.Stop()
         case "a":
             FunctionA()
