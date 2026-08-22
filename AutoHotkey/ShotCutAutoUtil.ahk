@@ -196,6 +196,119 @@ ListButtons(page)
     Log("=== 버튼 목록 ===`n" result["value"])
 }
 
+; ---- 페이지(및 iframe)에 있는 table 목록 ----
+ListTables(page)
+{
+    result := page.Evaluate("
+    (
+        (function(){
+            function collect(doc, label){
+                var out = [];
+                var tables = doc.querySelectorAll('table');
+
+                tables.forEach(function(el, i){
+                    if (el.id)
+                        out.push(label + ' id=' + el.id);
+                    else
+                        out.push(label + ' table[' + i + ']');
+                });
+
+                return out;
+            }
+
+            var lines = collect(document, 'top');
+
+            var frames = document.querySelectorAll('iframe');
+
+            frames.forEach(function(f, i){
+                try {
+                    lines = lines.concat(collect(f.contentDocument, 'iframe' + i));)
+                } catch(e) {
+                    lines.push('iframe' + i + ' 접근불가: ' + e.message);
+                }
+            });
+
+            return lines.join('\n');
+        })();
+    )")
+
+    Log("=== 테이블 목록 ===`n" result["value"])
+}
+
+; ListTables(page) 결과를 가지고
+; GetTable(page, 0)
+; GetTable(page, 1)
+; GetTable(page, 2)
+; 형식으로 호출한다
+; ---- 페이지(및 iframe)의 특정 table 내용 가져오기 ----
+GetTable(page, index)
+{
+    result := page.Evaluate("
+    (
+        (function(targetIndex){
+            var currentIndex = 0;
+
+            function findTable(doc){
+                var tables = doc.querySelectorAll('table');
+
+                for (var i = 0; i < tables.length; i++){
+                    if (currentIndex === targetIndex)
+                        return tables[i];
+
+                    currentIndex++;
+                }
+
+                return null;
+            }
+
+            var table = findTable(document);
+
+            if (!table){
+                var frames = document.querySelectorAll('iframe');
+
+                for (var i = 0; i < frames.length; i++){
+                    try {
+                        if (frames[i].contentDocument){
+                            table = findTable( frames[i].contentDocument);
+
+                            if (table)
+                                break;
+                        }
+                    } catch(e) {
+                        // 접근할 수 없는 iframe은 건너뜀
+                    }
+                }
+            }
+
+            if (!table)
+                return 'table[' + targetIndex + '] 없음';
+
+            var out = [];
+
+            table.querySelectorAll('tr').forEach(function(tr){
+                var row = [];
+
+                tr.querySelectorAll('th, td').forEach(function(cell){
+                    row.push(
+                        (cell.innerText || cell.textContent || '')
+                        .replace(/\s+/g, ' ')
+                        .trim() );
+                });
+
+                if (row.length > 0)
+                    out.push(row.join(' | '));
+            });
+
+            return out.join('\n');
+
+        })(" . index . ")
+    )")
+
+    Log("=== table[" . index . "] ===`n" result["value"])
+
+    return result["value"]
+}
+
 ; ---- 요소가 활성화될 때까지 기다렸다가 클릭하는 공통 함수 ----
 ; page      : Chrome.ahk의 page 객체
 ; elementId : 클릭할 요소의 id
