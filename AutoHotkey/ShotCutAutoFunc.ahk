@@ -95,7 +95,7 @@ RefreshAlcoholNormal(bFound := false,*)  ; Ctrl + Alt + Shift + NumpadEnter
     WinActivate("ahk_id " ExcelWin)
 }
 
-RefreshAlcoleCDP(bFound := false,*)
+RefreshAlcoholCDP(bFound := false,*)
 {
      try
     {
@@ -126,10 +126,10 @@ RefreshAlcoleCDP(bFound := false,*)
         ;---button 목록
         ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
 
-        result := CallJsFunction(page, "goresult")
-
-        Log( "=== 음주측정갱신 ===`n" result["value"] )
-
+        if bFound {
+            result := CallJsFunction(page, "goresult")
+            Log( "=== 음주측정갱신 ===`n" result["value"] )
+        }
         ; 엑셀 복귀
         
         SetTitleMatchMode "RegEx"
@@ -175,10 +175,10 @@ RefreshAlcoleCDP(bFound := false,*)
 		}
 		xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
 
-		; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
-		;foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
-		; LookIn=xlValues, LookAt=xlWhole, SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
-		foundCell := xlSheet.Cells.Find(driver, , -4163, 1, 1, 1, false)
+		; LookIn:=xlValues(-4163), LookAt:=xlWhole(1)(완전 일치) LookAt:=xlPart(2)(부분 일치)
+		;foundCell := xlSheet.Cells.Find(driver, , -4163, 2)
+		; LookIn=xlValues, LookAt=xlPart(2), SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
+		foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
 
 		if IsObject(foundCell) {
 			foundCell.Select()      ; 셀 선택
@@ -205,7 +205,7 @@ RefreshAlcoleCDP(bFound := false,*)
 
 }
 
-CompareAlcoleCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
+CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 {
      try
     {
@@ -282,10 +282,10 @@ CompareAlcoleCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 				row := A_Index
 				driver := GetAlcoholTableCell(page, row, 7)
 				
-				; LookIn:=xlValues(-4163), LookAt:=xlWhole(1) → 값이 완전히 일치하는 셀 검색
-				;foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
-				; LookIn=xlValues, LookAt=xlWhole, SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
-				foundCell := xlSheet.Cells.Find(driver, , -4163, 1, 1, 1, false)
+                ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1)(완전 일치) LookAt:=xlPart(2)(부분 일치)
+                ;foundCell := xlSheet.Cells.Find(driver, , -4163, 2)
+                ; LookIn=xlValues, LookAt=xlPart(2), SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
+                foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
 			
 				if IsObject(foundCell) {
 					; G열인지 확인

@@ -18,9 +18,9 @@
 
 ^!+NumpadEnter::RefreshAlcoholNormal(true)  ; Ctrl + Alt + Shift + NumpadEnter
 
-^NumpadEnter::RefreshAlcoleCDP() ; Ctrl + NumpadEnter
+^NumpadEnter::RefreshAlcoholCDP(true) ; Ctrl + NumpadEnter
 
-^+NumpadEnter::CompareAlcoleCDP() ; Ctrl + Shift + NumpadEnter
+^+NumpadEnter::CompareAlcoholCDP(false) ; Ctrl + Shift + NumpadEnter
 
 ^!+F2:: ProcessClose("chrome.exe")
 
