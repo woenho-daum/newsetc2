@@ -143,8 +143,8 @@ CenterMsgBox() {
     msgId := WinExist(msgTitle)
     if msgId {
         WinGetPos(&mx, &my, &mw, &mh, "ahk_id " msgId)
-        newX := ex + (ew - mw) / 2
-        newY := ey + (eh - mh) / 2
+        newX := g_ex + (g_ew - mw) / 2
+        newY := g_ey + (g_eh - mh) / 2
         WinMove(newX, newY, , , "ahk_id " msgId)
         SetTimer(, 0)  ; 이동 완료 후 타이머 종료
     }
