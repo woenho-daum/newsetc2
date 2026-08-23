@@ -107,7 +107,7 @@ RefreshAlcoholCDP(bFound := false,*)
         ; 제목에 RouteTitle이 포함된 탭 찾기
         page := objChrome.GetPageByTitle("음주측정 데이터 관리 시스템", "contains")
         if !page
-            throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.CDP")
+            throw Error("'음주측정 데이터 관리 시스템' 크롬에서 탭을 찾을 수 없습니다.CDP", -500, "Err_CODE_500")
 
 		; 1. CDP 레벨에서 탭을 해당 창의 최상단으로 (창 내부 탭 전환)
 		page.Call("Page.bringToFront")
@@ -120,7 +120,7 @@ RefreshAlcoholCDP(bFound := false,*)
 			WinActivate("ahk_id " targetHwnd)
 			WinWaitActive("ahk_id " targetHwnd,, 2)
 		} else {
-			throw Error("'음주측정 데이터 관리 시스템' Chrome 창을 찾을 수 없습니다.윈도우핸들")
+			throw Error("'음주측정 데이터 관리 시스템' 크롬창을 찾을 수 없습니다. 탭이 포함된 크롬창", -501, "Err_CODE_501")
 		}
 
         ;---button 목록
@@ -137,7 +137,7 @@ RefreshAlcoholCDP(bFound := false,*)
         ExcelWin := WinExist(".*-[0123][0-9]음주.*\.xlsx?.*")
 
 		if !ExcelWin
-    		throw Error("'음주측정대장' 엑셀창을 찾을 수 없습니다.")
+    		throw Error("'음주측정대장' 엑셀창을 찾을 수 없습니다.", -600, "ERR_CODE_600")
 
 		WinActivate("ahk_id " ExcelWin)
 
@@ -157,7 +157,7 @@ RefreshAlcoholCDP(bFound := false,*)
 
 		xlApp := GetXlAppFromHwnd(ExcelWin)
 		if !xlApp
-    		throw Error("'음주측정대장' 엑셀창에서 엑셀핸들을 찾을 수 없습니다.")
+    		throw Error("'음주측정대장' 엑셀창에서 엑셀핸들을 찾을 수 없습니다.", -601)
 
 		if (g_DebugMsg && IsDebugging()){
 			try xlApp2 := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
@@ -191,15 +191,25 @@ RefreshAlcoholCDP(bFound := false,*)
     }
     catch Error as e
     {
-        Log(
-            "Message : " e.Message
-            . "`nWhat : " e.What
-            . "`nLine : " e.Line
-            . "`nFile : " e.File
-            . "`nExtra : " e.Extra
-            . "`n"
-        )
-
+        if (e.What < 0) {
+            MsgBox(
+                "Message : " e.Message
+                . "`nWhat : " e.What
+                . "`nLine : " e.Line
+                . "`nFile : " e.File
+                . "`nExtra : " e.Extra
+                . "`n"
+            )
+        } else {
+            Log(
+                "Message : " e.Message
+                . "`nWhat : " e.What
+                . "`nLine : " e.Line
+                . "`nFile : " e.File
+                . "`nExtra : " e.Extra
+                . "`n"
+            )
+        }
         return false
     }
 
@@ -217,7 +227,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
         ; 제목에 RouteTitle이 포함된 탭 찾기
         page := objChrome.GetPageByTitle("음주측정 데이터 관리 시스템", "contains")
         if !page
-            throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.")
+            throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.", -500)
 
 		; 1. CDP 레벨에서 탭을 해당 창의 최상단으로 (창 내부 탭 전환)
 		page.Call("Page.bringToFront")
@@ -230,7 +240,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 			WinActivate("ahk_id " targetHwnd)
 			WinWaitActive("ahk_id " targetHwnd,, 2)
 		} else {
-			throw Error("'음주측정 데이터 관리 시스템' Chrome 창을 찾을 수 없습니다.")
+			throw Error("'음주측정 데이터 관리 시스템' Chrome 창을 찾을 수 없습니다.", -501)
 		}
         ;---button 목록
         ;ListButtons(page)   ; 여기서 결과를 보고 정확한 id 확인
@@ -247,7 +257,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
         ExcelWin := WinExist(".*-[0123][0-9]음주.*\.xlsx?.*")
 
         if !ExcelWin
-    		throw Error("'음주측정대장' 엑셀창을 찾을 수 없습니다.")
+    		throw Error("'음주측정대장' 엑셀창을 찾을 수 없습니다.", -600)
         
 		WinActivate("ahk_id " ExcelWin)
 
@@ -264,7 +274,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 		;xlApp := ComObjActive("Excel.Application")   ; 활성 엑셀 인스턴스 가져오기
 		xlApp := GetXlAppFromHwnd(ExcelWin)
 		if !xlApp
-			throw Error("'음주측정대장' 엑셀창에서 엑셀핸들을 찾을 수 없습니다.")
+			throw Error("'음주측정대장' 엑셀창에서 엑셀핸들을 찾을 수 없습니다.", -601)
 
 		; 엑셀 업데이트 잠시 보류처리시 오류발생하면 복구 해야한다
 		try{
@@ -362,14 +372,25 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
     }
     catch Error as e
     {
-        Log(
-            "Message : " e.Message
-            . "`nWhat : " e.What
-            . "`nLine : " e.Line
-            . "`nFile : " e.File
-            . "`nExtra : " e.Extra
-            . "`n"
-        )
+        if (e.What < 0) {
+            MsgBox(
+                "Message : " e.Message
+                . "`nWhat : " e.What
+                . "`nLine : " e.Line
+                . "`nFile : " e.File
+                . "`nExtra : " e.Extra
+                . "`n"
+            )
+        } else {
+            Log(
+                "Message : " e.Message
+                . "`nWhat : " e.What
+                . "`nLine : " e.Line
+                . "`nFile : " e.File
+                . "`nExtra : " e.Extra
+                . "`n"
+            )
+        }
 
         return false
     }
@@ -385,7 +406,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         ; 제목에 RouteTitle이 포함된 탭 찾기
         page := objChrome.GetPageByTitle(RouteTitle, "contains")
         if !page
-            throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.")
+            throw Error("'" RouteTitle "' 탭을 찾을 수 없습니다.", -500)
 
         ; 현재 활성화된 Chrome 창의 HWND
         page.Call("Page.bringToFront")
@@ -435,37 +456,46 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
         SetTitleMatchMode "RegEx"
 
         ExcelWin := WinExist(".*-[0123][0-9]_배차시간표\.xlsx?.*")
+        if !ExcelWin
+    		throw Error("'배차시간표' 엑셀창을 찾을 수 없습니다.", -600)
 
-        if ExcelWin
-        {
-            WinActivate("ahk_id " ExcelWin)
-            WinWaitActive("ahk_id " ExcelWin)
+        WinActivate("ahk_id " ExcelWin)
+        WinWaitActive("ahk_id " ExcelWin)
 
-            ; 실행 중인 Excel에 연결
-            ;xl := ComObjActive("Excel.Application")
-			xlApp := GetXlAppFromHwnd(ExcelWin)
+        ; 실행 중인 Excel에 연결
+        ;xl := ComObjActive("Excel.Application")
+        xlApp := GetXlAppFromHwnd(ExcelWin)
 
-            if IsObject(xlApp) {
-                xlApp.ActiveWorkbook.Windows(1).Activate()
-                ;xl.ActiveWorkbook.Worksheets(1).Activate()
-                xlApp.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
-            } else {
-				throw Error("해당 창의 Excel 객체를 가져오지 못했습니다.")
-            }
-        }
-
+        if !IsObject(xlApp)
+            throw Error("해당 창의 Excel 객체를 가져오지 못했습니다.", -601)
+        
+        xlApp.ActiveWorkbook.Windows(1).Activate()
+        ;xl.ActiveWorkbook.Worksheets(1).Activate()
+        xlApp.ActiveWorkbook.Worksheets("Tablib Dataset").Activate()
+    
         return true
     }
     catch Error as e
     {
-        Log(
-            "Message : " e.Message
-            . "`nWhat : " e.What
-            . "`nLine : " e.Line
-            . "`nFile : " e.File
-            . "`nExtra : " e.Extra
-            . "`n"
-        )
+       if (e.What < 0) {
+            MsgBox(
+                "Message : " e.Message
+                . "`nWhat : " e.What
+                . "`nLine : " e.Line
+                . "`nFile : " e.File
+                . "`nExtra : " e.Extra
+                . "`n"
+            )
+        } else {
+            Log(
+                "Message : " e.Message
+                . "`nWhat : " e.What
+                . "`nLine : " e.Line
+                . "`nFile : " e.File
+                . "`nExtra : " e.Extra
+                . "`n"
+            )
+        }
 
         return false
     }

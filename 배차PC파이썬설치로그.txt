@@ -40,6 +40,8 @@ python -m pip install --upgrade pip
     pip install websocket-client
     pip install openpyxl pandas xlwings
     pip install pywin32 ahk
+    
+    pip install google-auth google-auth-oauthlib google-api-python-client
 }
 pip list
 pip freeze > requirements.txt
@@ -78,11 +80,15 @@ cvenv alias 환경만들기
     AHK 연동 → ahk; 현재 PyPI의 최신 1.8.4가 설치되어 있습니다. ahk는 Python에서 AutoHotkey를 제어하는 wrapper이고 AHK v1/v2를 지원합니다.
     numpy 2.5.2 → 수치 계산용 라이브러리
     ----------------------------------------
+    ahk 1.8.4 → Python에서 AutoHotkey 제어
+    chrome-devtools-protocol 0.4.0 → Chrome DevTools Protocol 관련
+    websocket-client 1.9.0 → Chrome CDP와 WebSocket 통신에 활용 가능
+    pywin32 312 → Windows 창/프로세스 등의 제어
+    pandas, numpy → 데이터 처리
     pandas 3.0.5 → 데이터 분석/처리용
-    openpyxl 3.1.5 → Excel 파일 읽기/쓰기
-    xlwings 0.36.17 → Excel과 Python 연동
+    openpyxl 3.1.5 → Excel 파일 읽기/쓰기 (Excel 자동화)
+    xlwings 0.36.17 → Excel과 Python 연동 (Excel 자동화)
     Jinja2 3.1.6 → 템플릿 엔진
-    websocket-client 1.9.0 → WebSocket 통신 지원
 }
 
 python test-----

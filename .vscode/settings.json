@@ -2,8 +2,10 @@
     "cSpell.words": [
         "colou",
         "colour",
+        "creds",
         "cvenv",
         "dateutil",
+        "googleapiclient",
         "goresult",
         "Hotspot",
         "Hotstring",
@@ -19,6 +21,7 @@
         "pywin",
         "scrcpy",
         "tzdata",
+        "VCARD",
         "venv",
         "XLDESK",
         "xlwings",

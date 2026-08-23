@@ -1,0 +1,27 @@
+진행 순서
+1) 사전 백업 (필수)
+    contacts.google.com 접속 → 왼쪽 메뉴 "내보내기" → Google CSV로 전체 백업. 문제 생기면 이걸로 복구합니다.
+2) Google Cloud에서 API 사용 설정
+    {Google Cloud Console} 사이트 → 새 프로젝트 생성
+    "API 및 서비스" → "라이브러리"에서 People API 검색 후 사용 설정
+    "API 및 서비스" → "OAuth 동의 화면" 구성 (외부, 테스트 사용자에 본인 구글 계정 추가)
+    "사용자 인증 정보" → "사용자 인증 정보 만들기" → OAuth 클라이언트 ID → 애플리케이션 유형 데스크톱 앱 → 생성 후 credentials.json 다운로드
+3) 파이썬 준비 (PC)
+    pip install google-auth google-auth-oauthlib google-api-python-client
+4) CSV 매핑 파일 준비
+    mapping.csv 파일을 아래 형식으로 만드세요 (첫 줄은 헤더 필수):
+
+    old_name,phone,new_name
+    예전이름1,010-1234-5678,새이름1
+    예전이름2,01098765432,새이름2
+
+5) 스크립트 실행
+아래에 스크립트를 만들어 드릴게요. credentials.json, mapping.csv, 스크립트 파일을 같은 폴더에 두고 실행하면, 
+최초 1회 브라우저 인증 후 전화번호를 기준으로 매칭해서 이름을 바꿔줍니다.
+
+사용 방법 요약:
+스크립트, credentials.json, mapping.csv 세 파일을 같은 폴더에 둡니다.
+pip install google-auth google-auth-oauthlib google-api-python-client
+처음엔 그대로 실행 (python update_contacts.py) — 스크립트 상단 DRY_RUN = True라서 실제 변경 없이 어떤 이름이 어떻게 바뀔지 미리보기만 출력됩니다.
+결과를 확인하고 문제없으면 스크립트 상단 DRY_RUN = False로 바꾼 뒤 다시 실행하면 실제로 이름이 바뀝니다.
+완료되면 몇 분 안에 폰의 연락처 앱에도 자동 동기화됩니다.

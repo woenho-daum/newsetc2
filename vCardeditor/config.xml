@@ -2,9 +2,9 @@
 <Config>
   <FormState>
     <Columns />
-    <X>1334</X>
-    <Y>285</Y>
-    <Height>1154</Height>
+    <X>1260</X>
+    <Y>34</Y>
+    <Height>1022</Height>
     <Width>1069</Width>
     <splitterPosition>438</splitterPosition>
   </FormState>
@@ -14,6 +14,7 @@
   <Paths>
     <_innerList>
       <string>C:\Users\user\newsetc2\배차작업\vCardeditor\연락처_2026-06-28.vcf</string>
+      <string>C:\Users\User.DESKTOP-HRNLHCS.000\Documents\newsetc2\vCardeditor\google_contacts_2026-08-23.vcf</string>
     </_innerList>
     <Size>5</Size>
   </Paths>
