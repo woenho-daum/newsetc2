@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 ~$*.*
+.venv
 
 HotspotOn.log
 WiresharkPortable64_4.6.7.paf.exe
