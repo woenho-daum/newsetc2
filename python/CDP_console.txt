@@ -1,0 +1,2 @@
+document.querySelector("#id_search_office_false").value = 1; // 본사 , 표시와 id가 다르다 <option value="1">본사</option>
+document.querySelector("#id_search_office_false").value = 2; // 광명 
