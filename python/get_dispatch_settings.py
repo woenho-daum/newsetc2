@@ -1,9 +1,9 @@
 import asyncio
 import json
+
 from playwright.async_api import async_playwright
 
-
-CDP_URL = "http://127.0.0.1:9222"
+CDP_URL = "http://127.0.0.1:9223"
 
 
 async def get_dispatch_settings():
@@ -30,8 +30,8 @@ async def get_dispatch_settings():
                     target_page = page
                     break
 
-            except Exception:
-                pass
+            except Exception as e:  # noqa: BLE001
+                print(f"무시된 에러: {e}")
 
         if target_page is None:
             raise RuntimeError(
@@ -186,7 +186,7 @@ async def main():
     # JSON 저장
     # -----------------------------------------
 
-    with open(
+    with open(  # noqa: ASYNC230
         "dispatch_settings.json",
         "w",
         encoding="utf-8"
