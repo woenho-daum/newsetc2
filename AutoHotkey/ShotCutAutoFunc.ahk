@@ -191,15 +191,20 @@ RefreshAlcoholCDP(bFound := false,*)
     }
     catch Error as e
     {
-        if (e.What < 0) {
-            MsgBox(
-                "Message : " e.Message
-                . "`nWhat : " e.What
-                . "`nLine : " e.Line
-                . "`nFile : " e.File
-                . "`nExtra : " e.Extra
-                . "`n"
-            )
+		what := e.HasProp("What") ? e.What : 0
+
+        if (What < 0) {
+            msg := "Message : " e.Message
+			msg .= "`nWhat : " what
+
+			if e.HasProp("Line")
+				msg .= "`nLine : " e.Line
+			if e.HasProp("File")
+				msg .= "`nFile : " e.File
+			if e.HasProp("Extra")
+				msg .= "`nExtra : " e.Extra
+
+			MsgBox(msg)
         } else {
             Log(
                 "Message : " e.Message

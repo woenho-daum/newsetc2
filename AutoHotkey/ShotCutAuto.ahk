@@ -8,7 +8,7 @@
 ;#Include .\ShotCutAutoUtil.ahk
 #Include .\ShotCutAutoFunc.ahk
 
-^r::Reload
+^r::MsgBox("리로드합니다."), Reload()
 
 ^+m::DebugMsgToggle()  ; Ctrl + Shift + M
 
@@ -23,9 +23,16 @@
 ^+NumpadEnter::CompareAlcoholCDP(false) ; Ctrl + Shift + NumpadEnter
 
 ;^!+F2:: ProcessClose("chrome.exe")
-^!+F2::Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --remote-allow-origins=* --user-data-dir=C:\ChromePython'
-^!+F1::Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeDebug'
-
+^!+F2::
+{
+	MsgBox("python용 크롬을 로드합니다.")
+	Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --remote-allow-origins=* --user-data-dir=C:\ChromePython'
+}
+^!+F1::
+{
+	MsgBox("AHK용 크롬을 로드합니다.")
+	Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeAHK'
+}
 ^F12::RefreshBusRoute("5620")
 
 ^F11::RefreshBusRoute("5413")
