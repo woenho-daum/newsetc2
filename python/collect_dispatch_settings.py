@@ -159,17 +159,17 @@ def init_db(conn: sqlite3.Connection) -> None:
         """
         CREATE TABLE IF NOT EXISTS dispatch_settings (
             driver_no     TEXT PRIMARY KEY,   -- 사번 = 키. 사번 없는 자료는 저장하지 않음
-            source_id     INTEGER NOT NULL,   -- 원본 페이지의 data-id (A/B 두 행이 같은 값을 공유)
-            office        TEXT,               -- 조회 시 선택한 영업소명
-            route         TEXT,               -- 노선
-            idx           INTEGER,            -- 순번
-            is_reserve    TEXT,               -- 예비차량여부 (Y/'')
-            car_number    TEXT,               -- 차량번호
-            rest_day      TEXT,               -- 휴무
-            shift         TEXT,               -- 쉬프트
             driver_type   TEXT NOT NULL CHECK (driver_type IN ('A', 'B')),
             driver_name   TEXT,
+            office        TEXT,               -- 조회 시 선택한 영업소명
+            route         TEXT,               -- 노선
+            car_number    TEXT,               -- 차량번호
+            idx           INTEGER,            -- 순번
+            rest_day      TEXT,               -- 휴무
+            shift         TEXT,               -- 쉬프트
             apply_date    TEXT,
+            source_id     INTEGER NOT NULL,   -- 원본 페이지의 data-id (A/B 두 행이 같은 값을 공유)
+            is_reserve    TEXT,               -- 예비차량여부 (Y/'')
             collected_at  TEXT NOT NULL
         )
         """
