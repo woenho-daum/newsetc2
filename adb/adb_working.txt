@@ -1,0 +1,19 @@
+
+장치가 2이사이면 선택해야하는데 기본을 설정한다.
+set ANDROID_SERIAL=192.168.137.115:44927
+
+adb -s 기기ID pull 원본경로 저장경로
+adb -s 192.168.137.115:44927 pull /sdcard/Download/1234.vcf
+adb pull /sdcard/Download/1234.vcf  ; set ANDROID_SERIAL 해 놓으면
+
+adb connect 기기ID
+adb 192.168.137.115:44927
+
+adb devices
+
+adb -s 기기ID shell
+adb -s 192.168.137.115:44927 shell
+adb shell ; set ANDROID_SERIAL 해 놓으면
+
+
+
