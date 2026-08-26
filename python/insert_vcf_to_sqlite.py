@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
-import re
 import quopri
+import re
 import sqlite3
 import sys
 from datetime import datetime
-
 
 # ============================================================
 # 기본 설정
 # ============================================================
 
-DEFAULT_DB_PATH = "contacts.db"
+DEFAULT_DB_PATH = "baecha.db"
 
 
 # ============================================================
@@ -21,12 +20,12 @@ DEFAULT_DB_PATH = "contacts.db"
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS contacts (
     tel_section TEXT NOT NULL,
-    telnumber   TEXT NOT NULL,
+    tel_number   TEXT NOT NULL,
     fn_old      TEXT NOT NULL,
     fn_new      TEXT,
     insert_date TEXT NOT NULL,
     update_date TEXT,
-    PRIMARY KEY (tel_section, telnumber)
+    PRIMARY KEY (tel_section, tel_number)
 );
 """
 
@@ -497,12 +496,12 @@ def print_missing_fn_warning(
 
     if phones:
 
-        for tel_section, telnumber in phones:
+        for tel_section, tel_number in phones:
 
             print(
                 f"    TEL : "
                 f"{tel_section} "
-                f"{telnumber}"
+                f"{tel_number}"
             )
 
     else:
@@ -615,7 +614,7 @@ def import_vcf(
     # INSERT 시에만 사용
     # --------------------------------------------------------
 
-    now = datetime.now().strftime(
+    now = datetime.now().strftime(  # noqa: DTZ005
         "%Y-%m-%d %H:%M:%S"
     )
 
@@ -689,7 +688,7 @@ def import_vcf(
         # 전화번호 저장
         # ====================================================
 
-        for tel_section, telnumber in phones:
+        for tel_section, tel_number in phones:
 
             # ------------------------------------------------
             # 기존 Key 확인
@@ -700,11 +699,11 @@ def import_vcf(
                 SELECT 1
                 FROM contacts
                 WHERE tel_section = ?
-                  AND telnumber = ?
+                  AND tel_number = ?
                 """,
                 (
                     tel_section,
-                    telnumber
+                    tel_number
                 )
             ).fetchone()
 
@@ -720,7 +719,7 @@ def import_vcf(
                     INSERT INTO contacts
                     (
                         tel_section,
-                        telnumber,
+                        tel_number,
                         fn_old,
                         fn_new,
                         insert_date,
@@ -738,7 +737,7 @@ def import_vcf(
                     """,
                     (
                         tel_section,
-                        telnumber,
+                        tel_number,
                         fn,
                         now
                     )
@@ -768,12 +767,12 @@ def import_vcf(
                     UPDATE contacts
                     SET fn_old = ?
                     WHERE tel_section = ?
-                      AND telnumber = ?
+                      AND tel_number = ?
                     """,
                     (
                         fn,
                         tel_section,
-                        telnumber
+                        tel_number
                     )
                 )
 
