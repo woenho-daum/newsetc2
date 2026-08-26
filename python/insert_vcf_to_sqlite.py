@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 # ============================================================
-# 설정
+# 기본 설정
 # ============================================================
 
 DEFAULT_DB_PATH = "contacts.db"
@@ -37,17 +37,17 @@ CREATE TABLE IF NOT EXISTS contacts (
 
 def decode_vcard_value(value: str, params: str = "") -> str:
     """
-    vCard 2.1의 값을 디코딩한다.
+    vCard 2.1의 property 값을 디코딩한다.
 
     예:
         FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=EC=9D=B4...
 
     -> 이충열
 
-    ENCODING=QUOTED-PRINTABLE이면 Quoted-Printable 디코딩 후
-    CHARSET에 따라 문자열로 변환한다.
+    지원:
+        ENCODING=QUOTED-PRINTABLE
 
-    ENCODING이 없으면 원문을 그대로 반환한다.
+    CHARSET이 없으면 UTF-8을 기본으로 사용한다.
     """
 
     encoding_match = re.search(
@@ -74,16 +74,28 @@ def decode_vcard_value(value: str, params: str = "") -> str:
         else "utf-8"
     )
 
+    # --------------------------------------------------------
     # Quoted-Printable
+    # --------------------------------------------------------
+
     if encoding == "QUOTED-PRINTABLE":
+
         raw = quopri.decodestring(value)
 
         try:
             return raw.decode(charset)
-        except (UnicodeDecodeError, LookupError):
-            return raw.decode("utf-8", errors="replace")
 
-    # 현재 목적에서는 그 외 encoding은 그대로 처리
+        except (UnicodeDecodeError, LookupError):
+
+            return raw.decode(
+                "utf-8",
+                errors="replace"
+            )
+
+    # --------------------------------------------------------
+    # 별도 encoding이 없는 경우
+    # --------------------------------------------------------
+
     return value
 
 
@@ -98,6 +110,9 @@ def normalize_phone(phone: str) -> str:
     예:
         010-1234-5678
         -> 01012345678
+
+        +82-10-1234-5678
+        -> 821012345678
     """
 
     if not phone:
@@ -107,21 +122,30 @@ def normalize_phone(phone: str) -> str:
 
 
 # ============================================================
-# vCard folded line 처리
+# vCard folded line + Quoted-Printable soft line break
 # ============================================================
 
 def parse_vcard_lines(text: str):
     """
-    vCard의 folded line을 처리한다.
+    vCard의 물리적인 줄을 논리적인 property 줄로 합친다.
 
-    vCard에서는 이전 줄의 내용이 다음 줄로 이어질 경우
-    다음 줄이 공백 또는 TAB으로 시작할 수 있다.
+    1. 일반적인 vCard folded line
 
-    예:
-        FN;...:=EC=9D=B4=...
-         =EC=9A=B0=...
+       FN:홍길
+        동
 
-    -> 하나의 논리적인 줄로 합친다.
+       -> FN:홍길동
+
+
+    2. Quoted-Printable soft line break
+
+       FN;...:=EA=B8=88=EC=...
+       =99=A9=EC=8B=A4
+
+       -> FN;...:=EA=B8=88=EC=...=99=A9=EC=8B=A4
+
+    Quoted-Printable에서 줄 마지막 '='는
+    실제 데이터가 아니라 줄 연결 표시이므로 제거한다.
     """
 
     physical_lines = text.splitlines()
@@ -130,11 +154,52 @@ def parse_vcard_lines(text: str):
 
     for line in physical_lines:
 
-        if line.startswith((" ", "\t")) and logical_lines:
+        # ----------------------------------------------------
+        # 첫 번째 줄
+        # ----------------------------------------------------
+
+        if not logical_lines:
+
+            logical_lines.append(line)
+
+            continue
+
+
+        # ----------------------------------------------------
+        # vCard folded line
+        #
+        # 다음 줄이 공백 또는 TAB으로 시작
+        # ----------------------------------------------------
+
+        if line.startswith((" ", "\t")):
+
             logical_lines[-1] += line[1:]
 
-        else:
-            logical_lines.append(line)
+            continue
+
+
+        # ----------------------------------------------------
+        # Quoted-Printable soft line break
+        #
+        # 이전 줄의 마지막 문자가 '='이면
+        # 다음 줄과 연결한다.
+        # ----------------------------------------------------
+
+        if logical_lines[-1].endswith("="):
+
+            logical_lines[-1] = (
+                logical_lines[-1][:-1] + line
+            )
+
+            continue
+
+
+        # ----------------------------------------------------
+        # 일반적인 새로운 property
+        # ----------------------------------------------------
+
+        logical_lines.append(line)
+
 
     return logical_lines
 
@@ -151,50 +216,82 @@ def parse_vcards(text: str):
     lines = parse_vcard_lines(text)
 
     cards = []
+
     current = None
 
     for line in lines:
 
         line = line.rstrip("\r\n")
 
+        # ----------------------------------------------------
+        # BEGIN:VCARD
+        # ----------------------------------------------------
+
         if line.upper() == "BEGIN:VCARD":
 
             current = [line]
 
-        elif line.upper() == "END:VCARD":
+            continue
+
+
+        # ----------------------------------------------------
+        # END:VCARD
+        # ----------------------------------------------------
+
+        if line.upper() == "END:VCARD":
 
             if current is not None:
 
                 current.append(line)
+
                 cards.append(current)
 
                 current = None
 
-        elif current is not None:
+            continue
+
+
+        # ----------------------------------------------------
+        # 연락처 내부
+        # ----------------------------------------------------
+
+        if current is not None:
 
             current.append(line)
+
 
     return cards
 
 
 # ============================================================
-# vCard property 분석
+# vCard property 분리
 # ============================================================
 
 def parse_property(line: str):
     """
-    vCard property를 다음 세 부분으로 분리한다.
+    vCard property를:
 
-        FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:이름
+        이름
+        parameter
+        value
+
+    로 분리한다.
+
+    예:
+
+        FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=EC=9D...
 
     반환:
-        property_name
-        params
-        value
+
+        "FN"
+        "CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE"
+        "=EC=9D..."
     """
 
     if ":" not in line:
+
         return None, "", ""
+
 
     left, value = line.split(":", 1)
 
@@ -208,12 +305,12 @@ def parse_property(line: str):
 
 
 # ============================================================
-# 전화번호 종류 추출
+# TEL 종류 추출
 # ============================================================
 
 def get_tel_section(params: str) -> str:
     """
-    TEL property의 전화번호 종류를 반환한다.
+    TEL의 전화번호 종류를 추출한다.
 
     예:
 
@@ -238,12 +335,15 @@ def get_tel_section(params: str) -> str:
         "VOICE",
     }
 
+
     for param in params.split(";"):
 
         param_upper = param.upper()
 
         if param_upper in valid_sections:
+
             return param.lower()
+
 
     return "unknown"
 
@@ -254,11 +354,13 @@ def get_tel_section(params: str) -> str:
 
 def extract_contact(card_lines):
     """
-    하나의 vCard에서 다음 정보를 추출한다.
+    하나의 vCard에서:
 
         FN
         N
         TEL
+
+    을 추출한다.
 
     반환:
 
@@ -267,6 +369,7 @@ def extract_contact(card_lines):
         phones
 
     phones:
+
         [
             ("cell", "01012345678"),
             ("work", "0212345678")
@@ -274,12 +377,20 @@ def extract_contact(card_lines):
     """
 
     fn = None
+
     n_value = None
+
     phones = []
+
 
     for line in card_lines:
 
         property_name, params, value = parse_property(line)
+
+
+        # ----------------------------------------------------
+        # FN
+        # ----------------------------------------------------
 
         if property_name == "FN":
 
@@ -290,6 +401,11 @@ def extract_contact(card_lines):
 
             fn = decoded.strip()
 
+
+        # ----------------------------------------------------
+        # N
+        # ----------------------------------------------------
+
         elif property_name == "N":
 
             decoded = decode_vcard_value(
@@ -298,6 +414,11 @@ def extract_contact(card_lines):
             )
 
             n_value = decoded.strip()
+
+
+        # ----------------------------------------------------
+        # TEL
+        # ----------------------------------------------------
 
         elif property_name == "TEL":
 
@@ -308,14 +429,24 @@ def extract_contact(card_lines):
 
             phone = decoded.strip()
 
+
             if not phone:
+
                 continue
 
-            tel_section = get_tel_section(params)
 
-            phone = normalize_phone(phone)
+            tel_section = get_tel_section(
+                params
+            )
+
+
+            phone = normalize_phone(
+                phone
+            )
+
 
             if phone:
+
                 phones.append(
                     (
                         tel_section,
@@ -323,11 +454,12 @@ def extract_contact(card_lines):
                     )
                 )
 
+
     return fn, n_value, phones
 
 
 # ============================================================
-# SQLite DB 초기화
+# SQLite 초기화
 # ============================================================
 
 def init_database(db_path: str):
@@ -346,42 +478,42 @@ def init_database(db_path: str):
 # ============================================================
 
 def print_missing_fn_warning(
+    card_number,
     n_value,
     phones
 ):
     """
-    FN이 없는 연락처를 표준출력으로 기록한다.
+    FN이 없는 연락처를 표준출력한다.
     """
 
     print(
-        "[WARNING] FN 없음",
-        file=sys.stdout
+        f"[WARNING] VCARD #{card_number} : FN 없음"
     )
 
     print(
-        f"    N   : {n_value!r}",
-        file=sys.stdout
+        f"    N : {n_value!r}"
     )
+
 
     if phones:
 
         for tel_section, telnumber in phones:
 
             print(
-                f"    TEL : {tel_section} {telnumber}",
-                file=sys.stdout
+                f"    TEL : "
+                f"{tel_section} "
+                f"{telnumber}"
             )
 
     else:
 
         print(
-            "    TEL : 없음",
-            file=sys.stdout
+            "    TEL : 없음"
         )
 
+
     print(
-        "-" * 60,
-        file=sys.stdout
+        "-" * 60
     )
 
 
@@ -389,29 +521,29 @@ def print_missing_fn_warning(
 # TEL 없는 연락처 로그
 # ============================================================
 
-def print_missing_tel_warning(fn, n_value):
+def print_missing_tel_warning(
+    card_number,
+    fn,
+    n_value
+):
     """
-    TEL이 없는 연락처를 표준출력으로 기록한다.
+    TEL이 없는 연락처를 표준출력한다.
     """
 
     print(
-        "[WARNING] TEL 없음",
-        file=sys.stdout
+        f"[WARNING] VCARD #{card_number} : TEL 없음"
     )
 
     print(
-        f"    FN  : {fn!r}",
-        file=sys.stdout
+        f"    FN : {fn!r}"
     )
 
     print(
-        f"    N   : {n_value!r}",
-        file=sys.stdout
+        f"    N  : {n_value!r}"
     )
 
     print(
-        "-" * 60,
-        file=sys.stdout
+        "-" * 60
     )
 
 
@@ -419,10 +551,13 @@ def print_missing_tel_warning(fn, n_value):
 # VCF -> SQLite
 # ============================================================
 
-def import_vcf(vcf_path: str, db_path: str):
+def import_vcf(
+    vcf_path: str,
+    db_path: str
+):
 
     # --------------------------------------------------------
-    # VCF 읽기
+    # VCF 파일 읽기
     # --------------------------------------------------------
 
     try:
@@ -435,19 +570,23 @@ def import_vcf(vcf_path: str, db_path: str):
 
             text = f.read()
 
+
     except FileNotFoundError:
 
         print(
-            f"오류: 파일을 찾을 수 없습니다: {vcf_path}",
+            f"오류: 파일을 찾을 수 없습니다: "
+            f"{vcf_path}",
             file=sys.stderr
         )
 
         sys.exit(1)
 
+
     except UnicodeDecodeError:
 
         print(
-            f"오류: UTF-8로 읽을 수 없습니다: {vcf_path}",
+            f"오류: UTF-8로 읽을 수 없습니다: "
+            f"{vcf_path}",
             file=sys.stderr
         )
 
@@ -455,21 +594,25 @@ def import_vcf(vcf_path: str, db_path: str):
 
 
     # --------------------------------------------------------
-    # VCF 분리
+    # VCF 연락처 분리
     # --------------------------------------------------------
 
     cards = parse_vcards(text)
 
 
     # --------------------------------------------------------
-    # DB 연결
+    # SQLite 연결
     # --------------------------------------------------------
 
-    conn = init_database(db_path)
+    conn = init_database(
+        db_path
+    )
 
 
     # --------------------------------------------------------
-    # 현재 일시
+    # 현재 날짜/시간
+    #
+    # INSERT 시에만 사용
     # --------------------------------------------------------
 
     now = datetime.now().strftime(
@@ -482,8 +625,11 @@ def import_vcf(vcf_path: str, db_path: str):
     # --------------------------------------------------------
 
     inserted = 0
-    duplicated = 0
+
+    updated = 0
+
     missing_fn = 0
+
     missing_tel = 0
 
 
@@ -496,92 +642,146 @@ def import_vcf(vcf_path: str, db_path: str):
         start=1
     ):
 
-        fn, n_value, phones = extract_contact(card)
+        fn, n_value, phones = extract_contact(
+            card
+        )
 
 
-        # ----------------------------------------------------
+        # ====================================================
         # FN 없음
-        # ----------------------------------------------------
+        # ====================================================
 
         if not fn:
 
             missing_fn += 1
 
-            print(
-                f"[VCARD #{card_number}]",
-                file=sys.stdout
-            )
-
             print_missing_fn_warning(
+                card_number,
                 n_value,
                 phones
             )
 
-            # FN 없는 연락처는 DB에 저장하지 않는다.
+            # FN 없는 연락처는 저장하지 않는다.
+
             continue
 
 
-        # ----------------------------------------------------
+        # ====================================================
         # TEL 없음
-        # ----------------------------------------------------
+        # ====================================================
 
         if not phones:
 
             missing_tel += 1
 
-            print(
-                f"[VCARD #{card_number}]",
-                file=sys.stdout
-            )
-
             print_missing_tel_warning(
+                card_number,
                 fn,
                 n_value
             )
 
-            # TEL 없는 연락처는 현재 DB 구조상 저장할 수 없다.
+            # TEL 없는 연락처는 저장하지 않는다.
+
             continue
 
 
-        # ----------------------------------------------------
+        # ====================================================
         # 전화번호 저장
-        # ----------------------------------------------------
+        # ====================================================
 
         for tel_section, telnumber in phones:
 
-            cursor = conn.execute(
+            # ------------------------------------------------
+            # 기존 Key 확인
+            # ------------------------------------------------
+
+            existing = conn.execute(
                 """
-                INSERT OR IGNORE INTO contacts
-                (
-                    tel_section,
-                    telnumber,
-                    fn_old,
-                    fn_new,
-                    insert_date,
-                    update_date
-                )
-                VALUES (?, ?, ?, NULL, ?, NULL)
+                SELECT 1
+                FROM contacts
+                WHERE tel_section = ?
+                  AND telnumber = ?
                 """,
                 (
                     tel_section,
-                    telnumber,
-                    fn,
-                    now
+                    telnumber
                 )
-            )
+            ).fetchone()
 
 
-            if cursor.rowcount == 1:
+            # =================================================
+            # 신규
+            # =================================================
+
+            if existing is None:
+
+                conn.execute(
+                    """
+                    INSERT INTO contacts
+                    (
+                        tel_section,
+                        telnumber,
+                        fn_old,
+                        fn_new,
+                        insert_date,
+                        update_date
+                    )
+                    VALUES
+                    (
+                        ?,
+                        ?,
+                        ?,
+                        NULL,
+                        ?,
+                        NULL
+                    )
+                    """,
+                    (
+                        tel_section,
+                        telnumber,
+                        fn,
+                        now
+                    )
+                )
 
                 inserted += 1
 
+
+            # =================================================
+            # 기존
+            # =================================================
+
             else:
 
-                duplicated += 1
+                # ------------------------------------------------
+                # 중요:
+                #
+                # fn_old만 최신 VCF 기준으로 변경한다.
+                #
+                # fn_new       -> 보존
+                # update_date  -> 보존
+                # insert_date  -> 보존
+                # ------------------------------------------------
+
+                conn.execute(
+                    """
+                    UPDATE contacts
+                    SET fn_old = ?
+                    WHERE tel_section = ?
+                      AND telnumber = ?
+                    """,
+                    (
+                        fn,
+                        tel_section,
+                        telnumber
+                    )
+                )
+
+                updated += 1
 
 
     # --------------------------------------------------------
-    # 저장
+    # DB 저장
     # --------------------------------------------------------
 
     conn.commit()
@@ -590,24 +790,33 @@ def import_vcf(vcf_path: str, db_path: str):
 
 
     # --------------------------------------------------------
-    # 결과
+    # 결과 출력
     # --------------------------------------------------------
 
     print()
-    print("=" * 60)
-    print("VCF → SQLite 처리 완료")
-    print("=" * 60)
+
+    print(
+        "=" * 60
+    )
+
+    print(
+        "VCF -> SQLite 처리 완료"
+    )
+
+    print(
+        "=" * 60
+    )
 
     print(
         f"VCF 연락처 수 : {len(cards):,}"
     )
 
     print(
-        f"새로 저장     : {inserted:,}"
+        f"신규 INSERT   : {inserted:,}"
     )
 
     print(
-        f"중복/기존     : {duplicated:,}"
+        f"기존 UPDATE   : {updated:,}"
     )
 
     print(
@@ -622,11 +831,13 @@ def import_vcf(vcf_path: str, db_path: str):
         f"SQLite 파일   : {db_path}"
     )
 
-    print("=" * 60)
+    print(
+        "=" * 60
+    )
 
 
 # ============================================================
-# 사용법
+# 사용법 출력
 # ============================================================
 
 def print_usage():
@@ -650,12 +861,13 @@ def print_usage():
     print()
 
     print(
-        "    python vcf_to_sqlite.py 입력.vcf contacts.db"
+        "    python vcf_to_sqlite.py "
+        "입력.vcf contacts.db"
     )
 
 
 # ============================================================
-# 프로그램 시작
+# main
 # ============================================================
 
 def main():
