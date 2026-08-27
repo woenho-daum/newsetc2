@@ -177,8 +177,18 @@ def init_db(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def upsert_row(conn: sqlite3.Connection, row: dict, driver_type: str,
+def row_exists(conn: sqlite3.Connection, driver_no: str) -> bool:
+    """driver_no(사번)가 이미 저장되어 있는지 확인한다."""
+    cur = conn.execute(
+        "SELECT 1 FROM dispatch_settings WHERE driver_no = ? LIMIT 1",
+        (driver_no,),
+    )
+    return cur.fetchone() is not None
+
+
+def insert_row(conn: sqlite3.Connection, row: dict, driver_type: str,
                 driver_name: str, driver_no: str, office: str, collected_at: str) -> None:
+    """새 사번 -> INSERT"""
     idx_val = int(row["idx"]) if row["idx"].strip().isdigit() else None
     conn.execute(
         """
@@ -186,19 +196,6 @@ def upsert_row(conn: sqlite3.Connection, row: dict, driver_type: str,
             (driver_no, source_id, office, route, idx, is_reserve, car_number, rest_day, shift,
              driver_type, driver_name, apply_date, collected_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(driver_no) DO UPDATE SET
-            source_id    = excluded.source_id,
-            office       = excluded.office,
-            route        = excluded.route,
-            idx          = excluded.idx,
-            is_reserve   = excluded.is_reserve,
-            car_number   = excluded.car_number,
-            rest_day     = excluded.rest_day,
-            shift        = excluded.shift,
-            driver_type  = excluded.driver_type,
-            driver_name  = excluded.driver_name,
-            apply_date   = excluded.apply_date,
-            collected_at = excluded.collected_at
         """,
         (
             driver_no, int(row["source_id"]), office, row["route"], idx_val, row["is_reserve"],
@@ -208,10 +205,41 @@ def upsert_row(conn: sqlite3.Connection, row: dict, driver_type: str,
     )
 
 
+def update_row(conn: sqlite3.Connection, row: dict, driver_type: str,
+                driver_name: str, driver_no: str, office: str, collected_at: str) -> None:
+    """기존 사번 -> UPDATE"""
+    idx_val = int(row["idx"]) if row["idx"].strip().isdigit() else None
+    conn.execute(
+        """
+        UPDATE dispatch_settings
+        SET source_id    = ?,
+            office       = ?,
+            route        = ?,
+            idx          = ?,
+            is_reserve   = ?,
+            car_number   = ?,
+            rest_day     = ?,
+            shift        = ?,
+            driver_type  = ?,
+            driver_name  = ?,
+            apply_date   = ?,
+            collected_at = ?
+        WHERE driver_no = ?
+        """,
+        (
+            int(row["source_id"]), office, row["route"], idx_val, row["is_reserve"],
+            row["car_number"], row["rest_day"], row["shift"],
+            driver_type, driver_name, row["apply_date"], collected_at,
+            driver_no,
+        ),
+    )
+
+
 def save_rows(conn: sqlite3.Connection, rows: list, office: str) -> tuple:
-    """반환값: (저장된 행 수, 사번 없어서 버려진 행 수)"""
+    """반환값: (신규 삽입 행 수, 갱신된 행 수, 사번 없어서 버려진 행 수)"""
     collected_at = time.strftime("%Y-%m-%d %H:%M:%S")
-    saved = 0
+    inserted = 0
+    updated = 0
     dropped = 0
     for row in rows:
         if not row.get("source_id"):
@@ -229,11 +257,16 @@ def save_rows(conn: sqlite3.Connection, rows: list, office: str) -> tuple:
                     row["source_id"], row["route"], row["idx"], driver_type, name,
                 )
                 continue
-            upsert_row(conn, row, driver_type, name, no, office, collected_at)
-            saved += 1
-    conn.commit()
-    return saved, dropped
 
+            if row_exists(conn, no):
+                update_row(conn, row, driver_type, name, no, office, collected_at)
+                updated += 1
+            else:
+                insert_row(conn, row, driver_type, name, no, office, collected_at)
+                inserted += 1
+
+    conn.commit()
+    return inserted, updated, dropped
 
 # ------------------------------------------------------------------
 # 메인
@@ -256,7 +289,9 @@ def main():
         office = result.get("office", "")
         rows = result.get("rows", [])
         logger.info("현재 화면(영업소=%r)에서 %d행을 읽었습니다.", office, len(rows))
-        saved, dropped = save_rows(conn, rows, office)
+        #saved, dropped = save_rows(conn, rows, office)
+        inserted, updated, dropped = save_rows(conn, rows, office)
+        print(f"신규 {inserted}건, 갱신 {updated}건, 버림 {dropped}건")
     except Exception:
         logger.exception("스크립트 실행 중 오류가 발생했습니다.")
         raise
@@ -265,8 +300,8 @@ def main():
         conn.close()
 
     logger.info(
-        "완료. 저장/갱신 %d행, 사번없어 버려진 행 %d개 -> %s (table: dispatch_settings)",
-        saved, dropped, DB_PATH,
+        "완료. 저장 %d행, 갱신 %d행, 사번없어 버려진 행 %d개 -> %s (table: dispatch_settings)",
+        inserted, updated, dropped, DB_PATH,
     )
 
 

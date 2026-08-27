@@ -2,3 +2,5 @@
 logs
 /xvba_excel_backup
 .gitignore
+__pycache__/
+*.py[cod]

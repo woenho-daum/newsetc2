@@ -20,7 +20,8 @@ DEFAULT_DB_PATH = "baecha.db"
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS contacts (
     tel_section TEXT NOT NULL,
-    tel_number   TEXT NOT NULL,
+    tel_number  TEXT NOT NULL,
+    fn_front    TEXT NOT NULL,
     fn_old      TEXT NOT NULL,
     fn_new      TEXT,
     insert_date TEXT NOT NULL,
@@ -663,6 +664,8 @@ def import_vcf(
             # FN 없는 연락처는 저장하지 않는다.
 
             continue
+        else:
+            fn_front = fn.split()[0]  # FN의 첫 번째 단어를 fn_front로 사용
 
 
         # ====================================================
@@ -720,6 +723,7 @@ def import_vcf(
                     (
                         tel_section,
                         tel_number,
+                        fn_front,
                         fn_old,
                         fn_new,
                         insert_date,
@@ -727,6 +731,7 @@ def import_vcf(
                     )
                     VALUES
                     (
+                        ?,
                         ?,
                         ?,
                         ?,
@@ -738,6 +743,7 @@ def import_vcf(
                     (
                         tel_section,
                         tel_number,
+                        fn_front,
                         fn,
                         now
                     )
@@ -755,7 +761,7 @@ def import_vcf(
                 # ------------------------------------------------
                 # 중요:
                 #
-                # fn_old만 최신 VCF 기준으로 변경한다.
+                # fn_front, fn_old만 최신 VCF 기준으로 변경한다.
                 #
                 # fn_new       -> 보존
                 # update_date  -> 보존
@@ -765,11 +771,13 @@ def import_vcf(
                 conn.execute(
                     """
                     UPDATE contacts
-                    SET fn_old = ?
+                    SET fn_front = ?,
+                        fn_old = ?
                     WHERE tel_section = ?
                       AND tel_number = ?
                     """,
                     (
+                        fn_front,
                         fn,
                         tel_section,
                         tel_number

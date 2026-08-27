@@ -1,0 +1,39 @@
+SELECT
+    c.fn_front,
+    c.fn_old,
+    ds.route,
+    ds.car_number,
+    c.fn_front || ' ' ||
+    ds.route || ' ' ||
+    substr(ds.car_number, -4),
+    c.tel_number,
+    c.tel_section
+FROM contacts c, dispatch_settings ds
+WHERE c.fn_front = ds.driver_name;
+
+SELECT
+    c.fn_front,
+    c.fn_old,
+    c.tel_number,
+    c.tel_section
+FROM contacts c
+LEFT JOIN dispatch_settings ds
+    ON c.fn_front = ds.driver_name
+WHERE ds.driver_name IS NULL;
+
+SELECT
+    c.fn_front,
+    c.fn_old,
+    c.tel_number,
+    c.tel_section
+FROM contacts c
+LEFT JOIN dispatch_settings ds
+    ON c.fn_front = ds.driver_name
+WHERE ds.driver_name IS NULL;
+
+SELECT
+    ds.*
+FROM dispatch_settings ds
+LEFT JOIN contacts c
+    ON c.fn_front = ds.driver_name
+WHERE c.fn_front IS NULL;

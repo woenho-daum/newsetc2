@@ -193,10 +193,11 @@ RefreshAlcoholCDP(bFound := false,*)
     {
 		what := e.HasProp("What") ? e.What : 0
 
-        if (What < 0) {
-            msg := "Message : " e.Message
-			msg .= "`nWhat : " what
-
+        if (Type(What) != "String" && What < 0) {
+			if e.HasProp("Message")
+            	msg := "Message : " e.Message
+			if e.HasProp("what")
+				msg .= "`nWhat : " what
 			if e.HasProp("Line")
 				msg .= "`nLine : " e.Line
 			if e.HasProp("File")
