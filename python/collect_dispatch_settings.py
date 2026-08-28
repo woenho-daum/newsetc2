@@ -9,21 +9,41 @@ dispatch_settings 테이블에 저장하는 스크립트.
   - driver_type 컬럼을 추가해서 그 행이 A인지 B인지 구분한다.
   - 사번(driver_no)이 키다. 사번이 없는 자료(A/B 각각)는 버린다.
   - 진행 로그를 stdout으로 남긴다.
-  - 웹페이지는 이미 9223 포트로 크롬 원격 디버깅이 열려 있고, 페이지도 이미
-    열려서 표가 렌더링돼 있는 상태다. URL로 새로 이동(navigate)하지 않고,
-    "탭 제목(title)"으로 해당 탭을 찾아 그 탭에 지금 표시돼 있는 데이터를
-    그대로 읽어온다.
+
+실행 인수 (추가됨):
+    python collect_dispatch_settings.py {new|update} {search|param} [cdp연결페이지 정보]
+
+  - 첫째 인수 mode
+      new    : DB 연결 시 기존 dispatch_settings 테이블을 백업용 이름으로
+               rename 하고, 새 테이블을 만들어서 처리한다.
+      update : 기존 방식 그대로. 테이블이 없으면 만들고, 있으면 그대로 사용
+               (UPSERT 방식으로 driver_no 기준 갱신/삽입).
+
+  - 둘째 인수 source
+      search : 기존 방식 그대로. CDP(9223)에 새로 연결해서 TAB_TITLE로
+               탭을 찾아 그 탭에 붙는다.
+      param  : 크롬에 새로 연결/탭 검색을 하지 않는다. 셋째 인수로 넘겨받은
+               "cdp연결페이지 정보"(해당 탭의 webSocketDebuggerUrl)로 바로
+               websocket 연결한다. dispatch_settings_cdp.py 처럼 이미 같은
+               탭을 열어서 조회까지 마친 상태에서 호출할 때 사용한다.
+
+  - 셋째 인수 page_info
+      source=param 일 때만 사용. 대상 탭의 webSocketDebuggerUrl 문자열.
+      (예: ws://127.0.0.1:9223/devtools/page/XXXXXXXX)
 
 사전 준비
   1) pip install websocket-client requests
   2) 크롬이 --remote-debugging-port=9223 으로 이미 떠 있고, 고정(쉬프트)지정
      페이지가 이미 로그인된 상태로 열려서 표가 보이는 상태여야 한다.
+     (source=search 인 경우에만 해당. source=param 이면 이미 연결된 탭을
+      그대로 재사용하므로 이 조건은 호출하는 쪽에서 보장한다.)
   3) 필요하면 아래 TAB_TITLE 을 실제 탭 제목과 맞춰 조정한다.
 
-실행
-  python collect_dispatch_settings.py
+실행 예시
+  python collect_dispatch_settings.py new search
+  python collect_dispatch_settings.py update search
+  python collect_dispatch_settings.py update param "ws://127.0.0.1:9223/devtools/page/XXXX"
 """
-
 import json
 import logging
 import sqlite3
@@ -43,16 +63,13 @@ _handler = logging.StreamHandler(stream=sys.stdout)
 _handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S"))
 logger.addHandler(_handler)
 
-
 # ------------------------------------------------------------------
 # 설정
 # ------------------------------------------------------------------
 CDP_HOST = "127.0.0.1"
 CDP_PORT = 9223
-
-# 찾을 탭의 제목(<title>고정(쉬프트)지정</title>). 부분 일치로 찾는다.
+# 찾을 탭의 제목(<title>고정(쉬프트)지정</title>). 부분 일치로 찾는다. (source=search 일 때만 사용)
 TAB_TITLE = "고정(쉬프트)지정"
-
 DB_PATH = "baecha.db"
 
 
@@ -88,6 +105,13 @@ class CDPClient:
         if tab is None:
             return None
         self.ws = websocket.create_connection(tab["webSocketDebuggerUrl"], timeout=30)
+        return self
+
+    def connect_ws_url(self, ws_url: str) -> "CDPClient":
+        """이미 알고 있는 webSocketDebuggerUrl로 바로 연결한다.
+        (탭 검색 없이 곧바로 붙을 때 사용. source=param 용)
+        """
+        self.ws = websocket.create_connection(ws_url, timeout=30)
         return self
 
     def send(self, method: str, params: Optional[dict] = None) -> dict:  # noqa: UP045
@@ -155,6 +179,7 @@ EXTRACT_JS = r"""
 # SQLite
 # ------------------------------------------------------------------
 def init_db(conn: sqlite3.Connection) -> None:
+    """테이블이 없으면 만든다. 있으면 그대로 둔다 (update 모드에서 사용)."""
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS dispatch_settings (
@@ -175,6 +200,24 @@ def init_db(conn: sqlite3.Connection) -> None:
         """
     )
     conn.commit()
+
+
+def backup_and_recreate_table(conn: sqlite3.Connection) -> None:
+    """mode=new 용.
+    기존 dispatch_settings 테이블이 있으면 dispatch_settings_backup_YYYYMMDD_HHMMSS
+    이름으로 rename(백업)하고, 이어서 새 dispatch_settings 테이블을 만든다.
+    """
+    cur = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='dispatch_settings'"
+    )
+    if cur.fetchone() is not None:
+        backup_name = f"dispatch_settings_{time.strftime('%Y%m%d_%H%M%S')}"
+        logger.info("mode=new -> 기존 dispatch_settings 테이블을 %r (으)로 백업합니다.", backup_name)
+        conn.execute(f"ALTER TABLE dispatch_settings RENAME TO {backup_name}")
+        conn.commit()
+    else:
+        logger.info("mode=new -> 기존 dispatch_settings 테이블이 없어 백업 없이 새로 만듭니다.")
+    init_db(conn)
 
 
 def row_exists(conn: sqlite3.Connection, driver_no: str) -> bool:
@@ -268,28 +311,57 @@ def save_rows(conn: sqlite3.Connection, rows: list, office: str) -> tuple:
     conn.commit()
     return inserted, updated, dropped
 
+
 # ------------------------------------------------------------------
 # 메인
 # ------------------------------------------------------------------
-def main():
-    logger.info("시작: DB=%s", DB_PATH)
+def main(mode: str = "update", source: str = "search", page_info: Optional[str] = None):  # noqa: UP045
+    """
+    mode      : "new" | "update"
+    source    : "search" | "param"
+    page_info : source="param" 일 때 사용할 webSocketDebuggerUrl
+    """
+    if mode not in ("new", "update"):
+        logger.error("잘못된 첫번째 인수 mode=%r ('new' 또는 'update' 여야 함)", mode)
+        sys.exit(1)
+    if source not in ("search", "param"):
+        logger.error("잘못된 두번째 인수 source=%r ('search' 또는 'param' 이어야 함)", source)
+        sys.exit(1)
+    if source == "param" and not page_info:
+        logger.error("source='param' 인데 셋째 인수(cdp연결페이지 정보)가 없습니다.")
+        sys.exit(1)
+
+    logger.info("시작: DB=%s mode=%s source=%s", DB_PATH, mode, source)
     conn = sqlite3.connect(DB_PATH)
-    init_db(conn)
+
+    if mode == "new":
+        backup_and_recreate_table(conn)
+    else:
+        init_db(conn)
 
     client = CDPClient()
-    logger.info("탭 검색 중 (title 포함: %r, port=%d)", TAB_TITLE, CDP_PORT)
-    if client.connect_existing_tab_by_title(TAB_TITLE) is None:
-        logger.error("탭 제목에 %r 이(가) 포함된 탭을 찾지 못했습니다. "
-                     "고정(쉬프트)지정 페이지가 열려 있는지 확인하세요.", TAB_TITLE)
-        sys.exit(1)
-    logger.info("탭에 연결했습니다.")
 
+    if source == "search":
+        logger.info("탭 검색 중 (title 포함: %r, port=%d)", TAB_TITLE, CDP_PORT)
+        if client.connect_existing_tab_by_title(TAB_TITLE) is None:
+            logger.error(
+                "탭 제목에 %r 이(가) 포함된 탭을 찾지 못했습니다. "
+                "고정(쉬프트)지정 페이지가 열려 있는지 확인하세요.",
+                TAB_TITLE,
+            )
+            sys.exit(1)
+        logger.info("탭에 연결했습니다.")
+    else:  # source == "param"
+        logger.info("전달받은 cdp연결페이지 정보로 바로 연결합니다: %s", page_info)
+        client.connect_ws_url(page_info)
+        logger.info("탭에 연결했습니다.")
+
+    inserted = updated = dropped = 0
     try:
         result = client.eval_js(EXTRACT_JS) or {}
         office = result.get("office", "")
         rows = result.get("rows", [])
         logger.info("현재 화면(영업소=%r)에서 %d행을 읽었습니다.", office, len(rows))
-        #saved, dropped = save_rows(conn, rows, office)
         inserted, updated, dropped = save_rows(conn, rows, office)
         print(f"신규 {inserted}건, 갱신 {updated}건, 버림 {dropped}건")
     except Exception:
@@ -300,10 +372,13 @@ def main():
         conn.close()
 
     logger.info(
-        "완료. 저장 %d행, 갱신 %d행, 사번없어 버려진 행 %d개 -> %s (table: dispatch_settings)",
+        "완료. 신규 %d행, 갱신 %d행, 사번없어 버려진 행 %d개 -> %s (table: dispatch_settings)",
         inserted, updated, dropped, DB_PATH,
     )
 
 
 if __name__ == "__main__":
-    main()
+    _mode = sys.argv[1] if len(sys.argv) > 1 else "update"
+    _source = sys.argv[2] if len(sys.argv) > 2 else "search"
+    _page_info = sys.argv[3] if len(sys.argv) > 3 else None
+    main(_mode, _source, _page_info)

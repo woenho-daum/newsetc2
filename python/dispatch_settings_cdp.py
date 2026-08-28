@@ -11,11 +11,27 @@ collect_dispatch_settings.py 를 별도 프로세스(subprocess)로 띄우지 �
 import 해서 같은 파이썬 프로세스 안에서 함수로 호출한다.
 -> VSCode 에서 이 파일을 디버그로 실행하면 collect_dispatch_settings.py
    내부의 브레이크포인트도 같은 디버그 세션에서 그대로 잡힌다.
-"""
 
+[개선사항]
+기존에는 collect_dispatch_settings.main() 이 호출될 때마다 내부에서
+다시 CDP(9223)에 연결하고 탭 제목으로 탭을 찾았다. 이 파일에서 이미
+같은 탭에 연결되어 조회까지 마친 상태이므로 불필요하고, 이미 같은 제목의
+탭이 여러 개 있을 경우 잘못된 탭을 찾을 위험도 있었다.
+
+이제는 이 파일에서 CDP HTTP 엔드포인트(/json)를 한 번 조회해서 지금 연
+탭의 webSocketDebuggerUrl 을 알아낸 뒤, 그 값을
+collect_dispatch_settings.main(mode, "param", ws_url) 형태로 그대로
+넘겨준다. collect_dispatch_settings.py 는 그 값으로 곧바로 websocket
+연결만 하고, 탭 검색은 하지 않는다.
+
+또한 영업소 루프의 첫 번째 호출(본사)만 mode="new" 로 호출해서 기존
+dispatch_settings 테이블을 백업 후 새로 만들고, 이후(출퇴근/심야)는
+mode="update" 로 호출해서 같은 테이블에 계속 쌓는다.
+"""
 import os
 import sys
 
+import requests
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeoutError
 
 # 이 스크립트 파일이 있는 폴더로 작업 디렉토리를 강제 고정 (디버그 실행시 작업디렉토리를 환경파일 폴더로 한다. 이를 소스폴더로 변경하려면...)
@@ -32,7 +48,8 @@ import collect_dispatch_settings  # noqa: E402  (경로 추가 이후에 import 
 # ----------------------------------------------------------------------
 # 설정값
 # ----------------------------------------------------------------------
-CDP_URL = "http://localhost:9223"
+CDP_PORT = 9223
+CDP_URL = f"http://localhost:{CDP_PORT}"
 TARGET_URL = "https://bumil.mobilhi.com/a3/view_dispatch_settings/"
 
 # 조회할 영업소 순서 (select 태그의 <option> 텍스트와 동일해야 함)
@@ -45,11 +62,28 @@ SELECT_ID = "#id_search_office_false"
 SEARCH_BUTTON_SELECTOR = "form.search_box button.btn-outline-primary"
 
 
-def run_collect_script():
-    """collect_dispatch_settings.main() 을 같은 프로세스 안에서 직접 호출한다."""
-    print("[정보] collect_dispatch_settings.main() 호출...")
+def get_ws_url_for_page(target_url_part: str) -> str:
+    """CDP HTTP 엔드포인트(/json)를 조회해서 url에 target_url_part가 포함된
+    첫 page 탭의 webSocketDebuggerUrl 을 반환한다.
+    collect_dispatch_settings.py 쪽에서 다시 탭을 찾을 필요 없이, 여기서
+    한 번 구해서 그대로 넘겨주기 위한 함수다.
+    """
+    resp = requests.get(f"{CDP_URL}/json")
+    resp.raise_for_status()
+    for tab in resp.json():
+        if tab.get("type") == "page" and target_url_part in tab.get("url", ""):
+            return tab["webSocketDebuggerUrl"]
+    raise RuntimeError(f"url에 {target_url_part!r} 이(가) 포함된 탭을 찾지 못했습니다.")
+
+
+def run_collect_script(mode: str, ws_url: str):
+    """collect_dispatch_settings.main() 을 같은 프로세스 안에서 직접 호출한다.
+    탭은 이미 이 파일에서 열어 둔 상태이므로, source="param" 으로 호출해서
+    collect 스크립트가 다시 크롬에 연결/탭 검색을 하지 않도록 한다.
+    """
+    print(f"[정보] collect_dispatch_settings.main(mode={mode!r}, source='param') 호출...")
     try:
-        collect_dispatch_settings.main()
+        collect_dispatch_settings.main(mode, "param", ws_url)
     except Exception as e:
         print(f"[경고] collect_dispatch_settings.main() 실행 중 예외 발생: {e}")
         raise
@@ -89,7 +123,14 @@ def select_office_and_search(page, office_name: str):
     print(f"[정보] 영업소 '{office_name}' 조회 완료")
 
 
-def main():
+def main(mode: str = "new"):
+    """
+    mode      : "new" | "update"
+    """
+    if mode not in ("new", "update"):
+        print(f"잘못된 첫번째 인수 mode={mode!r} ('new' 또는 'update' 여야 함)")
+        sys.exit(1)
+
     with sync_playwright() as p:
         print(f"[정보] CDP({CDP_URL})로 크롬에 연결 중...")
         browser = p.chromium.connect_over_cdp(CDP_URL)
@@ -102,15 +143,26 @@ def main():
         print(f"[정보] 페이지 이동: {TARGET_URL}")
         page.goto(TARGET_URL, wait_until="networkidle")
 
-        for office_name in OFFICE_OPTIONS:
+        # 지금 연 탭의 webSocketDebuggerUrl 을 한 번만 구해둔다.
+        # (탭 title/url이 이후에도 바뀌지 않으므로 루프 내내 재사용한다)
+        ws_url = get_ws_url_for_page("view_dispatch_settings")
+        print(f"[정보] collect 스크립트에 넘길 탭 접속정보 확보: {ws_url}")
+
+        for i, office_name in enumerate(OFFICE_OPTIONS):
             select_office_and_search(page, office_name)
-            run_collect_script()
+            # 첫 영업소 처리 시에만 mode="new" (기존 테이블 백업 후 재생성),
+            # 이후에는 mode="update" 로 같은 테이블에 계속 쌓는다.
+            if i > 0:
+                mode = "update"
+            run_collect_script(mode, ws_url)
 
         print("[정보] 모든 영업소 처리 완료")
+
         # 탭/연결은 유지하고 싶으면 아래 두 줄을 주석 처리하세요.
         # page.close()
         # browser.close()
 
 
 if __name__ == "__main__":
-    main()
+    _mode = sys.argv[1] if len(sys.argv) > 1 else "new"
+    main(_mode)
