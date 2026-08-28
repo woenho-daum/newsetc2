@@ -463,6 +463,8 @@ def import_vcf(
     for card_number, card in enumerate( cards, start=1 ):
         fn, n_value, phones = extract_contact( card )
 
+        fn_front = None  # FN의 첫 번째 단어를 저장할 변수 초기화
+        
         # ====================================================
         # FN 없음
         # ====================================================
@@ -472,7 +474,14 @@ def import_vcf(
             # FN 없는 연락처는 저장하지 않는다.
             continue
         else:
-            fn_front = fn.split()[0]  # FN의 첫 번째 단어를 fn_front로 사용
+            #fn_front = fn.split()[0]  # FN의 첫 번째 단어를 fn_front로 사용
+            for fn_split in fn:
+                # 한글 3글자 + (선택적으로 뒤에 붙는 숫자 2자리) 추출
+                match = re.match(r'^([가-힣]{3}\d{2}|[가-힣]{3})', fn_split)
+
+                if match:
+                    fn_front = match.group(0)
+                    print(f"{fn_split:<15} -> {fn_front}")
 
 
         # ====================================================
