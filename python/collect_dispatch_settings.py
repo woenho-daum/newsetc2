@@ -192,10 +192,10 @@ def init_db(conn: sqlite3.Connection) -> None:
             idx           INTEGER,            -- 순번
             rest_day      TEXT,               -- 휴무
             shift         TEXT,               -- 쉬프트
-            apply_date    TEXT,
+            apply_date    DATE,
             source_id     INTEGER NOT NULL,   -- 원본 페이지의 data-id (A/B 두 행이 같은 값을 공유)
             is_reserve    TEXT,               -- 예비차량여부 (Y/'')
-            collected_at  TEXT NOT NULL
+            collected_at  DATETIME NOT NULL
         )
         """
     )
