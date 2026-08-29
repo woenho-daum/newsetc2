@@ -4,3 +4,5 @@ logs
 .gitignore
 __pycache__/
 *.py[cod]
+installsource
+

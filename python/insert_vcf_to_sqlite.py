@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     fn_front    TEXT NOT NULL,
     fn_old      TEXT NOT NULL,
     fn_new      TEXT,
+    fn_order    TEXT,
     insert_date DATETIME NOT NULL,
     update_date DATETIME,
     PRIMARY KEY (tel_section, tel_number)
@@ -446,7 +447,7 @@ def import_vcf(
     # INSERT 시에만 사용
     # --------------------------------------------------------
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005
+    #now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005
 
 
     # --------------------------------------------------------
@@ -475,11 +476,14 @@ def import_vcf(
             continue
         else:
             #fn_front = fn.split()[0]  # FN의 첫 번째 단어를 fn_front로 사용
-            if ' ' in fn:
-                fn_front = fn.split()[0]
-            else:
+            fn_front = fn.split()[0] if fn.split() else ""
+
+            if fn_front == "" or len(fn_front)>=3 :
+                if fn_front == "":
+                    fn_front = fn
                 # 한글 3글자 + (선택적으로 뒤에 붙는 숫자 2자리) 추출
-                match = re.match(r'^([가-힣]{3}\d{2}|[가-힣]{3})', fn)
+                #match = re.match(r'^([가-힣]{3}\d{2}|[가-힣]{3})', fn_front)
+                match = re.match(r'^[가-힣]{3}(?:\d{1,2}(?!\d))?', fn_front)
 
                 if match:
                     fn_front = match.group(0)
