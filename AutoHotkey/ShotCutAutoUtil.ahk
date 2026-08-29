@@ -151,7 +151,12 @@ CenterMsgBox() {
 
         OutputDebug("CenterMsgBox: target-> newX=" newX ", newY=" newY "`n")
 
+         ; 팝업을 화면의 지정 위치로 이동
         WinMove(newX, newY, , , "ahk_id " msgId)
+
+        ; 팝업을 항상 최상위로 설정
+        WinSetAlwaysOnTop(true, "ahk_id " msgId)
+        
         SetTimer(, 0)  ; 이동 완료 후 타이머 종료
     }
 }
