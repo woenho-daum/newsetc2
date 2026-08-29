@@ -140,11 +140,17 @@ FindChromeWindowByTitle(searchText) {
 
 CenterMsgBox() {
     global g_ex, g_ey, g_ew, g_eh, g_msgTitle
-    msgId := WinExist(msgTitle)
+    
+    OutputDebug("CenterMsgBox: g_ex=" g_ex ", g_ey=" g_ey ", g_ew=" g_ew ", eh=" g_eh ", g_msgTitle=" g_msgTitle "`n")
+    
+    msgId := WinExist(g_msgTitle)
     if msgId {
         WinGetPos(&mx, &my, &mw, &mh, "ahk_id " msgId)
         newX := g_ex + (g_ew - mw) / 2
         newY := g_ey + (g_eh - mh) / 2
+
+        OutputDebug("CenterMsgBox: target-> newX=" newX ", newY=" newY "`n")
+
         WinMove(newX, newY, , , "ahk_id " msgId)
         SetTimer(, 0)  ; 이동 완료 후 타이머 종료
     }
@@ -165,6 +171,12 @@ ShowCenteredMsg(targetWin, text, title := "알림") {
     ; 대상 창(엑셀) 중앙 좌표 계산
     newX := tx + (tw - gw) / 2
     newY := ty + (th - gh) / 2
+    
+    OutputDebug(
+        "target: x=" tx ", y=" ty ", w=" tw ", h=" th
+        ", gui: w=" gw ", h=" gh
+        ", new: x=" newX ", y=" newY "`n"
+    )
 
     myGui.Show("x" newX " y" newY)
 }

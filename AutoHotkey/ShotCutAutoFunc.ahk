@@ -282,6 +282,8 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 		if !xlApp
 			throw Error("'음주측정대장' 엑셀창에서 엑셀핸들을 찾을 수 없습니다.", -601)
 
+        unchecked_name := ""
+
 		; 엑셀 업데이트 잠시 보류처리시 오류발생하면 복구 해야한다
 		try{
 			xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
@@ -318,6 +320,8 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 							foundCell.Interior.Color := 0xFFFFCC
 							foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
 							foundCell.Offset(0, 1).Interior.Color := 0XFFCC99 ;0xFFFFCC 
+                            if nAlcoholCnt < 10
+                                unchecked_name := unchecked_name driver "`n"
 						}
 					}
 					else
@@ -342,23 +346,30 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 		WinActivate("ahk_id " ExcelWin)
 		WinWaitActive("ahk_id " ExcelWin)
 
-		global ex, ey, ew, eh, msgTitle
+		global g_ex, g_ey, g_ew, g_eh, g_msgTitle
 		; 엑셀 창의 위치/크기 가져오기
-		WinGetPos(&ex, &ey, &ew, &eh, "ahk_id " ExcelWin)
+        ;ex:=0, ey:=0, ew:=1020, eh:=1242
 
-		if(1)
+        CoordMode "Mouse", "Screen"
+		WinGetPos(&g_ex, &g_ey, &g_ew, &g_eh, "ahk_id " ExcelWin)
+        ;debugging code
+        MouseGetPos(&mx, &my)
+        OutputDebug("g_ex=" g_ex ", g_ey=" g_ey ", g_ew=" g_ew ", eh=" g_eh ", mx=" mx ", my=" my "`n")
+
+		if(1) ;기본 메시지 박스표시인데 엑셀 중앙으로 옮긴다(불확실)
 		{
-			msgTitle := "음주측정 확인"  ; MsgBox 제목 (구분용)
+			g_msgTitle := "음주측정 확인"  ; MsgBox 제목 (구분용)
 
 			; MsgBox가 뜨는 걸 감지해서 중앙으로 이동시키는 타이머 시작
 			SetTimer(CenterMsgBox, 20)
 
-			MsgBox("음주측정 미확인자 " nAlcoholCnt "명", msgTitle)
+			MsgBox("음주측정 미확인자 " nAlcoholCnt "명`n" unchecked_name, g_msgTitle)
 
-		}else if(1){
-			ShowCenteredMsg(ExcelWin, "음주측정 미확인자 " nAlcoholCnt "명")
+		}else if(1){ 
+            ; AHK  메시지 박스인데 엑셀 중앙으로 옮긴다 (확실)
+			ShowCenteredMsg(ExcelWin, "음주측정 미확인자 " nAlcoholCnt "명`n" unchecked_name)
 		}else if(0){
-			text := "음주측정 미확인자 " nAlcoholCnt "명"
+			text := "음주측정 미확인자 " nAlcoholCnt "명`n" unchecked_name
 
 			DllCall("MessageBox",
 				"Ptr", ExcelWin,
@@ -366,10 +377,10 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 				"Str", "알림",
 				"UInt", 0x40)   ; MB_ICONINFORMATION
 		}else if(0){
-			MsgBox ("음주측정 미확인자 " nAlcoholCnt "명")
+			MsgBox ("음주측정 미확인자 " nAlcoholCnt "명`n" unchecked_name)
 		}else{
 			myGui := Gui("+Owner" ExcelWin, "알림")
-			myGui.AddText(, "음주측정 미확인자 " nAlcoholCnt "명")
+			myGui.AddText(, "음주측정 미확인자 " nAlcoholCnt "명`n" unchecked_name)
 			myGui.AddButton("Default", "확인").OnEvent("Click", (*) => myGui.Destroy())
 			myGui.Show()
 		}
@@ -378,15 +389,21 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
     }
     catch Error as e
     {
-        if (e.What < 0) {
-            MsgBox(
-                "Message : " e.Message
-                . "`nWhat : " e.What
-                . "`nLine : " e.Line
-                . "`nFile : " e.File
-                . "`nExtra : " e.Extra
-                . "`n"
-            )
+       what := e.HasProp("What") ? e.What : 0
+
+        if (Type(What) != "String" && What < 0) {
+			if e.HasProp("Message")
+            	msg := "Message : " e.Message
+			if e.HasProp("what")
+				msg .= "`nWhat : " what
+			if e.HasProp("Line")
+				msg .= "`nLine : " e.Line
+			if e.HasProp("File")
+				msg .= "`nFile : " e.File
+			if e.HasProp("Extra")
+				msg .= "`nExtra : " e.Extra
+
+			MsgBox(msg)
         } else {
             Log(
                 "Message : " e.Message
@@ -483,15 +500,21 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
     }
     catch Error as e
     {
-       if (e.What < 0) {
-            MsgBox(
-                "Message : " e.Message
-                . "`nWhat : " e.What
-                . "`nLine : " e.Line
-                . "`nFile : " e.File
-                . "`nExtra : " e.Extra
-                . "`n"
-            )
+        what := e.HasProp("What") ? e.What : 0
+
+        if (Type(What) != "String" && What < 0) {
+			if e.HasProp("Message")
+            	msg := "Message : " e.Message
+			if e.HasProp("what")
+				msg .= "`nWhat : " what
+			if e.HasProp("Line")
+				msg .= "`nLine : " e.Line
+			if e.HasProp("File")
+				msg .= "`nFile : " e.File
+			if e.HasProp("Extra")
+				msg .= "`nExtra : " e.Extra
+
+			MsgBox(msg)
         } else {
             Log(
                 "Message : " e.Message

@@ -446,7 +446,7 @@ def import_vcf(
     # INSERT 시에만 사용
     # --------------------------------------------------------
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005
 
 
     # --------------------------------------------------------
@@ -475,13 +475,18 @@ def import_vcf(
             continue
         else:
             #fn_front = fn.split()[0]  # FN의 첫 번째 단어를 fn_front로 사용
-            for fn_split in fn:
+            if ' ' in fn:
+                fn_front = fn.split()[0]
+            else:
                 # 한글 3글자 + (선택적으로 뒤에 붙는 숫자 2자리) 추출
-                match = re.match(r'^([가-힣]{3}\d{2}|[가-힣]{3})', fn_split)
+                match = re.match(r'^([가-힣]{3}\d{2}|[가-힣]{3})', fn)
 
                 if match:
                     fn_front = match.group(0)
-                    print(f"{fn_split:<15} -> {fn_front}")
+                    print(f"{fn:<15} -> {fn_front}")
+                else:
+                    fn_front = ""
+                    print(f"fn checking....[{fn}]")
 
 
         # ====================================================
@@ -538,7 +543,7 @@ def import_vcf(
                         ?,
                         ?,
                         NULL,
-                        ?,
+                        datetime('now', 'localtime'),
                         NULL
                     )
                     """,
@@ -546,8 +551,8 @@ def import_vcf(
                         tel_section,
                         tel_number,
                         fn_front,
-                        fn,
-                        now
+                        fn#,
+                        #now
                     )
                 )
                 inserted += 1
@@ -569,7 +574,8 @@ def import_vcf(
                     """
                     UPDATE contacts
                     SET fn_front = ?,
-                        fn_old = ?
+                        fn_old = ?,
+                        update_date = datetime('now', 'localtime')
                     WHERE tel_section = ?
                       AND tel_number = ?
                     """,
