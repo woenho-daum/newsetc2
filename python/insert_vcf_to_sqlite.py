@@ -4,7 +4,7 @@ import quopri
 import re
 import sqlite3
 import sys
-from datetime import datetime
+#from datetime import datetime
 
 # ============================================================
 # 기본 설정
@@ -478,7 +478,7 @@ def import_vcf(
             #fn_front = fn.split()[0]  # FN의 첫 번째 단어를 fn_front로 사용
             fn_front = fn.split()[0] if fn.split() else ""
 
-            if fn_front == "" or len(fn_front)>=3 :
+            if fn_front == "" or len(fn_front)>3 :
                 if fn_front == "":
                     fn_front = fn
                 # 한글 3글자 + (선택적으로 뒤에 붙는 숫자 2자리) 추출
