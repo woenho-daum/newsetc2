@@ -1,5 +1,6 @@
 SELECT sqlite_version();
 
+-- 고정/쉬프트에 있지만 전화번호와 매칭되지 않는 목록
 SELECT
     ds.*
 FROM dispatch_settings ds
@@ -7,14 +8,7 @@ LEFT JOIN contacts c
     ON c.fn_front = ds.driver_name
 WHERE c.fn_front IS NULL;
 
-UPDATE contacts
-SET
-    fn_new = ds.driver_name || ' ' || ds.route || ' ' || substr(ds.car_number, -4),
-    update_date = CURRENT_TIMESTAMP,
-    fn_order = '고정/쉬프트'
-FROM dispatch_settings ds
-WHERE ds.driver_name = contacts.fn_front;
-
+-- 고정/쉬프트에 없는 전화번호 목록
 SELECT
     c.fn_front,
     c.fn_old,
@@ -26,3 +20,24 @@ LEFT JOIN dispatch_settings ds
 WHERE ds.driver_name IS NULL;
 
 
+--고정/쉬프트 일괄 적용
+UPDATE contacts
+SET
+    fn_new = ds.driver_name || ' ' || ds.route || ' ' || substr(ds.car_number, -4),
+    update_date = CURRENT_TIMESTAMP,
+    fn_order = '고정/쉬프트'
+FROM dispatch_settings ds
+WHERE ds.driver_name = contacts.fn_front;
+
+-- 전화번호가 2개 이상인 사람
+select c.fn_front, count(1) cnt
+from contacts c 
+where c.fn_order = "고정/쉬프트"
+group by 1
+HAVING COUNT(*) > 1;
+;
+-- 전화번호가 자동매치된 갯수
+select count(1) cnt
+from contacts c 
+where c.fn_order = "고정/쉬프트"
+;
