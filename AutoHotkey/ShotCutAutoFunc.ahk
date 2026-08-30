@@ -181,8 +181,10 @@ RefreshAlcoholCDP(bFound := false,*)
 		foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
 
 		if IsObject(foundCell) {
-			foundCell.Select()      ; 셀 선택
-			foundCell.Activate()    ; 액티브 셀로 지정 (커서 이동)
+			;foundCell.Select()      ; 셀 선택
+			;foundCell.Activate()    ; 액티브 셀로 지정 (커서 이동)
+            foundCell.Offset(0, 5).Select()
+            foundCell.Offset(0, 5).Select()
 		} else {
 			MsgBox( "운전자 '" driver "'를 찾을 수 없습니다.")
 		}
