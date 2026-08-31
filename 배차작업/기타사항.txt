@@ -139,6 +139,9 @@ admin/admin
 	외부:121.140.85.187 , 내부:92.168.0.102, 20.20.3.11, 169.254.202.168, 169.254.186.119, GW:192.168.0.1
 }
 
+서울교통정보센터
+http://175.193.202.124:9090/common/noMenu.do?jspUrl=/common/main
+
 scrcpy 연결 배차폰 
 {
  wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 3000
@@ -209,17 +212,35 @@ mkdir ".\Call"; .\adb.exe pull "/sdcard/Recordings/Call" ".\Call"
 {
 	find /sdcard/DCIM/Camera \
 	-type f \
-	! -newermt "2026-06-01" \
+	! -newermt "2026-08-20" \
 	-exec mv {} /sdcard/DCIM/Camera_backup/ \;
 }
 --- Call 폴더의 음성 일괄 백업 ---
 {
 	find /sdcard/Recordings/Call \
 	-type f \
-	! -newermt "2026-06-01" \
+	! -newermt "2026-08-20" \
 	-exec mv {} /sdcard/Recordings/Call_backup/ \;
 }
 
+2026-08-30일 기준
+{
+a24:/ $ du /sdcard/DCIM
+180508  /sdcard/DCIM/Camera
+8       /sdcard/DCIM/공문서
+45804   /sdcard/DCIM/Screenshots
+4       /sdcard/DCIM/배차관련사진
+6044    /sdcard/DCIM/배차실
+7963908 /sdcard/DCIM/Camera_backup
+8196282 /sdcard/DCIM
+a24:/ $ du /sdcard/Recordings/
+428504  /sdcard/Recordings/Call
+1068924 /sdcard/Recordings/Voice Recorder
+12      /sdcard/Recordings/TPhoneCallRecords
+20255444        /sdcard/Recordings/Call_backup
+21752891        /sdcard/Recordings/
+a24:/ $
+}
 
 notepad pluslus config
 ========================

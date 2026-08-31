@@ -62,3 +62,16 @@ VS Code에서 파이썬 개발을 할 때 생산성을 확 높여주는 필수 �
     추천 이유:
         Git(코드 버전 관리)을 조금이라도 쓰신다면 필수입니다.
         코드가 갑자기 안 될 때 "이전 버전으로 돌리려면 어느 부분에서 고장 났지?"를 직관적으로 추적할 수 있습니다.
+
+
+winget upgrade
+winget install python
+
+pip install google-auth google-auth-oauthlib google-api-python-client
+python -m pip --version
+pip --version
+py -0p
+$env:Path -split ';'
+where.exe git
+
+

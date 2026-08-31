@@ -1,7 +1,5 @@
 code "C:\Program Files\Git\etc\profile.d\aliases.sh"
 
-
-
 alias ll='ls -l'
 alias ls='ls -F --color=auto --show-control-chars'
 alias m4a='for f in *.mp4; do ffmpeg -i "$f" -i "${f%.*}.m4a" -c copy "../Music/down/${f%.*}-merged.mp4" -n; done'
@@ -9,4 +7,8 @@ alias mp3='for f in *.mp4; do ffmpeg -i "$f" -i "${f%.*}.mp3" -c copy "../Music/
 alias y1='yt-dlp -F '
 alias y2='yt-dlp -f '
 
+git,윈도우즈 자격증명(cridential manager)에 등록되어 있음
+-----------
+woenho@daum / sm**am**
+git clone --depth 1 https://github.com/woenho-daum/buemil.git
 

@@ -26,12 +26,12 @@
 ^!F2::
 {
 	;MsgBox("python용 크롬을 로드합니다.")
-	Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --remote-allow-origins=* --user-data-dir=C:\ChromePython'
+	Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --remote-allow-origins=* --user-data-dir=C:\ChromePython --profile-directory=ProfilePython'
 }
 ^!F1::
 {
 	;MsgBox("AHK용 크롬을 로드합니다.")
-	Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeAHK'
+	Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeAHK --profile-directory=ProfileAHK'
 }
 ^F12::RefreshBusRoute("5620")
 

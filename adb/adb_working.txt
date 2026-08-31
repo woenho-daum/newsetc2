@@ -1,5 +1,49 @@
+scrcpy 연결 배차폰 
+{
+ wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 3000
+    link/ether fe:cc:61:be:a7:e6 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.137.115/24 brd 192.168.137.255 scope global dynamic wlan0
+       valid_lft 604283sec preferred_lft 604283sec
+    inet6 fe80::fccc:61ff:febe:a7e6/64 scope link
+       valid_lft forever preferred_lft forever
 
-장치가 2이사이면 선택해야하는데 기본을 설정한다.
+
+	.\adb.exe tcp 5555
+	.\adb.exe connect 192.168.137.115:5555
+	.\scrcpy.exe --tcp=192.168.137.115
+ 
+	.\adb.exe pair 192.168.137.115:<pairring port>
+	.\adb.exe connect 192.168.137.115:<debugging port>
+	
+	.\adb.exe pair 192.168.137.115:33925
+	.\adb.exe connect 192.168.137.115:45461
+	.\adb.exe devices
+	.\scrcpy.exe -K --window-width=432
+}
+scrcpy-tcp.vbs
+{
+	Dim WshShell, strCommand, targetIP, targetPort
+	Set WshShell = CreateObject("Wscript.Shell")
+
+	' 사용할 안드로이드 기기의 고정 IP와 ADB 포트
+	targetIP = "192.168.137.115"
+	targetPort = "5555"
+
+	' 1. adb connect 명령을 먼저 실행 (연결이 완료될 때까지 대기: true)
+	WshShell.Run "cmd /c adb connect " & targetIP & ":" & targetPort, 0, true
+
+	' 2. 기존 scrcpy 실행 명령어 조합
+	strCommand = "cmd /c scrcpy.exe -K --window-width=432"
+
+	For Each Arg In WScript.Arguments
+		strCommand = strCommand & " """ & replace(Arg, """", """""""""") & """"
+	Next
+
+	' 3. scrcpy 실행 (비동기 실행: false)
+	WshShell.Run strCommand, 0, false
+}
+
+장치가 2이상이면 선택해야하는데 기본을 설정한다.
 set ANDROID_SERIAL=192.168.137.115:44927
 
 adb -s 기기ID pull 원본경로 저장경로
@@ -17,3 +61,55 @@ adb shell ; set ANDROID_SERIAL 해 놓으면
 
 
 
+
+
+adb copy
+==================
+# 1. 안드로이드 내부에서 리스트를 파일로 저장
+.\adb.exe shell "rm -f /sdcard/list.log"
+.\adb.exe shell "ls -latr /sdcard/Recordings/Call > /sdcard/list.log"
+.\adb.exe pull /sdcard/list.log list.log
+
+.\adb.exe pull "/sdcard/Recordings/Call/통화 녹음 01056933120_260615_084126.m4a" "./01056933120_260615_084126.m4a"
+.\adb.exe pull "/sdcard/Recordings/Call/통화 녹음 01089222168_260504_083257.m4a" "./01089222168_260504_083257.m4a"
+
+mkdir ".\Call"; .\adb.exe pull "/sdcard/Recordings/Call" ".\Call"
+
+
+--download--
+.\adb.exe shell ls -latr /sdcard/Download
+.\adb.exe pull /sdcard/Download/연락처_004.vcf 연락처_004.vcf
+
+--- Camera 폴더의 사진 일괄 백업 ---
+{
+	find /sdcard/DCIM/Camera \
+	-type f \
+	! -newermt "2026-08-20" \
+	-exec mv {} /sdcard/DCIM/Camera_backup/ \;
+}
+--- Call 폴더의 음성 일괄 백업 ---
+{
+	find /sdcard/Recordings/Call \
+	-type f \
+	! -newermt "2026-08-20" \
+	-exec mv {} /sdcard/Recordings/Call_backup/ \;
+}
+
+2026-08-30일 기준
+{
+a24:/ $ du /sdcard/DCIM
+180508  /sdcard/DCIM/Camera
+8       /sdcard/DCIM/공문서
+45804   /sdcard/DCIM/Screenshots
+4       /sdcard/DCIM/배차관련사진
+6044    /sdcard/DCIM/배차실
+7963908 /sdcard/DCIM/Camera_backup
+8196282 /sdcard/DCIM
+a24:/ $ du /sdcard/Recordings/
+428504  /sdcard/Recordings/Call
+1068924 /sdcard/Recordings/Voice Recorder
+12      /sdcard/Recordings/TPhoneCallRecords
+20255444        /sdcard/Recordings/Call_backup
+21752891        /sdcard/Recordings/
+a24:/ $
+}

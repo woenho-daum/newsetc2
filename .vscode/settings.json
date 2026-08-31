@@ -6,6 +6,7 @@
         "creds",
         "cvenv",
         "dateutil",
+        "DCIM",
         "googleapiclient",
         "goresult",
         "Hotspot",
@@ -20,6 +21,7 @@
         "numpy",
         "OBJID",
         "openpyxl",
+        "pairring",
         "pyee",
         "pywin",
         "scrcpy",
@@ -28,6 +30,7 @@
         "VCARD",
         "vcards",
         "venv",
+        "wlan",
         "XLDESK",
         "xlwings",
         "xmlfile"
