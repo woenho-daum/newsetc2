@@ -39,7 +39,7 @@ def qp(text):
 # Excel -> VCF
 # ============================================================
 
-def make_vcf(param_order, input_xlsx, output_vcf ):
+def make_vcf(param_order, output_vcf, input_xlsx ):
     wb = openpyxl.load_workbook(input_xlsx, data_only=True)
     ws = wb.worksheets[0] #wb.active
 
@@ -122,6 +122,6 @@ def make_vcf(param_order, input_xlsx, output_vcf ):
 
 if __name__ == "__main__":
     param_order = sys.argv[1] if len(sys.argv) > 1 else "all"
-    input_xlsx = sys.argv[2] if len(sys.argv) > 2 else INPUT_XLSX
-    output_vcf = sys.argv[3] if len(sys.argv) > 3 else OUTPUT_VCF
-    make_vcf(param_order, input_xlsx, output_vcf )
+    output_vcf = sys.argv[2] if len(sys.argv) > 2 else OUTPUT_VCF
+    input_xlsx = sys.argv[3] if len(sys.argv) > 3 else INPUT_XLSX
+    make_vcf(param_order, output_vcf, input_xlsx )
