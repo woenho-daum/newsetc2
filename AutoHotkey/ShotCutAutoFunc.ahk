@@ -178,7 +178,9 @@ RefreshAlcoholCDP(bFound := false,*)
 		; LookIn:=xlValues(-4163), LookAt:=xlWhole(1)(완전 일치) LookAt:=xlPart(2)(부분 일치)
 		;foundCell := xlSheet.Cells.Find(driver, , -4163, 2)
 		; LookIn=xlValues, LookAt=xlPart(2), SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
-		foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
+		foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+        if !IsObject(foundCell) 
+            foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
 
 		if IsObject(foundCell) {
 			;foundCell.Select()      ; 셀 선택
@@ -286,6 +288,8 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 
         unchecked_name := ""
 
+        boolFirst := true
+
 		; 엑셀 업데이트 잠시 보류처리시 오류발생하면 복구 해야한다
 		try{
 			xlSheet := xlApp.ActiveSheet                 ; 현재 활성 시트
@@ -305,8 +309,10 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
                 ; LookIn:=xlValues(-4163), LookAt:=xlWhole(1)(완전 일치) LookAt:=xlPart(2)(부분 일치)
                 ;foundCell := xlSheet.Cells.Find(driver, , -4163, 2)
                 ; LookIn=xlValues, LookAt=xlPart(2), SearchOrder=xlByRows(1), SearchDirection=xlNext(1), MatchCase=false
-                foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
-			
+                foundCell := xlSheet.Cells.Find(driver, , -4163, 1)
+                if !IsObject(foundCell) 
+                    foundCell := xlSheet.Cells.Find(driver, , -4163, 2, 1, 1, false)
+
 				if IsObject(foundCell) {
 					; G열인지 확인
 					if foundCell.Column = 7
@@ -316,8 +322,13 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 
 						Log("운전자 = " driver ", 찾은 셀 = " foundCell.Address ", 왼쪽 3번째 값 = " value)
 
-						if value = "본사"
+						if value != ""
 						{
+                            if boolFirst{
+                                boolFirst := false
+                                foundCell.Offset(0, 5).Select()
+                                foundCell.Offset(0, 5).Select()
+                            }
 							nAlcoholCnt++
 							foundCell.Interior.Color := 0xFFFFCC
 							foundCell.Offset(0, -1).Interior.Color := 0xFFFFCC
