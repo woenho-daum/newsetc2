@@ -4,6 +4,7 @@ import quopri
 import re
 import sqlite3
 import sys
+
 #from datetime import datetime
 
 # ============================================================
@@ -447,7 +448,7 @@ def import_vcf(
     # INSERT 시에만 사용
     # --------------------------------------------------------
 
-    #now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005
+    #now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005, RUF100
 
 
     # --------------------------------------------------------
