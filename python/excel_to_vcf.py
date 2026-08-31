@@ -13,7 +13,7 @@ from pathlib import Path
 INPUT_XLSX = "..\\전화번호\\연락처조정작업.xlsm"
 
 # 출력 VCF 파일명
-OUTPUT_VCF = "new_contacts.vcf"
+OUTPUT_VCF = "..\\전화번호\\new_contacts.vcf"
 
 # 이 스크립트 파일이 있는 폴더로 작업 디렉토리를 강제 고정 (디버그 실행시 작업디렉토리를 환경파일 폴더로 한다. 이를 소스폴더로 변경하려면...)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,7 +39,7 @@ def qp(text):
 # Excel -> VCF
 # ============================================================
 
-def make_vcf(input_xlsx, output_vcf):
+def make_vcf(param_order, input_xlsx, output_vcf ):
     wb = openpyxl.load_workbook(input_xlsx, data_only=True)
     ws = wb.worksheets[0] #wb.active
 
@@ -49,7 +49,7 @@ def make_vcf(input_xlsx, output_vcf):
         if cell.value is not None:
             headers[str(cell.value).strip()] = cell.column
 
-    required = ["tel_section", "tel_number", "fn_new"]
+    required = ["tel_section", "tel_number", "fn_new","fn_order"]
 
     for name in required:
         if name not in headers:
@@ -61,10 +61,14 @@ def make_vcf(input_xlsx, output_vcf):
     tel_section_col = headers["tel_section"]
     tel_number_col = headers["tel_number"]
     fn_new_col = headers["fn_new"]
+    fn_order_col = headers["fn_order"]
 
     vcards = []
 
     for row in range(2, ws.max_row + 1):
+
+        if param_order != "all" and ws.cell(row, fn_order_col).value != param_order:
+            continue
 
         tel_section = ws.cell(row, tel_section_col).value
         tel_number = ws.cell(row, tel_number_col).value
@@ -117,4 +121,7 @@ def make_vcf(input_xlsx, output_vcf):
 
 
 if __name__ == "__main__":
-    make_vcf(INPUT_XLSX, OUTPUT_VCF)
+    param_order = sys.argv[1] if len(sys.argv) > 1 else "all"
+    input_xlsx = sys.argv[2] if len(sys.argv) > 2 else INPUT_XLSX
+    output_vcf = sys.argv[3] if len(sys.argv) > 3 else OUTPUT_VCF
+    make_vcf(param_order, input_xlsx, output_vcf )

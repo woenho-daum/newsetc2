@@ -5,6 +5,16 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "excel_to_vcf 디버그",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/python/excel_to_vcf.py",
+            "args": [
+                "고정/쉬프트"
+            ],
+            "console": "integratedTerminal"
+		},
+		{
 			"name": "AutoHotkey Debug",
 			"type": "autohotkey",
 			"request": "launch",
