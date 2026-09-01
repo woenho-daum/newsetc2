@@ -107,7 +107,7 @@ RefreshAlcoholCDP(bFound := false,*)
         ; 제목에 RouteTitle이 포함된 탭 찾기
         page := objChrome.GetPageByTitle("음주측정 데이터 관리 시스템", "contains")
         if !page
-            throw Error("'음주측정 데이터 관리 시스템' 크롬에서 탭을 찾을 수 없습니다.CDP", -500, "Err_CODE_500")
+            throw Error("크롬에서 '음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.CDP", -500, "Err_CODE_500")
 
 		; 1. CDP 레벨에서 탭을 해당 창의 최상단으로 (창 내부 탭 전환)
 		page.Call("Page.bringToFront")
@@ -237,7 +237,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
         ; 제목에 RouteTitle이 포함된 탭 찾기
         page := objChrome.GetPageByTitle("음주측정 데이터 관리 시스템", "contains")
         if !page
-            throw Error("'음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.", -500)
+            throw Error("크롬에서 '음주측정 데이터 관리 시스템' 탭을 찾을 수 없습니다.CDP", -500, "Err_CODE_500")
 
 		; 1. CDP 레벨에서 탭을 해당 창의 최상단으로 (창 내부 탭 전환)
 		page.Call("Page.bringToFront")
