@@ -53,7 +53,7 @@ CDP_URL = f"http://localhost:{CDP_PORT}"
 TARGET_URL = "https://bumil.mobilhi.com/a3/view_dispatch_settings/"
 
 # 조회할 영업소 순서 (select 태그의 <option> 텍스트와 동일해야 함)
-OFFICE_OPTIONS = ["본사", "출퇴근", "심야"]
+OFFICE_OPTIONS = ["본사", "출퇴근", "심야","독산","법원"]
 
 # 조회 결과가 서버에서 내려오는 htmx 요청 URL (form action)
 SEARCH_RESPONSE_URL_PART = "view_dispatch_settings_tab1"
