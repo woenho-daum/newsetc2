@@ -79,7 +79,7 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
         if tel_number is None:
             continue
         if fn_new is None:
-            fn_new = "삭제대상_" + str(fn_old)
+            fn_new = "ㅎㅎㅎ삭제대상_" + str(fn_old)
 
         tel_section = str(tel_section).strip() if tel_section is not None else "cell"
         fn_new = str(fn_new).strip()
