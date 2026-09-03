@@ -10,7 +10,7 @@ import openpyxl
 # ============================================================
 
 # 입력 Excel 파일명
-INPUT_XLSX = "..\\전화번호\\연락처조정작업.xlsm"
+INPUT_XLSX = "..\\전화번호\\연락처조정작업_2.xlsm"
 
 # 출력 VCF 파일명
 OUTPUT_VCF = "..\\전화번호\\new_contacts.vcf"
@@ -49,7 +49,7 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
         if cell.value is not None:
             headers[str(cell.value).strip()] = cell.column
 
-    required = ["tel_section", "tel_number", "fn_new","fn_order"]
+    required = ["tel_section", "tel_number", "fn_new","fn_order","fn_old"]
 
     for name in required:
         if name not in headers:
@@ -62,7 +62,7 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
     tel_number_col = headers["tel_number"]
     fn_new_col = headers["fn_new"]
     fn_order_col = headers["fn_order"]
-
+    fn_old_col = headers["fn_old"]
     vcards = []
 
     for row in range(2, ws.max_row + 1):
@@ -73,10 +73,13 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
         tel_section = ws.cell(row, tel_section_col).value
         tel_number = ws.cell(row, tel_number_col).value
         fn_new = ws.cell(row, fn_new_col).value
+        fn_old = ws.cell(row, fn_old_col).value
 
         # 빈 행은 건너뜀
-        if tel_number is None or fn_new is None:
+        if tel_number is None:
             continue
+        if fn_new is None:
+            fn_new = "삭제대상_" + str(fn_old)
 
         tel_section = str(tel_section).strip() if tel_section is not None else "cell"
         fn_new = str(fn_new).strip()

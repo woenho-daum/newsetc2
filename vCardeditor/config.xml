@@ -13,11 +13,11 @@
   <VersionUrl>https://raw.githubusercontent.com/abdelkader/vCardEditor/master/vCardEditor/Releases.txt</VersionUrl>
   <Paths>
     <_innerList>
-      <string>E:\git\newsetc2\python\new_contacts.vcf</string>
-      <string>E:\git\newsetc2\전화번호\new_contacts.vcf</string>
-      <string>E:\git\newsetc2\전화번호\contacts_2026-08-30.vcf</string>
       <string>C:\Users\User.DESKTOP-HRNLHCS.000\Documents\newsetc2\vCardeditor\new_contacts.vcf</string>
       <string>C:\Users\User.DESKTOP-HRNLHCS.000\Documents\newsetc2\전화번호\new_contacts.vcf</string>
+      <string>E:\git\newsetc2\전화번호\delete_include.vcf</string>
+      <string>E:\git\newsetc2\전화번호\노선번호_include.vcf</string>
+      <string>E:\git\newsetc2\전화번호\new_contacts.vcf</string>
     </_innerList>
     <Size>5</Size>
   </Paths>
