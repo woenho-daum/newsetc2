@@ -34,6 +34,19 @@ def qp(text):
         quotetabs=True
     ).decode("ascii")
 
+# 전화번호 앞의 0이 Excel에서 사라진 경우에는
+# 여기서 자동 복구할 수 없으므로 Excel 열을 '텍스트'로
+# 저장하는 것을 권장합니다.
+
+def get_excel_data(value):
+    if isinstance(value, str):
+        # value가 문자열일 때만 실행
+        return str(value).strip()
+    elif isinstance(value, int):
+        # value가 정수일 때만 실행
+        return str(value)
+    else:
+        return ""
 
 # ============================================================
 # Excel -> VCF
@@ -67,38 +80,43 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
 
     for row in range(2, ws.max_row + 1):
 
+        # param_order이 "all"이 아니고, 현재 행의 fn_order 값이 param_order과 다르면 건너뜀
         if param_order != "all" and ws.cell(row, fn_order_col).value != param_order:
             continue
 
-        tel_section = ws.cell(row, tel_section_col).value
-        tel_number = ws.cell(row, tel_number_col).value
-        fn_new = ws.cell(row, fn_new_col).value
-        fn_old = ws.cell(row, fn_old_col).value
+        tel_section = get_excel_data(ws.cell(row, tel_section_col).value)
+        tel_number = get_excel_data(ws.cell(row, tel_number_col).value)
+        fn_new = get_excel_data(ws.cell(row, fn_new_col).value)
+        fn_old = get_excel_data(ws.cell(row, fn_old_col).value)
+        fn_order = get_excel_data(ws.cell(row, fn_order_col).value)
 
         # 빈 행은 건너뜀
-        if tel_number is None:
+        #if tel_number in ("", None) or fn_old in ("", None) or fn_order == "삭제":
+        if tel_number == "" or fn_old == "" or fn_order == "삭제":
             continue
-        if fn_new is None:
+
+        if fn_new == "":
             fn_new = "힣힣힣삭제대상_" + str(fn_old)
 
-        tel_section = str(tel_section).strip() if tel_section is not None else "cell"
-        fn_new = str(fn_new).strip()
+        #if tel_number=="01053793822":
+        #    print(f"디버그1: tel_number={tel_number}, fn_new={fn_new}, fn_old={fn_old}")
+        
+        if tel_section == "":
+            tel_section = "cell"
 
-        # Excel에서 전화번호가 숫자로 읽힌 경우를 대비
-        if isinstance(tel_number, float) and tel_number.is_integer():
-            tel_number = str(int(tel_number))
-        else:
-            tel_number = str(tel_number).strip()
-
-        # 전화번호 앞의 0이 Excel에서 사라진 경우에는
-        # 여기서 자동 복구할 수 없으므로 Excel 열을 '텍스트'로
-        # 저장하는 것을 권장합니다.
+        #if tel_number=="01053793822":
+        #    print(f"디버그2: tel_number={tel_number}, fn_new={fn_new}, fn_old={fn_old}")
 
         # tel_section -> VCF TEL type
         # 예: cell -> CELL
         tel_type = tel_section.upper()
 
         encoded_name = qp(fn_new)
+
+        if encoded_name in (None, ""):
+            print(f"경고: tel_number={tel_number}, fn_new={fn_new}, fn_old={fn_old}, encoded_name={encoded_name}")
+            continue
+
 
         vcard = (
             "BEGIN:VCARD\r\n"
