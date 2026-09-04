@@ -3,7 +3,8 @@
 2. collect_dispatch_settings.py
 
 기사별 월별 근무현황을 디비로 올리는 프로그램
-1. dispatch_driver_baecha.py
+1. dispatch_driver_baecha_to_db.py		웹에서 조회하여 디비로 로드
+2. dispatch_driver_baecha_to_excel.py	디비에서 지정된 일자부터 조회해서 엑셀로 저장
 
 내보내기로 받은 2.1버전 vcard 파일을 디코딩하여 디비로 올리는 프로그램
 1. insert_vcf_to_sqlite.py

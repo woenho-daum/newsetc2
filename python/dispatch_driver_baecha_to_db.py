@@ -16,8 +16,8 @@
 
 사용 예
 -------
-    python dispatch_driver_baeche.py --date 2026-08-31 --db dispatch.db
-    python dispatch_driver_baeche.py                     # 날짜 생략 시 오늘 날짜, db 기본값 dispatch.db
+    python dispatch_driver_baecha_to_db.py --date 2026-08-31 --db dispatch.db
+    python dispatch_driver_baecha_to_db.py                     # 날짜 생략 시 오늘 날짜, db 기본값 dispatch.db
 """
 
 import argparse
