@@ -50,10 +50,10 @@ WHERE ds.office in ("법원","독산","출퇴근","심야")
 
 -- 고정/쉬프트에 없는 전화번호 목록 (사무실/주차/충전...)
 SELECT
-    c.fn_front,
-    c.fn_old,
+    --c.tel_section,
     c.tel_number,
-    c.tel_section
+    --c.fn_front,
+    c.fn_old
 FROM contacts c
 LEFT JOIN dispatch_settings ds
     ON c.fn_front = ds.driver_name
