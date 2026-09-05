@@ -260,7 +260,8 @@ def update_row(conn: sqlite3.Connection, row: dict, driver_type: str,
     conn.execute(
         """
         UPDATE dispatch_settings
-        SET office       = ?,
+        SET driver_no    = ?,
+            office       = ?,
             route        = ?,
             idx          = ?,
             is_reserve   = ?,
@@ -268,16 +269,15 @@ def update_row(conn: sqlite3.Connection, row: dict, driver_type: str,
             rest_day     = ?,
             shift        = ?,
             driver_type  = ?,
-            driver_name  = ?,
             apply_date   = ?,
             collected_at = ?
-        WHERE driver_no = ?
+        WHERE driver_name = ?
         """,
         (
-            office, row["route"], idx_val, row["is_reserve"],
+            driver_no, office, row["route"], idx_val, row["is_reserve"],
             row["car_number"], row["rest_day"], row["shift"],
-            driver_type, driver_name, row["apply_date"], collected_at,
-            driver_no,
+            driver_type, row["apply_date"], collected_at,
+            driver_name,
         ),
     )
 
@@ -292,13 +292,11 @@ def save_rows(conn: sqlite3.Connection, rows: list, office: str) -> tuple:
         for driver_type, name_key, no_key in (("A", "a_name", "a_no"), ("B", "b_name", "b_no")):
             name = row[name_key]
             no = row[no_key].strip()
-            if not name and not no:
-                # A/B 둘 다 비어 있는 칸(예비차량 등)은 애초에 대상 아님
-                continue
-            if not no:
+            if not name:
+                # A/B 둘 다 이름이 비어 있는 칸은 애초에 대상 아님
                 dropped += 1
                 logger.warning(
-                    "사번 없음 -> 버림: route=%s idx=%s driver_type=%s name=%r",
+                    "이름 없음 -> 버림: route=%s idx=%s driver_type=%s name=%r",
                     row["route"], row["idx"], driver_type, name,
                 )
                 continue
