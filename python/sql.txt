@@ -1,15 +1,6 @@
 SELECT sqlite_version();
 
 
--- 고정/쉬프트와 전화번호가 매칭되는 목록 중에서 노선제외
-SELECT
-    c.tel_number, c.fn_front, c.fn_old, ds.driver_name || ' ' || ds.route || ' ' || substr(ds.car_number, -4), ds.office, ds.route, ds.car_number, ds.*
-FROM dispatch_settings ds
-INNER JOIN contacts c
-    ON c.fn_front = ds.driver_name
-WHERE ds.office in ("법원","독산","출퇴근","심야")
-;
-
 -- 고정/쉬프트와 전화번호가 매칭되는 목록 중 노선이 시내버스
 SELECT
     c.tel_number, c.fn_front, c.fn_old, ds.driver_name || ' ' || ds.route || ' ' || substr(ds.car_number, -4), , ds.office, ds.route, ds.car_number, ds.*
@@ -17,6 +8,16 @@ FROM dispatch_settings ds
 INNER JOIN contacts c
     ON c.fn_front = ds.driver_name;
 WHERE ds.office = "본사"
+;
+
+-- 고정/쉬프트와 전화번호가 매칭되는 목록 중에서 시내버노선 외
+SELECT
+    c.tel_number, c.fn_front, c.fn_old, ds.driver_name || ' ' || ds.route || ' ' || substr(ds.car_number, -4), ds.office, ds.route, ds.car_number, ds.*
+FROM dispatch_settings ds
+INNER JOIN contacts c
+    ON c.fn_front = ds.driver_name
+WHERE ds.office in ("법원","독산","출퇴근","심야")
+;
 
 -- 고정/쉬프트와 전화번호가 매칭되는 목록 중 이름/노선/차량번호가 바뀐것
 select *
@@ -46,6 +47,15 @@ FROM dispatch_settings ds
 LEFT JOIN contacts c
     ON c.fn_front = ds.driver_name
 WHERE ds.office in ("법원","독산","출퇴근","심야")
+;
+
+-- 고정/쉬프트에 있는 목록 중 전화번호가 없는 노선 제외 모든 리스트
+SELECT
+    c.tel_number, ds.driver_name, c.fn_old, ds.driver_name || ' ' || ds.route || ' ' || substr(ds.car_number, -4), ds.office, ds.route, ds.car_number, ds.*
+FROM dispatch_settings ds
+LEFT JOIN contacts c
+    ON c.fn_front = ds.driver_name
+WHERE ds.office in ("법원","독산","출퇴근","심야") AND c.tel_number IS NULL
 ;
 
 -- 고정/쉬프트에 없는 전화번호 목록 (사무실/주차/충전...)
