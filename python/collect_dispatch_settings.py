@@ -1,4 +1,8 @@
 """
+==================================
+dispatch_settings_cdp.py 호출 되거나 단독으로 이미 열린 고정(쉬프트)지정 페이지에서 자료를 모아 디비로 올린다.
+==================================
+
 고정(쉬프트)지정 페이지(/a3/view_dispatch_settings_tab1/) 표를
 Chrome DevTools Protocol(CDP)로 읽어서 baecha.db(SQLite)의
 dispatch_settings 테이블에 저장하는 스크립트.

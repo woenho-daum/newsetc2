@@ -1,77 +1,22 @@
-진행 순서
-1) 사전 백업 (필수)
-    contacts.google.com 접속 → 왼쪽 메뉴 "내보내기" → Google CSV로 전체 백업. 문제 생기면 이걸로 복구합니다.
-2) Google Cloud에서 API 사용 설정
-    {Google Cloud Console} 사이트 → 새 프로젝트 생성
-    "API 및 서비스" → "라이브러리"에서 People API 검색 후 사용 설정
-    "API 및 서비스" → "OAuth 동의 화면" 구성 (외부, 테스트 사용자에 본인 구글 계정 추가)
-    "사용자 인증 정보" → "사용자 인증 정보 만들기" → OAuth 클라이언트 ID → 애플리케이션 유형 데스크톱 앱 → 생성 후 credentials.json 다운로드
-3) 파이썬 준비 (PC)
-    pip install google-auth google-auth-oauthlib google-api-python-client
-4) CSV 매핑 파일 준비
-    mapping.csv 파일을 아래 형식으로 만드세요 (첫 줄은 헤더 필수):
+고정/쉬프트 자료를 디비로 올리는 프로그램
+1. dispatch_settings_cdp.py
+2. collect_dispatch_settings.py
 
-    old_name,phone,new_name
-    예전이름1,010-1234-5678,새이름1
-    예전이름2,01098765432,새이름2
+기사별 월별 근무현황을 디비로 올리는 프로그램
+1. dispatch_driver_baecha_to_db.py		웹에서 조회하여 디비로 로드
+2. dispatch_driver_baecha_to_excel.py	디비에서 지정된 일자부터 조회해서 엑셀로 저장
 
-5) 스크립트 실행
-아래에 스크립트를 만들어 드릴게요. credentials.json, mapping.csv, 스크립트 파일을 같은 폴더에 두고 실행하면, 
-최초 1회 브라우저 인증 후 전화번호를 기준으로 매칭해서 이름을 바꿔줍니다.
+내보내기로 받은 2.1버전 vcard 파일을 디코딩하여 디비로 올리는 프로그램
+1. insert_vcf_to_sqlite.py
 
-사용 방법 요약:
-스크립트, credentials.json, mapping.csv 세 파일을 같은 폴더에 둡니다.
-pip install google-auth google-auth-oauthlib google-api-python-client
-처음엔 그대로 실행 (python update_contacts.py) — 스크립트 상단 DRY_RUN = True라서 실제 변경 없이 어떤 이름이 어떻게 바뀔지 미리보기만 출력됩니다.
-결과를 확인하고 문제없으면 스크립트 상단 DRY_RUN = False로 바꾼 뒤 다시 실행하면 실제로 이름이 바뀝니다.
-완료되면 몇 분 안에 폰의 연락처 앱에도 자동 동기화됩니다.
+디비에서 쿼리로 고정쉬프트와 전화번호 연결하고 csv로 내려받은 파일을 필요에 따라 손으로 편집한다.
+그 다음 그 파일을 다시 vcf 파일로 만드는 프로그램
+1. excel_to_vcf.py		: 버전 2.1용으로 만든다
+2. excel_to_vcf_v3.py 	: 버전 3.0용으로 만든다
+3. sort_cvf_v3.py 		: 버전 3.0은 UTF-8포맷으로 이름이 있으므로 소트할 수 있다
 
-
-===========================
-VS Code에서 파이썬 개발을 할 때 생산성을 확 높여주는 필수 확장 프로그램 5가지를 추천
-1. Pylance (마이크로소프트 공식)
-    어떤 기능인가요? 
-        코드를 작성할 때 함수나 변수 이름을 알아서 척척 완성해 주는 자동 완성(IntelliSense) 기능과 실시간 타입 검사를 강력하게 만들어줍니다.
-    추천 이유:
-        보통 Microsoft의 Python 확장 프로그램을 설치할 때 자동으로 함께 설치되지만,
-        종종 꺼져 있거나 안 되어 있다면 반드시 활성화해야 합니다. 이 기능이 없으면 코딩할 때 길을 잃은 느낌이 들 정도로 필수적입니다.
-
-2. Ruff (또는 Black Formatter)
-    어떤 기능인가요?
-        들여쓰기, 띄어쓰기, 줄바꿈 등 엉망이 된 코드 정렬을 저장할 때(Ctrl + S) 알아서 예쁘게 정리해 주는 포맷터입니다.
-    추천 이유:
-        최근에는 속도가 엄청나게 빠른 Ruff가 대세입니다.
-        코드 스타일에 신경 쓸 필요 없이 저장만 하면 깔끔하게 정돈되므로 코드 가독성이 극적으로 좋아집니다.
-
-3. Error Lens
-    어떤 기능인가요?
-        코드에 에러나 오타가 있을 때, 하단에 빨간 밑줄만 쳐주는 게 아니라 해당 줄 오른쪽에 에러 내용을 글자로 바로 띄워줍니다.
-    추천 이유:
-        에러를 찾으려고 마우스를 갖다 대거나 하단의 '문제(Problems)' 탭을 번갈아 볼 필요가 없어집니다.
-        타이핑하는 즉시 실수로 틀린 변수명이나 문법 오류를 눈치챌 수 있어 디버깅 시간이 크게 줄어듭니다.
-
-4. autoDocstring - Python Docstring Generator
-    어떤 기능인가요?
-        함수나 클래스 선언부 아래에서 따옴표 3개(""")를 치는 순간, 함수의 매개변수와 리턴값을 분석해 문서 주석(Docstring) 틀을 자동으로 완성해 줍니다.
-    추천 이유:
-        나중에 내가 짠 코드를 다시 볼 때나 협업할 때 주석이 필수인데, 수동으로 적으려면 귀찮은 작업을 완벽히 자동화해 줍니다.
-
-5. GitLens
-    어떤 기능인가요?
-        소스 코드의 각 줄마다 "누가 언제 이 코드를 수정했는지" Git 히스토리를 화면에 투명하게 띄워줍니다.
-    추천 이유:
-        Git(코드 버전 관리)을 조금이라도 쓰신다면 필수입니다.
-        코드가 갑자기 안 될 때 "이전 버전으로 돌리려면 어느 부분에서 고장 났지?"를 직관적으로 추적할 수 있습니다.
-
-
-winget upgrade
-winget install python
-
-pip install google-auth google-auth-oauthlib google-api-python-client
-python -m pip --version
-pip --version
-py -0p
-$env:Path -split ';'
-where.exe git
+데이터베이스:
+1. baecha.db 고정/쉬프트 자료 + 전화번호
+2. dispatch.db 기사별 월별 근무현황(상세 및 집계)
 
 

@@ -16,8 +16,8 @@
 
 사용 예
 -------
-    python dispatch_driver_baeche.py --date 2026-08-31 --db dispatch.db
-    python dispatch_driver_baeche.py                     # 날짜 생략 시 오늘 날짜, db 기본값 dispatch.db
+    python dispatch_driver_baecha_to_db.py --date 2026-08-31 --db dispatch.db
+    python dispatch_driver_baecha_to_db.py                     # 날짜 생략 시 오늘 날짜, db 기본값 dispatch.db
 """
 
 import argparse
@@ -206,7 +206,6 @@ def init_db(db_path: str):
     cur = conn.cursor()
     cur.executescript("""
     CREATE TABLE IF NOT EXISTS dispatch_summary (
-        id            INTEGER PRIMARY KEY AUTOINCREMENT,
         query_date    TEXT NOT NULL,
         office        TEXT,
         run_flag      TEXT,
@@ -224,11 +223,10 @@ def init_db(db_path: str):
         excess        TEXT,
         work_days     TEXT,
         created_at    TEXT DEFAULT (datetime('now','localtime')),
-        UNIQUE(query_date, employee_no)
+        PRIMARY KEY(query_date, employee_no)
     );
 
     CREATE TABLE IF NOT EXISTS dispatch_daily (
-        id            INTEGER PRIMARY KEY AUTOINCREMENT,
         query_date    TEXT NOT NULL,
         employee_no   TEXT NOT NULL,
         name          TEXT,
@@ -237,11 +235,8 @@ def init_db(db_path: str):
         value         TEXT,
         bg_color      TEXT,
         created_at    TEXT DEFAULT (datetime('now','localtime')),
-        UNIQUE(query_date, employee_no, day)
+        PRIMARY KEY(query_date, employee_no, day)
     );
-
-    CREATE INDEX IF NOT EXISTS idx_daily_emp ON dispatch_daily(employee_no);
-    CREATE INDEX IF NOT EXISTS idx_daily_date ON dispatch_daily(query_date);
     """)
     conn.commit()
     return conn

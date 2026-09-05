@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-
+"""
+===============================
+VCF 2.1버전 파일을 SQLite 데이터베이스에 삽입
+===============================
+"""
 import quopri
 import re
 import sqlite3

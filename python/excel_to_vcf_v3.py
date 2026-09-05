@@ -1,5 +1,4 @@
 import os
-import quopri
 import sys
 from pathlib import Path
 
@@ -21,18 +20,8 @@ os.chdir(SCRIPT_DIR)   # -> 현재소스의 경로를 cwd 고정
 
 
 # ============================================================
-# UTF-8 문자열 -> Quoted-Printable
-#   -> =EA=B0=95=EC=A0=95...
+# vCard 3.0 / UTF-8
 # ============================================================
-
-def qp(text):
-    if text is None:
-        return ""
-    text = str(text)
-    return quopri.encodestring(
-        text.encode("utf-8"),
-        quotetabs=True
-    ).decode("ascii")
 
 # 전화번호 앞의 0이 Excel에서 사라진 경우에는
 # 여기서 자동 복구할 수 없으므로 Excel 열을 '텍스트'로
@@ -111,26 +100,36 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
         # 예: cell -> CELL
         tel_type = tel_section.upper()
 
-        encoded_name = qp(fn_new)
+        encoded_name = fn_new
 
         if encoded_name in (None, ""):
             print(f"경고: tel_number={tel_number}, fn_new={fn_new}, fn_old={fn_old}, encoded_name={encoded_name}")
             continue
 
 
+        # Google 주소록용 그룹:
+        # fn_order가 "고정/쉬프트"이면 fn_new의 공백 기준 2번째 단어를 CATEGORIES로 사용
+        category = ""
+        if fn_order == "고정/쉬프트":
+            words = fn_new.split()
+            if len(words) > 1:
+                category = words[1]
+        else:
+            category = ""
+
         vcard = (
             "BEGIN:VCARD\r\n"
-            "VERSION:2.1\r\n"
-            f"N;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;{encoded_name};;;\r\n"
-            f"FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:{encoded_name}\r\n"
-            f"TEL;{tel_type}:{tel_number}\r\n"
-            "END:VCARD\r\n"
+            "VERSION:3.0\r\n"
+            f"N;CHARSET=UTF-8:;{encoded_name};;;\r\n"
+            f"FN;CHARSET=UTF-8:{encoded_name}\r\n"
+            f"TEL;TYPE={tel_type}:{tel_number}\r\n"
+            + (f"CATEGORIES:{category}\r\n" if category else "")
+            + "END:VCARD\r\n"
         )
 
         vcards.append(vcard)
 
-    # UTF-8이지만 VCF 자체의 QP 데이터는 ASCII이므로
-    # UTF-8로 저장해도 갤럭시에서 읽을 수 있습니다.
+    # vCard 3.0을 UTF-8 그대로 저장
     Path(output_vcf).write_text(
         "".join(vcards),
         encoding="utf-8",

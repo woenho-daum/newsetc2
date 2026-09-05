@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+==================================
+고정(쉬프트)지정 페이지 연 후에 collect_dispatch_settings.py를 호출 하여 자료를 모아 디비로 올린다.
+==================================
+
 크롬(디버그 포트 9223)에 CDP로 연결하여
 https://bumil.mobilhi.com/a3/view_dispatch_settings/ 페이지를 열고,
 영업소(본사 -> 출퇴근 -> 심야) 순서로 선택 후 '조회' 버튼을 눌러
@@ -53,7 +57,7 @@ CDP_URL = f"http://localhost:{CDP_PORT}"
 TARGET_URL = "https://bumil.mobilhi.com/a3/view_dispatch_settings/"
 
 # 조회할 영업소 순서 (select 태그의 <option> 텍스트와 동일해야 함)
-OFFICE_OPTIONS = ["본사", "출퇴근", "심야"]
+OFFICE_OPTIONS = ["본사", "출퇴근", "심야","독산","법원"]
 
 # 조회 결과가 서버에서 내려오는 htmx 요청 URL (form action)
 SEARCH_RESPONSE_URL_PART = "view_dispatch_settings_tab1"
