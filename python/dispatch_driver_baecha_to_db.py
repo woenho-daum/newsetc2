@@ -206,12 +206,12 @@ def init_db(db_path: str):
     cur = conn.cursor()
     cur.executescript("""
     CREATE TABLE IF NOT EXISTS dispatch_summary (
-        query_date    TEXT NOT NULL,
+        month         TEXT NOT NULL,
+        name          TEXT NOT NULL,
+        employee_no   TEXT,
         office        TEXT,
         run_flag      TEXT,
         week_flag     TEXT,
-        employee_no   TEXT NOT NULL,
-        name          TEXT,
         day_off       TEXT,
         am_count      TEXT,
         pm_count      TEXT,
@@ -223,29 +223,29 @@ def init_db(db_path: str):
         excess        TEXT,
         work_days     TEXT,
         created_at    TEXT DEFAULT (datetime('now','localtime')),
-        PRIMARY KEY(query_date, employee_no)
+        PRIMARY KEY(month, name)
     );
 
     CREATE TABLE IF NOT EXISTS dispatch_daily (
-        query_date    TEXT NOT NULL,
-        employee_no   TEXT NOT NULL,
-        name          TEXT,
+        month         TEXT NOT NULL,
+        name          TEXT NOT NULL,
         day           INTEGER,
+        employee_no   TEXT NOT NULL,
         weekday       TEXT,
         value         TEXT,
         bg_color      TEXT,
         created_at    TEXT DEFAULT (datetime('now','localtime')),
-        PRIMARY KEY(query_date, employee_no, day)
+        PRIMARY KEY(month, name, day)
     );
     """)
     conn.commit()
     return conn
 
 
-def summary_row_exists(cur, query_date: str, employee_no: str) -> bool:
+def summary_row_exists(cur, month: str, name: str) -> bool:
     cur.execute(
-        "SELECT 1 FROM dispatch_summary WHERE query_date = ? AND employee_no = ? LIMIT 1",
-        (query_date, employee_no),
+        "SELECT 1 FROM dispatch_summary WHERE month = ? AND name = ? LIMIT 1",
+        (month, name),
     )
     return cur.fetchone() is not None
 
@@ -253,9 +253,9 @@ def summary_row_exists(cur, query_date: str, employee_no: str) -> bool:
 def insert_summary_row(cur, params: dict):
     cur.execute("""
         INSERT INTO dispatch_summary
-            (query_date, office, run_flag, week_flag, employee_no, name, day_off,
+            (month, office, run_flag, week_flag, employee_no, name, day_off,
              am_count, pm_count, normal_count, sh_am, sh_pm, short_count, a_to_p, excess, work_days)
-        VALUES (:query_date, :office, :run_flag, :week_flag, :employee_no, :name, :day_off,
+        VALUES (:month, :office, :run_flag, :week_flag, :employee_no, :name, :day_off,
                 :am_count, :pm_count, :normal_count, :sh_am, :sh_pm, :short_count, :a_to_p, :excess, :work_days)
     """, params)
 
@@ -266,7 +266,7 @@ def update_summary_row(cur, params: dict):
            SET office = :office,
                run_flag = :run_flag,
                week_flag = :week_flag,
-               name = :name,
+               employee_no = :employee_no,
                day_off = :day_off,
                am_count = :am_count,
                pm_count = :pm_count,
@@ -278,38 +278,38 @@ def update_summary_row(cur, params: dict):
                excess = :excess,
                work_days = :work_days,
                created_at = datetime('now','localtime')
-         WHERE query_date = :query_date AND employee_no = :employee_no
+         WHERE month = :month AND name = :name
     """, params)
 
 
-def daily_row_exists(cur, query_date: str, employee_no: str, day) -> bool:
+def daily_row_exists(cur, month: str, name: str, day) -> bool:
     cur.execute(
-        "SELECT 1 FROM dispatch_daily WHERE query_date = ? AND employee_no = ? AND day IS ? LIMIT 1",
-        (query_date, employee_no, day),
+        "SELECT 1 FROM dispatch_daily WHERE month = ? AND name = ? AND day IS ? LIMIT 1",
+        (month, name, day),
     )
     return cur.fetchone() is not None
 
 
 def insert_daily_row(cur, params: dict):
     cur.execute("""
-        INSERT INTO dispatch_daily (query_date, employee_no, name, day, weekday, value, bg_color)
-        VALUES (:query_date, :employee_no, :name, :day, :weekday, :value, :bg_color)
+        INSERT INTO dispatch_daily (month, employee_no, name, day, weekday, value, bg_color)
+        VALUES (:month, :employee_no, :name, :day, :weekday, :value, :bg_color)
     """, params)
 
 
 def update_daily_row(cur, params: dict):
     cur.execute("""
         UPDATE dispatch_daily
-           SET name = :name,
+           SET employee_no = :employee_no,
                weekday = :weekday,
                value = :value,
                bg_color = :bg_color,
                created_at = datetime('now','localtime')
-         WHERE query_date = :query_date AND employee_no = :employee_no AND day IS :day
+         WHERE month = :month AND name = :name AND day IS :day
     """, params)
 
 
-def save_to_sqlite(conn, query_date: str, office: str, run_flag: str, week_flag: str,
+def save_to_sqlite(conn, month: str, office: str, run_flag: str, week_flag: str,
                     summary_rows, daily_rows):
     """
     행 단위로 존재 여부를 먼저 확인한 뒤,
@@ -322,13 +322,13 @@ def save_to_sqlite(conn, query_date: str, office: str, run_flag: str, week_flag:
 
     for r in summary_rows:
         params = {
-            "query_date": query_date, "office": office, "run_flag": run_flag, "week_flag": week_flag,
+            "month": month, "office": office, "run_flag": run_flag, "week_flag": week_flag,
             "employee_no": r["employee_no"], "name": r["name"], "day_off": r["day_off"],
             "am_count": r["오전"], "pm_count": r["오후"], "normal_count": r["정상"],
             "sh_am": r["SH오전"], "sh_pm": r["SH오후"], "short_count": r["단축"],
             "a_to_p": r["A->P"], "excess": r["초과"], "work_days": r["근무일"],
         }
-        if summary_row_exists(cur, query_date, params["employee_no"]):
+        if summary_row_exists(cur, month, params["name"]):
             update_summary_row(cur, params)
             stats["summary_updated"] += 1
         else:
@@ -336,8 +336,8 @@ def save_to_sqlite(conn, query_date: str, office: str, run_flag: str, week_flag:
             stats["summary_inserted"] += 1
 
     for r in daily_rows:
-        params = {"query_date": query_date, **r}
-        if daily_row_exists(cur, query_date, params["employee_no"], params["day"]):
+        params = {"month": month, **r}
+        if daily_row_exists(cur, month, params["name"], params["day"]):
             update_daily_row(cur, params)
             stats["daily_updated"] += 1
         else:

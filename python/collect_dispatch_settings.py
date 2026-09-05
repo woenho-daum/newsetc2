@@ -1,20 +1,13 @@
 """
 ==================================
 dispatch_settings_cdp.py 호출 되거나 단독으로 이미 열린 고정(쉬프트)지정 페이지에서 자료를 모아 디비로 올린다.
-==================================
 
-고정(쉬프트)지정 페이지(/a3/view_dispatch_settings_tab1/) 표를
-Chrome DevTools Protocol(CDP)로 읽어서 baecha.db(SQLite)의
-dispatch_settings 테이블에 저장하는 스크립트.
+실행 예시
+  python collect_dispatch_settings.py new search
+  python collect_dispatch_settings.py update search
+  python collect_dispatch_settings.py update param "ws://127.0.0.1:9223/devtools/page/XXXX"
 
-요구사항 반영:
-  - B성명 / B사번은 컬럼이 아니라 "행(row)"으로 저장한다.
-    즉 원본 한 행(A기사 + B기사)이 DB에서는 최대 2행(A행, B행)이 된다.
-  - driver_type 컬럼을 추가해서 그 행이 A인지 B인지 구분한다.
-  - 사번(driver_no)이 키다. 사번이 없는 자료(A/B 각각)는 버린다.
-  - 진행 로그를 stdout으로 남긴다.
-
-실행 인수 (추가됨):
+실행 인수:
     python collect_dispatch_settings.py {new|update} {search|param} [cdp연결페이지 정보]
 
   - 첫째 인수 mode
@@ -35,6 +28,19 @@ dispatch_settings 테이블에 저장하는 스크립트.
       source=param 일 때만 사용. 대상 탭의 webSocketDebuggerUrl 문자열.
       (예: ws://127.0.0.1:9223/devtools/page/XXXXXXXX)
 
+==================================
+
+고정(쉬프트)지정 페이지(/a3/view_dispatch_settings_tab1/) 표를
+Chrome DevTools Protocol(CDP)로 읽어서 baecha.db(SQLite)의
+dispatch_settings 테이블에 저장하는 스크립트.
+
+요구사항 반영:
+  - B성명 / B사번은 컬럼이 아니라 "행(row)"으로 저장한다.
+    즉 원본 한 행(A기사 + B기사)이 DB에서는 최대 2행(A행, B행)이 된다.
+  - driver_type 컬럼을 추가해서 그 행이 A인지 B인지 구분한다.
+  - 사번(driver_no)이 키다. 사번이 없는 자료(A/B 각각)는 버린다.
+  - 진행 로그를 stdout으로 남긴다.
+
 사전 준비
   1) pip install websocket-client requests
   2) 크롬이 --remote-debugging-port=9223 으로 이미 떠 있고, 고정(쉬프트)지정
@@ -43,10 +49,6 @@ dispatch_settings 테이블에 저장하는 스크립트.
       그대로 재사용하므로 이 조건은 호출하는 쪽에서 보장한다.)
   3) 필요하면 아래 TAB_TITLE 을 실제 탭 제목과 맞춰 조정한다.
 
-실행 예시
-  python collect_dispatch_settings.py new search
-  python collect_dispatch_settings.py update search
-  python collect_dispatch_settings.py update param "ws://127.0.0.1:9223/devtools/page/XXXX"
 """
 import json
 import logging
@@ -187,17 +189,16 @@ def init_db(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS dispatch_settings (
-            driver_no     TEXT PRIMARY KEY,   -- 사번 = 키. 사번 없는 자료는 저장하지 않음
+            driver_no     TEXT NOT NULL, 
             driver_type   TEXT NOT NULL CHECK (driver_type IN ('A', 'B')),
-            driver_name   TEXT,
+            driver_name   TEXT PRIMARY KEY,   -- 사번 = 키. 사번 없는 자료는 저장하지 않음
             office        TEXT,               -- 조회 시 선택한 영업소명
             route         TEXT,               -- 노선
             car_number    TEXT,               -- 차량번호
             idx           INTEGER,            -- 순번
             rest_day      TEXT,               -- 휴무
             shift         TEXT,               -- 쉬프트
-            apply_date    DATE,
-            source_id     INTEGER NOT NULL,   -- 원본 페이지의 data-id (A/B 두 행이 같은 값을 공유)
+            apply_date    DATE,               -- 적용일자
             is_reserve    TEXT,               -- 예비차량여부 (Y/'')
             collected_at  DATETIME NOT NULL
         )
@@ -240,12 +241,12 @@ def insert_row(conn: sqlite3.Connection, row: dict, driver_type: str,
     conn.execute(
         """
         INSERT INTO dispatch_settings
-            (driver_no, source_id, office, route, idx, is_reserve, car_number, rest_day, shift,
+            (driver_no, office, route, idx, is_reserve, car_number, rest_day, shift,
              driver_type, driver_name, apply_date, collected_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
-            driver_no, int(row["source_id"]), office, row["route"], idx_val, row["is_reserve"],
+            driver_no, office, row["route"], idx_val, row["is_reserve"],
             row["car_number"], row["rest_day"], row["shift"],
             driver_type, driver_name, row["apply_date"], collected_at,
         ),
@@ -259,8 +260,7 @@ def update_row(conn: sqlite3.Connection, row: dict, driver_type: str,
     conn.execute(
         """
         UPDATE dispatch_settings
-        SET source_id    = ?,
-            office       = ?,
+        SET office       = ?,
             route        = ?,
             idx          = ?,
             is_reserve   = ?,
@@ -274,7 +274,7 @@ def update_row(conn: sqlite3.Connection, row: dict, driver_type: str,
         WHERE driver_no = ?
         """,
         (
-            int(row["source_id"]), office, row["route"], idx_val, row["is_reserve"],
+            office, row["route"], idx_val, row["is_reserve"],
             row["car_number"], row["rest_day"], row["shift"],
             driver_type, driver_name, row["apply_date"], collected_at,
             driver_no,
@@ -289,8 +289,6 @@ def save_rows(conn: sqlite3.Connection, rows: list, office: str) -> tuple:
     updated = 0
     dropped = 0
     for row in rows:
-        if not row.get("source_id"):
-            continue
         for driver_type, name_key, no_key in (("A", "a_name", "a_no"), ("B", "b_name", "b_no")):
             name = row[name_key]
             no = row[no_key].strip()
@@ -300,8 +298,8 @@ def save_rows(conn: sqlite3.Connection, rows: list, office: str) -> tuple:
             if not no:
                 dropped += 1
                 logger.warning(
-                    "사번 없음 -> 버림: source_id=%s route=%s idx=%s driver_type=%s name=%r",
-                    row["source_id"], row["route"], row["idx"], driver_type, name,
+                    "사번 없음 -> 버림: route=%s idx=%s driver_type=%s name=%r",
+                    row["route"], row["idx"], driver_type, name,
                 )
                 continue
 
