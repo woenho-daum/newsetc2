@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ==================================
 고정(쉬프트)지정 페이지 연 후에 collect_dispatch_settings.py를 호출 하여 자료를 모아 디비로 올린다.
@@ -36,7 +35,8 @@ import os
 import sys
 
 import requests
-from playwright.sync_api import sync_playwright, TimeoutError as PWTimeoutError
+from playwright.sync_api import TimeoutError as PWTimeoutError
+from playwright.sync_api import sync_playwright
 
 # 이 스크립트 파일이 있는 폴더로 작업 디렉토리를 강제 고정 (디버그 실행시 작업디렉토리를 환경파일 폴더로 한다. 이를 소스폴더로 변경하려면...)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -47,7 +47,7 @@ os.chdir(SCRIPT_DIR)   # -> 현재소스의 경로를 cwd 고정
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-import collect_dispatch_settings  # noqa: E402  (경로 추가 이후에 import 해야 함)
+import collect_dispatch_settings
 
 # ----------------------------------------------------------------------
 # 설정값

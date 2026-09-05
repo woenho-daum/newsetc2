@@ -1,3 +1,8 @@
+"""
+    py .\\excel_to_vcf_v3.py 고정/쉬프트 ..\\전화번호\\고정쉬프트연락처.vcf ..\\전화번호\\연락처조정작업.xlsm
+    py .\\excel_to_vcf_v3.py 박원호 ..\\전화번호\\박원호지정연락처.vcf ..\\전화번호\\연락처조정작업.xlsm 
+"""
+
 import os
 import sys
 from pathlib import Path
@@ -9,7 +14,7 @@ import openpyxl
 # ============================================================
 
 # 입력 Excel 파일명
-INPUT_XLSX = "..\\전화번호\\연락처조정작업_2.xlsm"
+INPUT_XLSX = "..\\전화번호\\연락처조정작업.xlsm"
 
 # 출력 VCF 파일명
 OUTPUT_VCF = "..\\전화번호\\new_contacts.vcf"
