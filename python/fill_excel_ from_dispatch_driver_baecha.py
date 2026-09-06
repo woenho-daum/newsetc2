@@ -1,16 +1,16 @@
 """
 dispatch.db(SQLite)의 dispatch_settings 테이블에서
 사번(driver_no)을 매칭시켜 route(노선), car_number(차량번호), apply_date(적용일자)를
-엑셀 파일의 AI, AJ, AK 컬럼에 채워 넣는 스크립트.
+엑셀 파일의 AH, AI, AJ 컬럼에 채워 넣는 스크립트.
 
 사용법:
-    python fill_excel_ from_dispatch_driver_baecha.py <엑셀파일.xlsx> <dispatch.db> [--sheet 시트명] [--sabun-col A] [--start-row 2]
-    py '.\\fill_excel_ from_dispatch_driver_baecha.py' --excel_path .\\배차표.xlsx --db_path .\\baecha.db
+    py .\fill_excel_ from_dispatch_driver_baecha.py --excel_path .\배차표.xlsx --db_path .\baecha.db
+    python fill_excel_ from_dispatch_driver_baecha.py <엑셀파일.xlsx> <dispatch.db> [--sheet 시트명] [--name-col A] [--start-row 2]
 기본값:
     - 시트: 활성 시트(맨 앞 시트) 사용
-    - 사번 컬럼: A열
+    - 성명 컬럼: A열
     - 데이터 시작행: 2행 (1행은 헤더로 간주)
-    - 출력 컬럼: AI(route), AJ(car_number), AK(apply_date)
+    - 출력 컬럼: AH(route), AI(car_number), AJ(apply_date)
 
 주의:
     - dispatch_settings 테이블은 driver_no(사번) 별로 A/B 두 행이 있을 수 있으므로
@@ -41,9 +41,9 @@ def load_dispatch_map(db_path: str, keep_all_rows: bool = False):
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT driver_no, driver_type, route, car_number, apply_date, collected_at
+        SELECT driver_name, driver_type, route, car_number, apply_date, collected_at
         FROM dispatch_settings
-        ORDER BY driver_no, collected_at DESC
+        ORDER BY driver_name, collected_at DESC
         """
     )
     rows = cur.fetchall()
@@ -51,7 +51,7 @@ def load_dispatch_map(db_path: str, keep_all_rows: bool = False):
 
     result = {}
     for row in rows:
-        dno = row["driver_no"]
+        dno = row["driver_name"]
         if dno is None:
             continue
         dno = str(dno).strip()
@@ -82,7 +82,7 @@ def fill_excel(
     excel_path: str,
     dispatch_map: dict,
     sheet_name: str | None,
-    sabun_col: str,
+    name_col: str,
     route_col: str,
     car_col: str,
     date_col: str,
@@ -91,7 +91,7 @@ def fill_excel(
     wb = load_workbook(excel_path)
     ws = wb[sheet_name] if sheet_name else wb.active
 
-    sabun_idx = column_index_from_string(sabun_col)
+    name_idx = column_index_from_string(name_col)
     route_idx = column_index_from_string(route_col)
     car_idx = column_index_from_string(car_col)
     date_idx = column_index_from_string(date_col)
@@ -100,7 +100,7 @@ def fill_excel(
     unmatched = []
 
     for r in range(start_row, ws.max_row + 1):
-        cell_val = ws.cell(row=r, column=sabun_idx).value
+        cell_val = ws.cell(row=r, column=name_idx).value
         if cell_val is None or str(cell_val).strip() == "":
             continue
 
@@ -131,10 +131,10 @@ def main():
     parser.add_argument("--excel_path", help="대상 엑셀 파일 경로 (.xlsx)")
     parser.add_argument("--db_path", help="dispatch.db(SQLite) 경로")
     parser.add_argument("--sheet", default=None, help="시트명 (생략 시 활성 시트)")
-    parser.add_argument("--sabun-col", default="A", help="사번이 들어있는 컬럼 (기본 A)")
-    parser.add_argument("--route-col", default="AI", help="노선 출력 컬럼 (기본 AI)")
-    parser.add_argument("--car-col", default="AJ", help="차량번호 출력 컬럼 (기본 AJ)")
-    parser.add_argument("--date-col", default="AK", help="적용일자 출력 컬럼 (기본 AK)")
+    parser.add_argument("--name-col", default="A", help="성명이 들어있는 컬럼 (기본 A)")
+    parser.add_argument("--route-col", default="AH", help="노선 출력 컬럼 (기본 AI)")
+    parser.add_argument("--car-col", default="AI", help="차량번호 출력 컬럼 (기본 AJ)")
+    parser.add_argument("--date-col", default="AJ", help="적용일자 출력 컬럼 (기본 AK)")
     parser.add_argument("--start-row", type=int, default=2, help="데이터 시작 행 (기본 2, 1행은 헤더)")
     parser.add_argument(
         "--keep-all-rows",
@@ -159,7 +159,7 @@ def main():
         excel_path=args.excel_path,
         dispatch_map=dispatch_map,
         sheet_name=args.sheet,
-        sabun_col=args.sabun_col,
+        name_col=args.name_col,
         route_col=args.route_col,
         car_col=args.car_col,
         date_col=args.date_col,
@@ -168,7 +168,7 @@ def main():
 
     print(f"[완료] 매칭 성공: {matched}건")
     if unmatched:
-        print(f"[경고] 매칭 실패(사번 없음): {len(unmatched)}건")
+        print(f"[경고] 매칭 실패(성명 없음): {len(unmatched)}건")
         print("  -> " + ", ".join(unmatched[:30]) + (" ..." if len(unmatched) > 30 else ""))
     print(f"[완료] 저장됨: {args.excel_path}")
 

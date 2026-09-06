@@ -6,20 +6,20 @@ sqlite3의 dispatch_daily 테이블에서 데이터를 읽어, 이미지와 같�
 일자별 근무표 + 오전/오후/정상 집계)의 엑셀 파일을 생성한다.
 
 사용법:
-    python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-09-06 --out 배차표.xlsx
+    python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-08-20 --out 배차표.xlsx
     python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-09-06 --weeks 4
 
 테이블 스키마 
     CREATE TABLE IF NOT EXISTS dispatch_daily (
-        query_date    TEXT NOT NULL,   -- 'YYYY-MM'
+        month         TEXT NOT NULL,
+        name          TEXT NOT NULL,
+        day           INTEGER,
         employee_no   TEXT NOT NULL,
-        name          TEXT,
-        day           INTEGER,         -- 1~31 (해당 월의 일)
-        weekday       TEXT,            -- '월','화','수','목','금','토','일'
-        value         TEXT,            -- 'A','P','연차', '' 등
-        bg_color      TEXT,            -- '#ffff00', '#ff94dc', NULL 등
+        weekday       TEXT,
+        value         TEXT,
+        bg_color      TEXT,
         created_at    TEXT DEFAULT (datetime('now','localtime')),
-        PRIMARY KEY(query_date, employee_no, day)
+        PRIMARY KEY(month, name, day)
     );
 """
 
@@ -65,43 +65,43 @@ def build_date_list(start_date, weeks):
 
 def fetch_records(conn, dates):
     """
-    date 리스트에 해당하는 (query_date, day) 조합으로 dispatch_daily를 조회한다.
+    date 리스트에 해당하는 (month, day) 조합으로 dispatch_daily를 조회한다.
     월 경계를 넘어가는 경우(예: 4주가 두 달에 걸침)도 함께 처리한다.
 
-    반환: {(employee_no, date): {"name":..., "value":..., "bg_color":...}}
+    반환: {(name, date): {"name":..., "value":..., "bg_color":...}}
     그리고 사번->성명 매핑, 사번 정렬 리스트
     """
-    # 월별로 (query_date, day) 그룹핑
+    # 월별로 (month, day) 그룹핑
     by_month = defaultdict(list)
     for d in dates:
         qdate = d.strftime("%Y-%m")
         by_month[qdate].append(d.day)
 
-    records = {}  # (employee_no, date) -> row dict
+    records = {}  # (name, date) -> row dict
     names = {}    # employee_no -> name
 
     cur = conn.cursor()
     for qdate, days in by_month.items():
         placeholders = ",".join("?" for _ in days)
         sql = f"""
-            SELECT employee_no, name, day, weekday, value, bg_color
+            SELECT name, day, weekday, value, bg_color
             FROM dispatch_daily
-            WHERE query_date = ? AND day IN ({placeholders})
+            WHERE month = ? AND day IN ({placeholders})
         """
         cur.execute(sql, [qdate, *days])
-        for employee_no, name, day, weekday, value, bg_color in cur.fetchall():
+        for name, day, weekday, value, bg_color in cur.fetchall():
             d = datetime.date(int(qdate[:4]), int(qdate[5:7]), day)
-            records[(employee_no, d)] = {
+            records[(name, d)] = {
                 "value": value or "",
                 "bg_color": bg_color,
             }
-            names[employee_no] = name
+            names[name] = name
 
-    employee_nos = sorted(names.keys())
-    return records, names, employee_nos
+    name_nos = sorted(names.keys())
+    return records, names, name_nos
 
 
-def guess_day_off(records, employee_no, dates):
+def guess_day_off(records, name, dates):
     """
     [참고용 추정치] dispatch_daily 테이블에는 '고정 휴무 요일'을 담는 컬럼이 없다.
     같은 요일에 값이 비어있는(공백/None) 경우가 가장 많은 요일을 '휴무일' 후보로 추정한다.
@@ -110,7 +110,7 @@ def guess_day_off(records, employee_no, dates):
     counter = Counter()
     total = Counter()
     for d in dates:
-        row = records.get((employee_no, d))
+        row = records.get((name, d))
         wd = WEEKDAY_KR[d.weekday()]
         total[wd] += 1
         if row and not row["value"].strip():
@@ -122,13 +122,13 @@ def guess_day_off(records, employee_no, dates):
     return best_wd if counter[best_wd] >= 1 else ""
 
 
-def build_workbook(records, names, employee_nos, dates, include_day_off_guess=False):
+def build_workbook(records, names, name_nos, dates, include_day_off_guess=False):
     wb = Workbook()
     ws = wb.active
     ws.title = "배차표"
 
     # ---------------- 헤더 ----------------
-    fixed_headers = ["사번", "성명", "휴무"]
+    fixed_headers = ["성명", "휴무"]
     tail_headers = ["오전", "오후", "정상"]
     n_fixed = len(fixed_headers)
     n_days = len(dates)
@@ -166,18 +166,16 @@ def build_workbook(records, names, employee_nos, dates, include_day_off_guess=Fa
     day_col_first = n_fixed + 1
     day_col_last = n_fixed + n_days
 
-    for r, emp_no in enumerate(employee_nos, start=2):
-        ws.cell(row=r, column=1, value=emp_no).border = BORDER
-        ws.cell(row=r, column=2, value=names.get(emp_no, "")).border = BORDER
+    for r, name in enumerate(name_nos, start=2):
+        ws.cell(row=r, column=1, value=names.get(name, "")).border = BORDER
 
-        day_off = guess_day_off(records, emp_no, dates) if include_day_off_guess else ""
-        #ws.cell(row=r, column=3, value=day_off).border = BORDER
+        #day_off = guess_day_off(records, name, dates) if include_day_off_guess else ""
 
         day_off_from_bg = ""
 
         for i, d in enumerate(dates):
             col = day_col_first + i
-            row = records.get((emp_no, d), {"value": "", "bg_color": None})
+            row = records.get((name, d), {"value": "", "bg_color": None})
             cell = ws.cell(row=r, column=col, value=row["value"] or None)
             cell.alignment = CENTER
             cell.border = BORDER
@@ -191,7 +189,7 @@ def build_workbook(records, names, employee_nos, dates, include_day_off_guess=Fa
                         day_off_from_bg = words[1]
                 #'print(f"추정 휴무일: {emp_no} {names.get(emp_no)} {day_off_from_bg} ({row['bg_color']})")
 
-        ws.cell(row=r, column=3, value=day_off_from_bg).border = BORDER
+        ws.cell(row=r, column=2, value=day_off_from_bg).border = BORDER
 
         # 오전 / 오후 / 정상 은 COUNTIF 수식으로 작성 (openpyxl 하드코딩 금지 원칙)
         first_letter = get_column_letter(day_col_first)
@@ -246,16 +244,16 @@ def main():
 
     conn = sqlite3.connect(args.db)
     try:
-        records, names, employee_nos = fetch_records(conn, dates)
+        records, names, name_nos = fetch_records(conn, dates)
     finally:
         conn.close()
 
-    if not employee_nos:
+    if not name_nos:
         print(f"경고: {start_date} ~ {end_date} 기간에 해당하는 데이터가 없습니다.")
 
-    wb = build_workbook(records, names, employee_nos, dates, include_day_off_guess=args.guess_day_off)
+    wb = build_workbook(records, names, name_nos, dates, include_day_off_guess=args.guess_day_off)
     wb.save(out_path)
-    print(f"완료: {out_path} ({len(employee_nos)}명, {start_date} ~ {end_date})")
+    print(f"완료: {out_path} ({len(name_nos)}명, {start_date} ~ {end_date})")
 
 
 if __name__ == "__main__":
