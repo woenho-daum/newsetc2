@@ -94,3 +94,20 @@ from contacts c
 where c.fn_order = "고정/쉬프트"
 ;
 
+--현재인원
+select sum(cnt1), sum(cnt2), sum(cnt3), SUM(cnt1) + SUM(cnt2) + SUM(cnt3) 
+from(
+	select count(*) as cnt1, 0 as cnt2, 0 as cnt3
+	from dispatch_settings
+	where office in ("본사")
+	UNION 
+	select 0 as cnt1, count(*) as cnt2, 0 as cnt3
+	from dispatch_settings
+	where office in ("출퇴근")
+	union
+	select 0 as cnt1, 0 as cnt2, count(*) as cnt3
+	from dispatch_settings
+	where office in ("심야")
+);
+
+
