@@ -1,0 +1,131 @@
+{
+	"workbench.colorTheme": "Default High Contrast",
+	"workbench.editorAssociations": {
+		"*.xlsx": "default",
+		"*.xls": "default",
+		"*.pptx": "default",
+		"*.ppt": "default"
+	},
+	"workbench.settings.applyToAllProfiles": [
+		"openInExternalApp.openMapper"
+	],
+	"window.openFilesInNewWindow": "on",
+	"openInExternalApp.openMapper": [
+		{
+			"extensionName": "pptx",
+			"apps": [
+				{
+					"title": "power point",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\POWERPNT.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "ppt",
+			"apps": [
+				{
+					"title": "power point",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\POWERPNT.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "xls",
+			"apps": [
+				{
+					"title": "엑셀",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\EXCEL.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "xlsx",
+			"apps": [
+				{
+					"title": "엑셀",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\EXCEL.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "xlsm",
+			"apps": [
+				{
+					"title": "엑셀",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\EXCEL.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "xlam",
+			"apps": [
+				{
+					"title": "엑셀",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\EXCEL.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "docx",
+			"apps": [
+				{
+					"title": "워드",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\WINWORD.EXE"
+				}
+			]
+		},
+		{
+			"extensionName": "doc",
+			"apps": [
+				{
+					"title": "워드",
+					"openCommand": "C:\\Program Files (x86)\\Microsoft Office\\Office12\\WINWORD.EXE"
+				}
+			]
+		}
+	],
+
+	"git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "cSpell.userWords": [
+		"Adoptium",
+		"autofetch",
+		"chatagent",
+		"CLSID",
+		"Consolas",
+		"cridential",
+		"daum",
+		"hotspot",
+		"ICONINFORMATION",
+		"latr",
+		"newermt",
+		"oleacc",
+		"pdisp",
+		"POWERPNT",
+		"pymanager",
+		"Tablib",
+		"USERPROFILE",
+		"winget",
+		"WINWORD",
+		"woenho",
+		"Wscript",
+		"wstr",
+		"XVBA"
+	],
+	"rainbow_csv.virtual_alignment_mode": "always",
+
+	"[csv]": {
+		"editor.inlayHints.maximumLength": 0
+	},
+	"[dynamic csv]": {
+		"editor.inlayHints.maximumLength": 150
+	},
+
+	"[python]": {
+   		"editor.insertSpaces": true,
+    	"editor.tabSize": 4,
+    	"editor.detectIndentation": false
+	},
+    "security.workspace.trust.untrustedFiles": "open"
+}
