@@ -10,5 +10,5 @@ alias y2='yt-dlp -f '
 git,윈도우즈 자격증명(cridential manager)에 등록되어 있음
 -----------
 woenho@daum / sm**am**
-git clone --depth 1 https://github.com/woenho-daum/buemil.git
+git clone --depth 1 https://github.com/woenho-daum/newsetc2.git
 
