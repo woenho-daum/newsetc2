@@ -50,3 +50,5 @@ pip 현재 .venv에 설치된 패키지 목록 백업/복원
     pip install -r requirements.txt
 }
 
+ dir ${env:USERPROFILE}/Documents  
+ 
