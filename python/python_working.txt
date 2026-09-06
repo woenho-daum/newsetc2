@@ -20,3 +20,33 @@
 2. dispatch.db 기사별 월별 근무현황(상세 및 집계)
 
 
+
+=================================================================
+chrome url로 호출방법 : http://127.0.0.1:9222/json/version
+
+파이썬 인터프리터로 호출 방법
+{
+    import urllib.request
+    print(urllib.request.urlopen("http://127.0.0.1:9222/json/version").read().decode())
+}
+
+아예 다름 환경의 크롬 기동하기
+{
+    "C:\Program Files\Google\Chrome\Application\chrome.exe"
+        --remote-debugging-port=9222
+        --remote-allow-origins=*
+        --user-data-dir=C:\ChromeAHK
+        --profile-directory=ProfileAHK
+    "C:\Program Files\Google\Chrome\Application\chrome.exe"
+        --remote-debugging-port=9223
+        --remote-allow-origins=*
+        --user-data-dir=C:\ChromePython
+        --profile-directory=ProfilePython
+}
+
+pip 현재 .venv에 설치된 패키지 목록 백업/복원
+{
+    pip freeze > requirements.txt
+    pip install -r requirements.txt
+}
+

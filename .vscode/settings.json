@@ -30,6 +30,8 @@
         "scrcpy",
         "sdcard",
         "tzdata",
+        "urllib",
+        "urlopen",
         "VCARD",
         "vcards",
         "venv",
