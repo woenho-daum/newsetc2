@@ -1,0 +1,14 @@
+
+Get-Printer | Select-Object Name
+
+Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL"
+
+Set-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL" -Color $false
+
+Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL"
+
+Set-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL" -Color $true
+
+Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL"
+
+
