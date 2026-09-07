@@ -5,10 +5,15 @@ Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL"
 
 Set-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL" -Color $false
 
-Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL"
-
 Set-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL" -Color $true
 
-Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL"
+Get-PrintConfiguration -PrinterName "SINDOH D470/D740/CM Series PCL" | Format-List *
 
+rundll32 printui.dll,PrintUIEntry /p /n "SINDOH D470/D740/CM Series PCL"
+
+Get-Service Spooler
+Restart-Service Spooler
+Stop-Service Spooler -Force
+sc.exe stop Spooler
+sc.exe start Spooler
 

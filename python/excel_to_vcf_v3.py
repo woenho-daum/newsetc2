@@ -86,7 +86,7 @@ def make_vcf(param_order, output_vcf, input_xlsx ):
 
         # 빈 행은 건너뜀
         #if tel_number in ("", None) or fn_old in ("", None) or fn_order == "삭제":
-        if tel_number == "" or fn_old == "" or fn_order == "삭제":
+        if tel_number == "" or fn_order == "삭제":
             continue
 
         if fn_new == "":
