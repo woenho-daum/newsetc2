@@ -23,13 +23,13 @@
 """
 
 import csv
+import os
 import re
 import time
-import os
 
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 SCOPES = ['https://www.googleapis.com/auth/contacts']
@@ -154,11 +154,11 @@ def main():
             print(f"[변경완료] {current_name}  ->  {new_name}")
             updated += 1
             time.sleep(0.3)  # API 속도 제한 보호
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"[실패] {current_name} -> {new_name} : {e}")
 
     unmatched_csv_entries = set(mapping.keys()) - matched_phones
-    print(f"\n=== 결과 요약 ===")
+    print("\n=== 결과 요약 ===")
     print(f"처리(또는 미리보기) 건수: {updated}")
     print(f"매칭 안 된 연락처(스킵): {skipped_no_match}")
     if unmatched_csv_entries:
