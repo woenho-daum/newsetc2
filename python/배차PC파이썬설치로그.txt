@@ -56,15 +56,17 @@ cvenv alias 환경만들기
     if (!(Test-Path $PROFILE)) {
         New-Item -ItemType File -Path $PROFILE -Force | Out-Null
     }
+
+	 
     code $PROFILE
     ----------------
     -> Microsoft.PowerShell_profile.ps1에 추가할 venv 활성화 alias 추가
     -----------------
     function cvenv {
-        $project = Join-Path $HOME "Documents\newsetc2"
-        Set-Location $project
-        & ".\.venv\Scripts\Activate.ps1"
-    }
+		$project = $PWD.Path
+		Set-Location $project
+		.\.venv\Scripts\Activate.ps1
+	}
     ----------------
     . $PROFILE  ; 현재 셀에 바로 적용
     cvenv
