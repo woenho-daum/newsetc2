@@ -15,6 +15,40 @@ DebugMsgToggle(*)  ; Ctrl + Shift + M
         MsgBox "디버그 모드 OFF"
 }
 
+CreateChromePort(port,userDataDir,userProfile)
+{
+    ; 해당 디버그 포트가 이미 열려 있는지 확인
+    if IsChromeDebugRunning(port)
+    {
+        ; 포트를 사용하는 Chrome 프로세스의 창을 최상단으로
+        pid := GetChromePid(port, userDataDir)
+
+        if pid
+        {
+            hwnds := WinGetList("ahk_pid " pid)
+
+            for hwnd in hwnds
+            {
+                ; 실제 Chrome 창만 활성화
+                WinActivate(hwnd)
+                if WinWaitActive(hwnd, , 2)
+                return
+            }
+        }
+
+        ; PID를 못 찾은 경우
+        MsgBox ("뭐지? 포트는 열렸는데 크롬을 못찾았네....")
+        return
+    }
+
+    ; 해당 포트가 없으면 새로 실행
+    Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" '
+        . '--remote-debugging-port=' port ' '
+        . '--remote-allow-origins=* '
+        . '--user-data-dir="' userDataDir '" '
+        . '--profile-directory="' userProfile '"'
+}
+
 RefreshAlcoholNormal_old(*)  ; Ctrl + Alt + NumpadEnter
 {
     ; 현재 창(엑셀) 저장
@@ -585,3 +619,4 @@ FunctionB() {
 FunctionOne() {
     MsgBox("숫자 1 키 기능이 실행되었습니다.")
 }
+

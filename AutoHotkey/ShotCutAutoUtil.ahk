@@ -372,3 +372,49 @@ ClickElementWhenReady(page, elementId, maxWaitMs := 4000, intervalMs := 200)
     }
 }
 
+;--------------------------------------------------
+; 크롬 디버그 포트가 열려 있는지 확인
+;--------------------------------------------------
+IsChromeDebugRunning(port)
+{
+    try
+    {
+        http := ComObject("WinHttp.WinHttpRequest.5.1")
+        http.Open("GET", "http://127.0.0.1:" port "/json/version", false)
+        http.Send()
+
+        return http.Status = 200
+    }
+    catch
+    {
+        return false
+    }
+}
+
+;--------------------------------------------------
+; 해당 포트 + user-data-dir를 사용하는 Chrome PID 찾기
+;--------------------------------------------------
+GetChromePid(port, userDataDir)
+{
+    wmi := ComObject("WbemScripting.SWbemLocator")
+    service := wmi.ConnectServer(".", "root\CIMV2")
+
+    query := "SELECT ProcessId, CommandLine "
+           . "FROM Win32_Process "
+           . "WHERE Name='chrome.exe'"
+
+    processes := service.ExecQuery(query)
+
+    for process in processes
+    {
+        cmd := process.CommandLine
+
+        if InStr(cmd, "--remote-debugging-port=" port)
+            && (InStr(cmd, '--user-data-dir="' userDataDir '"') or InStr(cmd, "--user-data-dir=" userDataDir))
+        {
+            return process.ProcessId
+        }
+    }
+
+    return 0
+}

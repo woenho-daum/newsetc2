@@ -16,8 +16,8 @@
 ^NumpadEnter::RefreshAlcoholCDP(true) ; Ctrl + NumpadEnter
 ^+NumpadEnter::CompareAlcoholCDP(false) ; Ctrl + Shift + NumpadEnter
 ;^!+F2:: ProcessClose("chrome.exe")
-^!F1::Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-allow-origins=* --user-data-dir=C:\ChromeAHK --profile-directory=ProfileAHK'
-^!F2::Run '"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --remote-allow-origins=* --user-data-dir=C:\ChromePython --profile-directory=ProfilePython'
+^!F1::CreateChromePort(9222,"C:\ChromeAHK","ProfileAHK")
+^!F2::CreateChromePort(9223,"C:\ChromePython","ProfilePython")
 ^F12::RefreshBusRoute("5620")
 ^F11::RefreshBusRoute("5413")
 ^!F12::RefreshBusRoute("5620",true)
