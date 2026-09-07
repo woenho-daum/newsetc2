@@ -231,7 +231,7 @@ RefreshAlcoholCDP(bFound := false,*)
     {
 		what := e.HasProp("What") ? e.What : 0
 
-        if (Type(What) != "String" && What < 0) {
+        if (IsInteger(what) && What < 0) {
 			if e.HasProp("Message")
             	msg := "Message : " e.Message
 			if e.HasProp("what")
@@ -245,7 +245,7 @@ RefreshAlcoholCDP(bFound := false,*)
 
 			MsgBox(msg)
         } else {
-            Log(
+            MsgBox(
                 "Message : " e.Message
                 . "`nWhat : " e.What
                 . "`nLine : " e.Line
@@ -438,7 +438,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
     {
        what := e.HasProp("What") ? e.What : 0
 
-        if (Type(What) != "String" && What < 0) {
+        if (IsInteger(what) && What < 0) {
 			if e.HasProp("Message")
             	msg := "Message : " e.Message
 			if e.HasProp("what")
@@ -452,7 +452,7 @@ CompareAlcoholCDP(bFound := false,*) ; Ctrl + Shift + NumpadEnter
 
 			MsgBox(msg)
         } else {
-            Log(
+            MsgBox(
                 "Message : " e.Message
                 . "`nWhat : " e.What
                 . "`nLine : " e.Line
@@ -549,7 +549,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
     {
         what := e.HasProp("What") ? e.What : 0
 
-        if (Type(What) != "String" && What < 0) {
+        if (IsInteger(what) && What < 0) {
 			if e.HasProp("Message")
             	msg := "Message : " e.Message
 			if e.HasProp("what")
@@ -563,7 +563,7 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
 
 			MsgBox(msg)
         } else {
-            Log(
+            MsgBox(
                 "Message : " e.Message
                 . "`nWhat : " e.What
                 . "`nLine : " e.Line
