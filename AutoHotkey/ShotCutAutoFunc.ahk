@@ -577,7 +577,86 @@ RefreshBusRoute(RouteTitle, bGridView:=false)
     }
 }
 
+ChoiceShutdown()
+{
+    result := InputBox("1 = 종료`n2 = 절전", "전원 선택")
+
+    if result.Value = "1"
+        Shutdown 8
+    else if result.Value = "2"
+        DllCall("PowrProf\SetSuspendState", "Char", 0, "Char", 0, "Char", 0)
+}
+
+
+ShutdownComputer(*)
+{
+    hq104 := false
+    title := "절전"
+
+    ; 컴퓨터 이름에 HQ104가 포함되어 있는지 확인
+    if InStr(A_ComputerName, "HQ104")
+    {
+        hq104 := true
+        title := "종료"
+    }
+
+    ; 카운트다운 GUI 생성
+    countdown := 5
+
+    myGui := Gui("+AlwaysOnTop -MaximizeBox -MinimizeBox", "컴퓨터 " title)
+    myGui.SetFont("s16")
+
+    text := myGui.AddText(
+        "w300 Center",
+        "컴퓨터가 5초 후 " title "됩니다."
+    )
+
+    cancelBtn := myGui.AddButton("w100 Center", "취소")
+
+    ;cancelBtn.OnEvent("Click", (*) => myGui.Destroy())
+	cancelBtn.OnEvent("Click", Cancel)
+
+    myGui.Show("AutoSize Center")
+
+    ; 1초마다 카운트다운
+    SetTimer(UpdateCountdown, 1000)
+
+	return
+
+    UpdateCountdown()
+    {
+        countdown--
+
+        if countdown <= 0
+        {
+            SetTimer(UpdateCountdown, 0)
+            myGui.Destroy()
+
+            if hq104
+                Shutdown 8
+            else
+                DllCall("PowrProf\SetSuspendState", "Char", 0, "Char", 0, "Char", 0)
+
+            return
+        }
+
+        text.Text := "컴퓨터가 " countdown "초 후 " title "됩니다."
+    }
+
+	Cancel(*)
+	{
+		SetTimer(UpdateCountdown, 0)
+		myGui.Destroy()
+	}
+
+}
+
+
 StartKeyHookNumpad0(*) {
+	MouseMove 0, 0
+	Click 0, 0
+	Exit
+
 	global g_ih
     g_ih := InputHook("V")
 	g_ih.KeyOpt("{All}", "N")   ; 모든 키에 대해 OnKeyDown 알림 활성화
@@ -609,7 +688,10 @@ OnKeyPressedNumpad0(ih, VK, SC) {
 }
 
 FunctionA() {
-    MsgBox("A 키 기능이 실행되었습니다.")
+    ; MsgBox("A 키 기능이 실행되었습니다.")
+	MouseMove 0, 0
+	Click 0, 0
+	; ControlClick x0 y0, ahk_class Shell_TrayWnd
 }
 
 FunctionB() {

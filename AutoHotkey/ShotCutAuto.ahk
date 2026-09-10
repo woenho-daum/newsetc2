@@ -23,6 +23,7 @@
 ^!F12::RefreshBusRoute("5620",true)
 ^!F11::RefreshBusRoute("5413",true)
 ^Numpad0::StartKeyHookNumpad0()
+^!+End::ShutdownComputer
 
 ^Numpad1::
 {
