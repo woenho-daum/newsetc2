@@ -1,0 +1,206 @@
+pi@raspberrypi:~ $ sudo -i
+root@raspberrypi:~# cat /etc/os-release
+PRETTY_NAME="Raspbian GNU/Linux 13 (trixie)"
+NAME="Raspbian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.4
+ID=raspbian
+ID_LIKE=debian
+HOME_URL="http://www.raspbian.org/"
+SUPPORT_URL="http://www.raspbian.org/RaspbianForums"
+BUG_REPORT_URL="http://www.raspbian.org/RaspbianBugs"
+
+
+root@raspberrypi:~# uname -a
+Linux raspberrypi 6.18.34+rpt-rpi-v7 #1 SMP Raspbian 1:6.18.34-1+rpt1 (2026-06-09) armv7l GNU/Linux
+
+
+root@raspberrypi:~# lscpu
+Architecture:                armv7l
+  Byte Order:                Little Endian
+CPU(s):                      4
+  On-line CPU(s) list:       0-3
+Vendor ID:                   0x41
+  Model name:                ARMv7 Processor rev 4 (v7l)
+    Model:                   4
+    Thread(s) per core:      1
+    Core(s) per socket:      4
+    Socket(s):               1
+    Stepping:                0x0
+    Frequency boost:         disabled
+    CPU(s) scaling MHz:      50%
+    CPU max MHz:             1200.0000
+    CPU min MHz:             600.0000
+    BogoMIPS:                38.40
+    Flags:                   half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32
+Caches (sum of all):
+  L1d:                       128 KiB (4 instances)
+  L1i:                       128 KiB (4 instances)
+  L2:                        512 KiB (1 instance)
+Vulnerabilities:
+  Gather data sampling:      Not affected
+  Ghostwrite:                Not affected
+  Indirect target selection: Not affected
+  Itlb multihit:             Not affected
+  L1tf:                      Not affected
+  Mds:                       Not affected
+  Meltdown:                  Not affected
+  Mmio stale data:           Not affected
+  Old microcode:             Not affected
+  Reg file data sampling:    Not affected
+  Retbleed:                  Not affected
+  Spec rstack overflow:      Not affected
+  Spec store bypass:         Not affected
+  Spectre v1:                Mitigation; __user pointer sanitization
+  Spectre v2:                Not affected
+  Srbds:                     Not affected
+  Tsa:                       Not affected
+  Tsx async abort:           Not affected
+  Vmscape:                   Not affected
+
+
+root@raspberrypi:~# free -h
+               total        used        free      shared  buff/cache   available
+Mem:           920Mi       137Mi       614Mi       3.9Mi       221Mi       782Mi
+Swap:          919Mi          0B       919Mi
+
+
+root@raspberrypi:~# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+udev            325M     0  325M   0% /dev
+tmpfs           185M  4.0M  181M   3% /run
+/dev/mmcblk0p2   15G  1.8G   12G  13% /
+tmpfs           461M     0  461M   0% /dev/shm
+tmpfs           5.0M   12K  5.0M   1% /run/lock
+tmpfs           1.0M     0  1.0M   0% /run/credentials/systemd-journald.service
+tmpfs           461M     0  461M   0% /tmp
+/dev/mmcblk0p1  505M   91M  414M  18% /boot/firmware
+tmpfs           1.0M     0  1.0M   0% /run/credentials/getty@tty1.service
+tmpfs            92M  8.0K   92M   1% /run/user/1000
+
+
+root@raspberrypi:~# vcgencmd measure_temp
+temp=52.6'C
+
+
+root@raspberrypi:~# vcgencmd get_throttled
+throttled=0x50005
+
+
+root@raspberrypi:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: eth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether b8:27:eb:97:f9:60 brd ff:ff:ff:ff:ff:ff
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether b8:27:eb:c2:ac:35 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.0.87/24 brd 192.168.0.255 scope global dynamic noprefixroute wlan0
+       valid_lft 603926sec preferred_lft 603926sec
+    inet6 fe80::6e9:ac16:3a23:327f/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+
+
+root@raspberrypi:~# ping -c 4 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=112 time=45.6 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=112 time=48.5 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=112 time=48.4 ms
+
+
+root@raspberrypi:~# systemctl list-units --failed
+  UNIT LOAD ACTIVE SUB DESCRIPTION
+
+0 loaded units listed.
+
+
+root@raspberrypi:~# nmcli connection show
+NAME                UUID                                  TYPE      DEVICE
+pwh                 acb46074-2204-4bd0-b70b-0816bc15acfc  wifi      wlan0
+lo                  b9cc814b-3086-41d2-b141-cad99662cb5c  loopback  lo
+Wired connection 1  f2e9a69f-e411-3fdb-8853-aed7a5e81139  ethernet  --
+
+
+root@raspberrypi:~# cat /etc/resolv.conf
+# Generated by NetworkManager
+nameserver 61.41.153.2
+nameserver 1.214.68.2
+
+
+root@raspberrypi:~# nmcli device show wlan0
+GENERAL.DEVICE:                         wlan0
+GENERAL.TYPE:                           wifi
+GENERAL.HWADDR:                         B8:27:EB:C2:AC:35
+GENERAL.MTU:                            1500
+GENERAL.STATE:                          100 (connected)
+GENERAL.CONNECTION:                     pwh
+GENERAL.CON-PATH:                       /org/freedesktop/NetworkManager/ActiveConnection/2
+IP4.ADDRESS[1]:                         192.168.0.87/24
+IP4.GATEWAY:                            192.168.0.1
+IP4.ROUTE[1]:                           dst = 192.168.0.0/24, nh = 0.0.0.0, mt = 600
+IP4.ROUTE[2]:                           dst = 0.0.0.0/0, nh = 192.168.0.1, mt = 600
+IP4.DNS[1]:                             61.41.153.2
+IP4.DNS[2]:                             1.214.68.2
+IP6.ADDRESS[1]:                         fe80::6e9:ac16:3a23:327f/64
+IP6.GATEWAY:                            --
+IP6.ROUTE[1]:                           dst = fe80::/64, nh = ::, mt = 1024
+
+
+pi@raspberrypi:~ $ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+udev            325M     0  325M   0% /dev
+tmpfs           185M  4.0M  181M   3% /run
+/dev/mmcblk0p2   15G  2.0G   12G  15% /
+tmpfs           461M     0  461M   0% /dev/shm
+tmpfs           5.0M   12K  5.0M   1% /run/lock
+tmpfs           1.0M     0  1.0M   0% /run/credentials/systemd-journald.service
+tmpfs           461M     0  461M   0% /tmp
+/dev/mmcblk0p1  505M   91M  414M  18% /boot/firmware
+tmpfs           1.0M     0  1.0M   0% /run/credentials/getty@tty1.service
+tmpfs            92M  8.0K   92M   1% /run/user/1000
+
+
+pi@raspberrypi:~ $ mount
+sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+proc on /proc type proc (rw,relatime)
+udev on /dev type devtmpfs (rw,nosuid,relatime,size=332512k,nr_inodes=83128,mode=755)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=600,ptmxmode=000)
+tmpfs on /run type tmpfs (rw,nosuid,nodev,noexec,relatime,size=188424k,mode=755)
+/dev/mmcblk0p2 on / type ext4 (rw,noatime)
+securityfs on /sys/kernel/security type securityfs (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /dev/shm type tmpfs (rw,nosuid,nodev)
+cgroup2 on /sys/fs/cgroup type cgroup2 (rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot)
+none on /sys/fs/pstore type pstore (rw,nosuid,nodev,noexec,relatime)
+bpf on /sys/fs/bpf type bpf (rw,nosuid,nodev,noexec,relatime,mode=700)
+systemd-1 on /proc/sys/fs/binfmt_misc type autofs (rw,relatime,fd=37,pgrp=1,timeout=0,minproto=5,maxproto=5,direct)
+mqueue on /dev/mqueue type mqueue (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /run/lock type tmpfs (rw,nosuid,nodev,noexec,relatime,size=5120k)
+debugfs on /sys/kernel/debug type debugfs (rw,nosuid,nodev,noexec,relatime)
+tracefs on /sys/kernel/tracing type tracefs (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /run/credentials/systemd-journald.service type tmpfs (ro,nosuid,nodev,noexec,relatime,nosymfollow,size=1024k,nr_inodes=1024,mode=700,noswap)
+fusectl on /sys/fs/fuse/connections type fusectl (rw,nosuid,nodev,noexec,relatime)
+configfs on /sys/kernel/config type configfs (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /tmp type tmpfs (rw,nosuid,nodev,size=471060k,nr_inodes=1048576)
+/dev/mmcblk0p1 on /boot/firmware type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,errors=remount-ro)
+binfmt_misc on /proc/sys/fs/binfmt_misc type binfmt_misc (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /run/credentials/getty@tty1.service type tmpfs (ro,nosuid,nodev,noexec,relatime,nosymfollow,size=1024k,nr_inodes=1024,mode=700,noswap)
+tmpfs on /run/user/1000 type tmpfs (rw,nosuid,nodev,relatime,size=94208k,nr_inodes=23552,mode=700,uid=1000,gid=1000)
+
+
+pi@raspberrypi:~ $ lsblk -f
+NAME        FSTYPE FSVER LABEL  UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+loop0       swap   1
+mmcblk0
+tqmmcblk0p1 vfat   FAT32 bootfs 89F4-4546                             413.7M    18% /boot/firmware
+mqmmcblk0p2 ext4   1.0   rootfs e9ef4083-101b-46b4-b87d-de84fe1169f8   11.4G    15% /
+zram0       swap   1     zram0  93e812b0-b18a-43e6-aea9-3f21de7a2759                [SWAP]
+
+
+pi@raspberrypi:~ $ uname -r
+6.18.39+rpt-rpi-v7
+
