@@ -616,7 +616,13 @@ ShutdownComputer(*)
     ;cancelBtn.OnEvent("Click", (*) => myGui.Destroy())
 	cancelBtn.OnEvent("Click", Cancel)
 
+	; 창의 X 버튼도 취소 
+	myGui.OnEvent("Close", Cancel)
+
     myGui.Show("AutoSize Center")
+
+	; 취소 버튼에 포커스 
+	cancelBtn.Focus()
 
     ; 1초마다 카운트다운
     SetTimer(UpdateCountdown, 1000)
