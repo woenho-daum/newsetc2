@@ -1,4 +1,7 @@
 
+nmcli connection add type wifi ifname wlan0 con-name "OpenNetwork" ssid "공유기_SSID_이름"
+nmcli connection up "OpenNetwork"
+
 09/09(수) 본사보고
 1) 사고: 0건
 2) 음주: 0건
