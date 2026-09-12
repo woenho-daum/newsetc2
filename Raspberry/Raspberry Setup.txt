@@ -115,3 +115,56 @@ pstree -ap | grep gunicorn
 
 pwh.iptime.org
 wo**/ma**~4
+
+C:\Program Files (x86)\teraterm\TERATERM.INI
+KEYBOARD.CNF — 키보드 매핑
+TERATERM.INI 안에 폰트, 색상, 창 크기, 터미널 설정, 접속 관련 기본값 등이 저장됩니다.
+
+ssh-keygen -t rsa -b 4096
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+2.-------------------
+Natizyskunk.sftp 계열의 SFTP 확장을 설치
+
+SFTP: Config
+그러면 프로젝트에: .vscode/sftp.json 이 생성됩니다.
+2. Raspberry Pi 접속 정보 설정
+{
+ "name": "Raspberry Pi",
+    "host": "192.168.0.87",
+    "protocol": "sftp",
+    "port": 22,
+    "username": "pi",
+    "remotePath": "/home/pi",
+    "localPath": "/Raspberry/pi",
+    "uploadOnSave": false,
+    "syncOption": {
+        "delete": false
+    }
+}
+
+{
+    "name": "Raspberry Pi",
+    "host": "pwh.iptime.org",
+    "protocol": "sftp",
+    "port": 22,
+    "username": "pi",
+    "remotePath": "/home/pi/baechaweb",
+	"privateKeyPath": ".ssh/id_rsa",
+	"downloadOnOpen": true,
+    "uploadOnSave": false,
+    "syncOption": {
+        "delete": false
+    }
+}
+
+
+"C:\Users\woenho\.vscode\extensions\natizyskunk.sftp-1.16.3\node_modules\ssh2\lib\protocol\SFTP.js"
+{
+	const { inherits, isDate } = require('util');
+}
+{
+	const { inherits } = require('util');
+	const isDate = (d) => d instanceof Date;
+}
