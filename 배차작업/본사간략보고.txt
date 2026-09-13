@@ -1,3 +1,4 @@
+sudo ../.venv/bin/gunicorn --bind 0.0.0.0:80 --workers 2 --threads 2 --access-logfile gunicorn-access.log --error-logfile gunicorn-error.log app:app &
 
 nmcli connection add type wifi ifname wlan0 con-name "OpenNetwork" ssid "공유기_SSID_이름"
 nmcli connection up "OpenNetwork"

@@ -160,7 +160,7 @@ SFTP: Config
 }
 
 
-"C:\Users\woenho\.vscode\extensions\natizyskunk.sftp-1.16.3\node_modules\ssh2\lib\protocol\SFTP.js"
+%userprofile%\.vscode\extensions\natizyskunk.sftp-1.16.3\node_modules\ssh2\lib\protocol\SFTP.js
 {
 	const { inherits, isDate } = require('util');
 }
