@@ -1,3 +1,13 @@
+9/15 금요일
+범일운수
+5413노선 5152차량
+이상혁 04:42 출발 오전 근무자
+04:12 1차:0.015
+04:25 2차:0.013
+귀가조치
+
+
+
 sudo ../.venv/bin/gunicorn --bind 0.0.0.0:80 --workers 2 --threads 2 --access-logfile gunicorn-access.log --error-logfile gunicorn-error.log app:app &
 
 nmcli connection add type wifi ifname wlan0 con-name "OpenNetwork" ssid "공유기_SSID_이름"
