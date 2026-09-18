@@ -2,7 +2,7 @@ import sqlite3
 
 def migrate_drivers_data():
     conn_baecha = sqlite3.connect('baecha.db')
-    conn_servey = sqlite3.connect('servey.db')
+    conn_servey = sqlite3.connect('survey.db')
     
     cursor_baecha = conn_baecha.cursor()
     cursor_servey = conn_servey.cursor()
