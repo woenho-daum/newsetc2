@@ -1,47 +1,13 @@
-import getpass
-import sys
-# sqlcipher3 또는 pysqlcipher3 모두 호환
-try:
-    from sqlcipher3 import dbapi2 as sqlite3
-except ImportError:
-    from pysqlcipher3 import dbapi2 as sqlite3
-
+import sqlite3
 
 def migrate_drivers_data():
-    # -------------------------------------------------------------
-    # 1. DB 연결 및 암호화 설정
-    # -------------------------------------------------------------
-    # 배차 DB (암호화가 안 된 일반 DB일 경우)
     conn_baecha = sqlite3.connect('baecha.db')
-
-    # 설문 DB 암호 입력받기 (화면에 마스킹 처리됨)
-    db_password = getpass.getpass("survey.db 암호를 입력하세요: ")
-    if not db_password:
-        print("❌ 암호가 입력되지 않았습니다. 프로그램을 종료합니다.")
-        sys.exit(1)
-
     conn_servey = sqlite3.connect('survey.db')
-
+    
     cursor_baecha = conn_baecha.cursor()
     cursor_servey = conn_servey.cursor()
 
-    # survey.db 암호 설정 (PRAGMA key는 다른 쿼리 실행 전에 가장 먼저 실행해야 합니다)
-    cursor_servey.execute(f"PRAGMA key = '{db_password}';")
-
-    # 암호 정상 여부 및 연결 검증
-    try:
-        cursor_servey.execute("SELECT count(*) FROM sqlite_master;")
-    except Exception:
-        print("❌ survey.db 암호가 틀렸거나 데이터베이스 파일이 손상되었습니다.")
-        conn_baecha.close()
-        conn_servey.close()
-        sys.exit(1)
-
-    print("✅ survey.db 암호 인증 완료. 마이그레이션을 시작합니다.")
-
-    # -------------------------------------------------------------
-    # 2. 테이블 및 인덱스 생성
-    # -------------------------------------------------------------
+    # 1. 테이블 및 인덱스 생성
     cursor_servey.executescript('''
         DROP TABLE IF EXISTS drivers;
 
@@ -73,9 +39,7 @@ def migrate_drivers_data():
         CREATE INDEX IF NOT EXISTS idx_drivers_childcare_day ON drivers(childcare_day);
     ''')
 
-    # -------------------------------------------------------------
-    # 3. SELECT 쿼리
-    # -------------------------------------------------------------
+    # 2. SELECT 쿼리 (tel_section 값도 가져옴)
     query = '''
         SELECT 
             d.driver_name AS name,
@@ -91,7 +55,7 @@ def migrate_drivers_data():
           AND d.driver_name != ''
           AND d.shift != d.rest_day;
     '''
-
+    
     cursor_baecha.execute(query)
     rows = cursor_baecha.fetchall()
 
@@ -110,41 +74,31 @@ def migrate_drivers_data():
     update_cnt = 0
     skip_cnt = 0
 
-    # -------------------------------------------------------------
-    # 4. 명시적 중복 검증 후 처리
-    # -------------------------------------------------------------
+    # 3. 명시적 중복 검증 후 처리
     for name, phone, shift_day, off_day, tel_section in rows:
-        cursor_servey.execute(
-            "SELECT 1 FROM drivers WHERE name = ?", (name,)
-        )
+        # 1) 기존 데이터 존재 여부 명시적 확인
+        cursor_servey.execute("SELECT 1 FROM drivers WHERE name = ?", (name,))
         exists = cursor_servey.fetchone()
 
         if not exists:
-            cursor_servey.execute(
-                insert_sql, (name, phone, shift_day, off_day)
-            )
+            # 존재하지 않으면 신규 INSERT
+            cursor_servey.execute(insert_sql, (name, phone, shift_day, off_day))
             insert_cnt += 1
         else:
+            # 이미 존재(중복)하면서 tel_section이 'work'일 때만 명시적 UPDATE
             if tel_section == 'work':
-                cursor_servey.execute(
-                    update_sql, (phone, shift_day, off_day, name)
-                )
+                cursor_servey.execute(update_sql, (phone, shift_day, off_day, name))
                 update_cnt += 1
-                print(
-                    f"업데이트: {name} - 전화번호: {phone}, 근무일: {shift_day}, 휴무일: {off_day}"
-                )
+                print(f"업데이트: {name} - 전화번호: {phone}, 근무일: {shift_day}, 휴무일: {off_day}")
             else:
                 skip_cnt += 1
 
     conn_servey.commit()
 
-    print(
-        f"\n처리 완료 - 신규 추가: {insert_cnt}건, 'work' 업데이트: {update_cnt}건, 무시됨: {skip_cnt}건"
-    )
+    print(f"처리 완료 - 신규 추가: {insert_cnt}건, 'work' 업데이트: {update_cnt}건, 무시됨: {skip_cnt}건")
 
     conn_baecha.close()
     conn_servey.close()
-
 
 if __name__ == '__main__':
     migrate_drivers_data()
