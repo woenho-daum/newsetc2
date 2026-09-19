@@ -601,14 +601,14 @@ ShutdownComputer(*)
     }
 
     ; 카운트다운 GUI 생성
-    countdown := 5
+    countdown := 3
 
     myGui := Gui("+AlwaysOnTop -MaximizeBox -MinimizeBox", "컴퓨터 " title)
     myGui.SetFont("s16")
 
     text := myGui.AddText(
         "w300 Center",
-        "컴퓨터가 5초 후 " title "됩니다."
+        "컴퓨터가 " countdown "초 후 " title "됩니다."
     )
 
     cancelBtn := myGui.AddButton("w100 Center", "취소")
