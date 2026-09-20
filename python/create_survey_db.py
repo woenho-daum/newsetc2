@@ -93,6 +93,8 @@ def migrate_drivers_data():
             else:
                 skip_cnt += 1
 
+    cursor_servey.execute(insert_sql, ('박원호', '01053905604', '목', '금'))
+    cursor_servey.execute(insert_sql, ('홍길동', '01012345678', '토', '일'))
     conn_servey.commit()
 
     print(f"처리 완료 - 신규 추가: {insert_cnt}건, 'work' 업데이트: {update_cnt}건, 무시됨: {skip_cnt}건")
