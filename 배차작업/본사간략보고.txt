@@ -8,17 +8,17 @@
 
 
 
-sudo ../.venv/bin/gunicorn --bind 0.0.0.0:80 --workers 2 --threads 2 --access-logfile gunicorn-access.log --error-logfile gunicorn-error.log app:app &
-
-nmcli connection add type wifi ifname wlan0 con-name "OpenNetwork" ssid "공유기_SSID_이름"
-nmcli connection up "OpenNetwork"
-
-09/09(수) 본사보고
-1) 사고: 0건
+09/22(화) 본사보고
+1) 사고: 3건
+	5620(1483-박세열) 접촉사고
+	5620(1483-박세열) 안전사고
+	5525(1514-박일영) 안전사고
 2) 음주: 0건
-3) 결행: 0건
-4) 고장: 1건
-	5413(1546-황인환) 뒷문고장
+3) 결행: 3건
+	5620(1506-한상인) 후 4회 결행
+	5620(1485-홍효근) 막탕 1회 결행
+	5620(1500-신수복) 막탕 1회 결행
+4) 고장: 0건
 
 
 import urllib.request
