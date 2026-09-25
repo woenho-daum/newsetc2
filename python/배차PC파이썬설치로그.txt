@@ -1,3 +1,47 @@
+안정버전인 3.13.15 버전으로 바꾸자
+-------------------------------------
+winget uninstall --id Python.Python.3.14
+winget uninstall --id Python.Python.3.13
+winget uninstall --id Python.Python.3.11
+winget uninstall --id Python.Launcher
+winget uninstall --id Python.PythonInstallManager
+
+# 1. pip 글로벌 캐시 폴더 삭제
+Remove-Item -Recurse -Force "$env:LocalAppData\pip\Cache" -ErrorAction SilentlyContinue
+
+# 2. 프로젝트 폴더 내 기존 꼬인 가상환경 및 VS Code 설정 삭제
+Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .vscode -ErrorAction SilentlyContinue
+
+-----------------------------
+vscode, 파워셀 재기동
+-----------------------------
+
+winget list python
+
+winget install Python.Python.3.14
+winget install Python.PythonInstallManager
+{
+	PS E:\git\newsetc2> winget list Python
+	이름                   장치 ID                     버전       원본
+	---------------------------------------------------------------------
+	Python Install Manager Python.PythonInstallManager 26.3.240.0 winget
+	Python Launcher        Python.Launcher             3.14.7     winget
+	Python 3.14.7 (64-bit) Python.Python.3.14          3.14.7     winget
+	PS E:\git\newsetc2>
+}
+
+cd E:\git
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+pip install -r a.txt
+
+=======================끝========================
+
+
+
 파이썬 설치 명령 (윈도우에서는 CPython 팀에서 제공하는 Python 설치관리자를 이용하는 것이 좋다)
 ============================
 winget install Python.PythonInstallManager
@@ -36,13 +80,13 @@ python -m pip install --upgrade pip
     ;; cvenv 명령 처리하면 그후에 간단히 하던지 아니면
     pip install -r requirements.txt
     ;; 일일이 설치 하던지
-    pip install chrome-devtools-protocol
-    pip install websocket-client
-    pip install openpyxl pandas xlwings
-    pip install pywin32 ahk
-    
-    pip install google-auth google-auth-oauthlib google-api-python-client
-	pip install playwright
+pip install chrome-devtools-protocol
+pip install websocket-client
+pip install openpyxl pandas xlwings
+pip install pywin32 ahk
+
+pip install google-auth google-auth-oauthlib google-api-python-client
+pip install playwright
     playwright install
 }
 pip list
