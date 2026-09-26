@@ -1,0 +1,24 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+
+		{
+			"name": "Python Debugger: fill_excel_ from_dispatch_driver_baecha.py",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}\\python\\fill_excel_ from_dispatch_driver_baecha.py",
+			"python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"console": "integratedTerminal",
+			"args": [
+                "--excel_path", "${workspaceFolder}\\python\\배차표_2026-08-20_6주.xlsx",
+                "--db_path", "${workspaceFolder}\\python\\baecha.db",
+				"--route-col", "AV",
+				"--car-col", "AW",
+				"--date-col", "AX"
+            ],
+		}
+	]
+}
