@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 dispatch_driver_baecha_to_excel.py
 
@@ -6,8 +5,9 @@ sqlite3의 dispatch_daily 테이블에서 데이터를 읽어, 이미지와 같�
 일자별 근무표 + 오전/오후/정상 집계)의 엑셀 파일을 생성한다.
 
 사용법:
-    python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-08-20 --out 배차표.xlsx
-    python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-09-06 --weeks 4
+--dispatch_driver_baecha_to_db.py (일단배차정보를 디비로 모야야지)
+    1. python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-08-24 --weeks 6
+    2. python dispatch_driver_baecha_to_excel.py --db dispatch.db --start 2026-08-20 --out 배차표.xlsx
 
 테이블 스키마 
     CREATE TABLE IF NOT EXISTS dispatch_daily (
@@ -24,13 +24,12 @@ sqlite3의 dispatch_daily 테이블에서 데이터를 읽어, 이미지와 같�
 """
 
 import argparse
-from calendar import weekday
 import datetime
 import sqlite3
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 # -------------------------------------------------------------------------
@@ -236,7 +235,7 @@ def main():
     )
     args = ap.parse_args()
 
-    start_date = datetime.datetime.strptime(args.start, "%Y-%m-%d").date()
+    start_date = datetime.datetime.strptime(args.start, "%Y-%m-%d").date()  # noqa: DTZ007
     dates = build_date_list(start_date, args.weeks)
     end_date = dates[-1]
 

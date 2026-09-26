@@ -4,8 +4,10 @@ dispatch.db(SQLite)의 dispatch_settings 테이블에서
 엑셀 파일의 AH, AI, AJ 컬럼에 채워 넣는 스크립트.
 
 사용법:
-    py .\fill_excel_ from_dispatch_driver_baecha.py --excel_path .\배차표.xlsx --db_path .\baecha.db
-    python fill_excel_ from_dispatch_driver_baecha.py <엑셀파일.xlsx> <dispatch.db> [--sheet 시트명] [--name-col A] [--start-row 2]
+-- dispatch_driver_baecha_to_excel.py (디비에서 정보를 끌어와 엑셀부터 만들고) 거기에 고정쉬프트/예비정보를 더한다
+    1. python fill_excel_from_dispatch_driver_baecha.py --excel_path 배차표_2026-08-24_6주.xlsx --db_path baecha.db
+    2. python fill_excel_from_dispatch_driver_baecha.py --excel_path ./배차표_2026-08-24_6주.xlsx --db_path baecha.db --route-col AV --car-col AW --date-col AX
+    3. python fill_excel_from_dispatch_driver_baecha.py <엑셀파일.xlsx> <dispatch.db> [--sheet 시트명] [--name-col A] [--start-row 2]
 기본값:
     - 시트: 활성 시트(맨 앞 시트) 사용
     - 성명 컬럼: A열

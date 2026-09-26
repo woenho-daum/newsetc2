@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 기사별 배차현황 수집 프로그램
 =============================
@@ -16,20 +15,21 @@
 
 사용 예
 -------
-    python dispatch_driver_baecha_to_db.py --date 2026-08-31 --db dispatch.db
-    python dispatch_driver_baecha_to_db.py                     # 날짜 생략 시 오늘 날짜, db 기본값 dispatch.db
+--- dispatch_settings_cdp.py (고정/쉬프트 명단확보)먼저해라. 필수는 아니지만 오류를 줄이자
+    1. python dispatch_driver_baecha_to_db.py                     # 날짜 생략 시 오늘 날짜, db 기본값 dispatch.db
+    2. python dispatch_driver_baecha_to_db.py --date 2026-08-31 --db dispatch.db
 """
 
 import argparse
 import re
 import sqlite3
 import sys
-from datetime import datetime, date
+from datetime import date, datetime
 from pathlib import Path
 
-from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright, TimeoutError as PWTimeoutError
-
+from bs4 import BeautifulSoup  # type: ignore
+from playwright.sync_api import TimeoutError as PWTimeoutError
+from playwright.sync_api import sync_playwright
 
 # ----------------------------------------------------------------------
 # 설정값
@@ -114,7 +114,7 @@ def extract_table_html(page) -> str:
 def fetch_dispatch_html(cdp_port: int, query_date: str, office: str,
                          route: str, run_flag: str, week_flag: str) -> str:
     """크롬 CDP에 접속하여 조회 -> 탭 클릭 -> 결과 테이블 HTML을 반환."""
-    pw, browser, page = connect_to_chrome(cdp_port)
+    pw, _browser, page = connect_to_chrome(cdp_port)
     try:
         fill_search_form(page, query_date, office, route, run_flag, week_flag)
         open_driver_dispatch_tab(page)
@@ -372,7 +372,7 @@ def load_from_html_file(html_path: str, query_date: str, office: str, run_flag: 
 # ----------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="기사별 배차현황 수집 -> SQLite 적재")
-    parser.add_argument("--date", default=date.today().isoformat(),
+    parser.add_argument("--date", default=date.today().isoformat(),  # noqa: DTZ011
                          help="조회 일자 (YYYY-MM-DD), 기본값: 오늘")
     parser.add_argument("--office", default=FORM_DEFAULTS["office"], help="사업소 코드 (기본: 1=본사)")
     parser.add_argument("--route", default=FORM_DEFAULTS["route"], help="노선 코드 (기본: 빈값=전체)")
@@ -386,7 +386,7 @@ def main():
 
     # 날짜 형식 검증
     try:
-        datetime.strptime(args.date, "%Y-%m-%d")
+        datetime.strptime(args.date, "%Y-%m-%d")  # noqa: DTZ007
     except ValueError:
         print(f"[오류] --date 형식이 올바르지 않습니다: {args.date} (예: 2026-08-31)", file=sys.stderr)
         sys.exit(1)
@@ -408,7 +408,7 @@ def main():
     except PWTimeoutError as e:
         print(f"[오류] 페이지 로드/응답 대기 시간 초과: {e}", file=sys.stderr)
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"[오류] 크롬 CDP 접속 또는 조회 중 문제가 발생했습니다: {e}", file=sys.stderr)
         print(f"  -> 크롬이 --remote-debugging-port={args.cdp_port} 옵션으로 실행 중인지 확인하세요.", file=sys.stderr)
         sys.exit(1)

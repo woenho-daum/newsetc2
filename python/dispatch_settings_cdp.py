@@ -4,7 +4,7 @@
 고정(쉬프트)지정 페이지 연 후에 collect_dispatch_settings.py를 호출 하여 자료를 모아 디비로 올린다.
 ==================================
 
-py .\dispatch_settings_cdp.py { new | update }
+1. py dispatch_settings_cdp.py { new | update }
 
 
 크롬(디버그 포트 9223)에 CDP로 연결하여

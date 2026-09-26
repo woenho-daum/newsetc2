@@ -3,6 +3,7 @@
 dispatch_settings_cdp.py 호출 되거나 단독으로 이미 열린 고정(쉬프트)지정 페이지에서 자료를 모아 디비로 올린다.
 
 실행 예시
+-- 집접 실행하지 마라 dispatch_settings_cdp.py를 통해서 작업해라
   python collect_dispatch_settings.py new search
   python collect_dispatch_settings.py update search
   python collect_dispatch_settings.py update param "ws://127.0.0.1:9223/devtools/page/XXXX"
